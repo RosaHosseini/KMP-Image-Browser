@@ -25,9 +25,9 @@ dependencies {
 
 android {
     sourceSets {
-        main {
+        test {
             java {
-                srcDirs 'src/main/java', 'src/test'
+                srcDirs 'src/test/java'
             }
         }
     }
