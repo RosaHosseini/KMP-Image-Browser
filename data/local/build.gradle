@@ -1,0 +1,13 @@
+apply plugin: 'com.android.library'
+apply from: "$rootDir/configs/android_commons.gradle"
+apply plugin: 'kotlin-kapt'
+apply plugin: "dagger.hilt.android.plugin"
+dependencies {
+    // ROOM
+    kapt "androidx.room:room-compiler:${library.room}"
+    implementation "androidx.room:room-runtime:${library.room}"
+    implementation "androidx.room:room-ktx:${library.room}"
+    //DI
+    implementation "com.google.dagger:hilt-android:${library.hilt}"
+    kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"
+}

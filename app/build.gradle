@@ -1,0 +1,34 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+apply from: "$rootDir/configs/android_commons.gradle"
+
+android {
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.1.1"
+    }
+}
+
+dependencies {
+    implementation project(':data:repositoryimpl')
+    implementation project(':library:ui')
+    implementation project(':library:navigation')
+    implementation project(':feature:search')
+    implementation project(':feature:bookmark')
+    implementation project(':feature:photodetail')
+    implementation "androidx.appcompat:appcompat:${library.appCompat}"
+    implementation "androidx.activity:activity-compose:${library.composeActivity}"
+    implementation "androidx.hilt:hilt-navigation-compose:${library.hiltCompose}"
+    implementation "androidx.compose.material:material:${library.compose}"
+    implementation "com.google.accompanist:accompanist-insets:0.22.0-rc"
+    implementation "androidx.navigation:navigation-compose:${library.navigation}"
+    implementation "com.google.dagger:hilt-android:${library.hilt}"
+    kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"
+}

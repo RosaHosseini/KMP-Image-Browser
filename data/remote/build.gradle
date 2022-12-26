@@ -1,0 +1,16 @@
+apply plugin: 'com.android.library'
+apply from: "$rootDir/configs/android_commons.gradle"
+apply plugin: 'kotlin-kapt'
+apply plugin: "dagger.hilt.android.plugin"
+
+dependencies {
+    // NETWORK
+    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${library.retrofitCoroutines}"
+    implementation "com.google.code.gson:gson:${library.gson}"
+    implementation "com.squareup.retrofit2:retrofit:${library.retrofit}"
+    implementation "com.squareup.retrofit2:converter-gson:${library.retrofitGson}"
+    implementation  "com.squareup.okhttp3:logging-interceptor:${library.okHttp}"
+    //DI
+    implementation "com.google.dagger:hilt-android:${library.hilt}"
+    kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"
+}

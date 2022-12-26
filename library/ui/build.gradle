@@ -1,0 +1,21 @@
+apply plugin: 'com.android.library'
+apply from: "$rootDir/configs/android_commons.gradle"
+apply plugin: 'kotlin-kapt'
+
+android {
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.1.1'
+    }
+}
+
+dependencies {
+    implementation project(":domain:model")
+    //COMPOSE
+    implementation "androidx.compose.material:material:${library.compose}"
+    implementation "androidx.compose.animation:animation:${library.compose}"
+    implementation "androidx.compose.ui:ui-tooling:${library.compose}"
+    implementation "io.coil-kt:coil-compose:2.1.0"
+}

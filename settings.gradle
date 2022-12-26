@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "bleacher"
+include ':app'
+include ':feature:search'
+include ':data:remote'
+include ':library:common-test'
+include ':library:core'
+include ':data:repositoryimpl'
+include ':mylibrary'
+include ':domain:model'
+include ':library:navigation'
+include ':library:ui'
+include ':data:local'
+include ':feature:photodetail'
+include ':feature:bookmark'
+include ':domain:repository'
