@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 @Singleton
 class Navigator @Inject constructor() {
 
-    private val _navigationActionFlow = MutableSharedFlow<NavigationAction?>(1)
+    private val _navigationActionFlow = MutableSharedFlow<NavigationAction?>(0)
     val navigationActionFlow: SharedFlow<NavigationAction?> = _navigationActionFlow
 
     suspend fun navigateTo(

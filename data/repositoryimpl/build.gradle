@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: "$rootDir/configs/android_commons.gradle"
+apply from: "$rootDir/configs/android_test_dependencies.gradle"
 apply plugin: 'kotlin-kapt'
 apply plugin: "dagger.hilt.android.plugin"
 
@@ -10,6 +11,7 @@ dependencies {
     implementation project(":domain:repository")
     implementation project(":domain:model")
     implementation project(":library:core")
+    testImplementation project(":library:common-test")
     // ANDROID
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${library.coroutines}"
     //DI
@@ -18,4 +20,14 @@ dependencies {
     //Retrofit
     implementation "com.google.code.gson:gson:${library.gson}"
     implementation "com.squareup.retrofit2:retrofit:${library.retrofit}"
+}
+
+android {
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src/main/java', 'src/test'
+            }
+        }
+    }
 }
