@@ -3,6 +3,7 @@ apply from: "$rootDir/configs/android_commons.gradle"
 apply plugin: 'kotlin-kapt'
 apply plugin: "dagger.hilt.android.plugin"
 dependencies {
+    implementation project(":library:common-test")
     // ROOM
     kapt "androidx.room:room-compiler:${library.room}"
     implementation "androidx.room:room-runtime:${library.room}"

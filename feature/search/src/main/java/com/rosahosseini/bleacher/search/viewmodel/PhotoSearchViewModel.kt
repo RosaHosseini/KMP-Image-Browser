@@ -1,6 +1,7 @@
 package com.rosahosseini.bleacher.search.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.rosahosseini.bleacher.core.AppDispatchers
 import com.rosahosseini.bleacher.core.base.BaseViewModel
 import com.rosahosseini.bleacher.model.Either
 import com.rosahosseini.bleacher.model.ErrorModel
@@ -27,12 +28,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class PhotoSearchViewModel @Inject internal constructor(
     private val searchRepository: SearchRepository,
     private val bookmarkRepository: BookmarkRepository,
-    private val navigator: Navigator
+    private val navigator: Navigator,
+    private val appDispatchers: AppDispatchers
 ) : BaseViewModel(navigator) {
 
     private val queryFlow = MutableStateFlow<String?>(null)
@@ -74,8 +77,10 @@ class PhotoSearchViewModel @Inject internal constructor(
         if ((newQuery == queryFlow.value) and latestSearchPageFlow.value.isSuccess()) return
         clearSearchJobs()
         viewModelScope.launch {
-            // delay for debouncing redundant queries
-            delay(DEBOUNCE_MILLI_SECONDS)
+            withContext(appDispatchers.io) {
+                // delay for debouncing redundant queries
+                delay(DEBOUNCE_MILLI_SECONDS)
+            }
             queryFlow.value = newQuery
             searchPhoto(newQuery)
         }.also { searchJobs.add(it) }

@@ -4,6 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "dagger.hilt.android.plugin"
 
 dependencies {
+    implementation project(":library:common-test")
     // NETWORK
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${library.retrofitCoroutines}"
     implementation "com.google.code.gson:gson:${library.gson}"

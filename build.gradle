@@ -31,7 +31,7 @@ allprojects {
 
     apply plugin: 'kotlin-allopen'
     allOpen {
-        annotation('rosa.pay.commontest.Mockable')
+        annotation('com.rosahosseini.bleacher.commontest.Mockable')
     }
 }
 
