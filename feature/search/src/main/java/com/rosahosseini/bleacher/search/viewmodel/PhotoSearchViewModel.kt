@@ -51,7 +51,7 @@ class PhotoSearchViewModel @Inject internal constructor(
         .map { it.getError() }
         .stateIn(initialValue = null)
 
-    private val _scrollToTop = MutableSharedFlow<Unit>(replay = 1)
+    private val _scrollToTop = MutableSharedFlow<Unit>(replay = 0)
     val scrollToTop: SharedFlow<Unit> = _scrollToTop
 
     private var searchJobs: MutableList<Job> = mutableListOf()
@@ -114,7 +114,7 @@ class PhotoSearchViewModel @Inject internal constructor(
 
     private suspend fun searchPhoto(queryText: String?, pageNumber: Int = 0) {
         if (pageNumber == 0) _scrollToTop.emit(Unit)
-        val result = if (queryText.isNullOrEmpty()) {
+        val result = if (queryText?.isNotBlank() != true) {
             searchRepository.getRecentPhotos(pageNumber, limit = PHOTOS_COUNT)
         } else {
             searchRepository.searchPhotos(queryText, pageNumber, limit = PHOTOS_COUNT)
