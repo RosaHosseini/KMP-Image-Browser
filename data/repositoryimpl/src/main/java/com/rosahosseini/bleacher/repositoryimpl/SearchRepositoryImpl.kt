@@ -51,7 +51,7 @@ class SearchRepositoryImpl @Inject constructor(
     }
 
     private fun Page<Photo>.isDataOutDated(): Boolean {
-        return timeStamp.isInDurationOf(DB_OUTDATED_MILLI_SECONDS)
+        return timeStamp.isInDurationOf(DB_OUTDATED_MILLI_SECONDS).not()
     }
 
     companion object {
