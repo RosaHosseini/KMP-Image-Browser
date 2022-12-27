@@ -11,5 +11,5 @@ interface SearchRepository {
 
     suspend fun getRecentPhotos(pageNumber: Int, limit: Int): Flow<Either<Page<Photo>>>
 
-    fun searchLocalPhotos(query: String?): Flow<List<Photo>>
+    fun searchLocalPhotos(query: String?, fromPage: Int, toPage: Int, limit: Int): Flow<List<Photo>>
 }

@@ -45,8 +45,13 @@ class SearchRepositoryImpl @Inject constructor(
         .shouldFetch { it?.isDataOutDated() ?: true }
         .request()
 
-    override fun searchLocalPhotos(query: String?): Flow<List<Photo>> {
-        return searchLocalDataSource.searchFlow(query)
+    override fun searchLocalPhotos(
+        query: String?,
+        fromPage: Int,
+        toPage: Int,
+        limit: Int
+    ): Flow<List<Photo>> {
+        return searchLocalDataSource.searchFlow(query, fromPage, toPage, limit)
             .map { it.map { it.photoEntity.toPhoto() } }
     }
 

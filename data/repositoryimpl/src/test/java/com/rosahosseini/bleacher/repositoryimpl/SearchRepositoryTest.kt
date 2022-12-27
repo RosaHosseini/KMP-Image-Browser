@@ -221,14 +221,14 @@ class SearchRepositoryTest {
     fun `searchLocalPhotos calls local datasource`() = coroutineTestCase {
         given {
             whenever(
-                searchLocalDataSource.searchFlow(any())
+                searchLocalDataSource.searchFlow(any(), any(), any(), any())
             ) doReturn flowOf(listOf(searchedPhotoEntity, searchedPhotoEntity))
         }
         whenever {
-            repository.searchLocalPhotos("").last()
+            repository.searchLocalPhotos("", 0, 10, 4).last()
         }
         then {
-            verify(searchLocalDataSource).searchFlow("")
+            verify(searchLocalDataSource).searchFlow(any(), any(), any(), any())
             verifyZeroInteractions(photoRemoteDataSource)
         }
     }

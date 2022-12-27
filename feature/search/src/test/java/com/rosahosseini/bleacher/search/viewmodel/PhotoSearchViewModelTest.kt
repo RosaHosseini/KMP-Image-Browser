@@ -10,9 +10,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import com.rosahosseini.bleacher.commontest.CoroutineTestRule
-import com.rosahosseini.bleacher.commontest.TestUiContext
 import com.rosahosseini.bleacher.commontest.coroutineTestCase
-import com.rosahosseini.bleacher.commontest.testDispatchers
 import com.rosahosseini.bleacher.model.Either
 import com.rosahosseini.bleacher.model.ErrorModel
 import com.rosahosseini.bleacher.model.Page
@@ -38,8 +36,7 @@ class PhotoSearchViewModelTest {
         PhotoSearchViewModel(
             searchRepository,
             bookmarkRepository,
-            navigator,
-            testDispatchers.copy(io = TestUiContext())
+            navigator
         )
     }
 
@@ -67,7 +64,7 @@ class PhotoSearchViewModelTest {
                 searchRepository.getRecentPhotos(any(), any())
             ) doReturn flowOf(Either.Loading())
             whenever(
-                searchRepository.searchLocalPhotos(any())
+                searchRepository.searchLocalPhotos(any(), any(), any(), any())
             ) doReturn flowOf(listOf(photo, photo))
         }
     }
@@ -154,13 +151,11 @@ class PhotoSearchViewModelTest {
         whenever {
             viewModel.onQueryTextChange(query)
             viewModel.onLoadMore()
-            viewModel.onLoadMore()
         }
         then {
             verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
             verify(searchRepository, times(1)).searchPhotos(eq(query), eq(0), any())
             verify(searchRepository, times(1)).searchPhotos(eq(query), eq(1), any())
-            verify(searchRepository, times(1)).searchPhotos(eq(query), eq(2), any())
             verifyNoMoreInteractions(searchRepository)
         }
     }

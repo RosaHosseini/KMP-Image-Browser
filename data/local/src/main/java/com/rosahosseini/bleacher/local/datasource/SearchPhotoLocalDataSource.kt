@@ -23,12 +23,21 @@ class SearchPhotoLocalDataSource @Inject constructor(
     suspend fun search(query: String?, page: Int, limit: Int): List<SearchedPhotoEntity> {
         return searchDao.search(
             queryText = query.orEmpty(),
-            from = (page - 1) * limit,
-            to = (page * limit) - 1
+            from = page * limit,
+            to = (page + 1) * limit - 1
         )
     }
 
-    fun searchFlow(query: String?): Flow<List<SearchedPhotoEntity>> {
-        return searchDao.searchFlow(query.orEmpty()).map { it }
+    fun searchFlow(
+        query: String?,
+        fromPage: Int,
+        toPage: Int,
+        limit: Int
+    ): Flow<List<SearchedPhotoEntity>> {
+        return searchDao.searchFlow(
+            queryText = query.orEmpty(),
+            from = fromPage * limit,
+            to = (toPage + 1) * limit - 1
+        ).map { it }
     }
 }
