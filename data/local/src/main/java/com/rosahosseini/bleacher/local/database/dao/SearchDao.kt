@@ -39,6 +39,6 @@ interface SearchDao {
     )
     fun searchFlow(queryText: String?, from: Int, to: Int): Flow<List<SearchedPhotoEntity>>
 
-    @Query("DELETE FROM search_photo")
-    suspend fun clearSearch()
+    @Query("DELETE FROM search_photo WHERE timeStamp < :until")
+    suspend fun clearExpiredSearch(until: Long)
 }

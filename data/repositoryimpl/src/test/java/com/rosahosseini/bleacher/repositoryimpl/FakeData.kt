@@ -32,7 +32,7 @@ val photo = PhotoEntity(
     photoId = "", isBookmarked = false, title = null, description = null, urlOriginal = null,
     urlLarge = null, urlMedium800px = null, urlMedium640px = null, urlSmall320px = null,
     urlSmall240px = null, urlThumbnail150px = null, urlThumbnail100px = null,
-    urlThumbnail75px = null, urlThumbnailSquare = null
+    urlThumbnail75px = null, urlThumbnailSquare = null, timeStamp = 0
 )
 
 val searchedPhotoEntity = SearchedPhotoEntity(

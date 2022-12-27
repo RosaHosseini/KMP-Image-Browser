@@ -1,5 +1,6 @@
 package com.rosahosseini.bleacher.repositoryimpl.map
 
+import com.rosahosseini.bleacher.core.extensions.getCurrentTimeMillis
 import com.rosahosseini.bleacher.local.database.entity.SearchEntity
 import com.rosahosseini.bleacher.local.database.entity.SearchedPhotoEntity
 import com.rosahosseini.bleacher.model.Page
@@ -11,7 +12,7 @@ fun SearchResponseDto.toPagePhotos() = Page(
     pageNumber = data.pageNumber - 1,
     pageSize = data.pageSize,
     hasNext = data.pageNumber < data.endPage,
-    timeStamp = System.currentTimeMillis()
+    timeStamp = getCurrentTimeMillis()
 )
 
 fun Page<Photo>.toSearchedPhotosEntities(query: String?): List<SearchedPhotoEntity> =
@@ -25,7 +26,7 @@ fun Page<Photo>.toSearchedPhotosEntities(query: String?): List<SearchedPhotoEnti
                 photoId = photo.id,
                 hasMore = hasMore
             ),
-            photoEntity = photo.toPhotoEntity()
+            photoEntity = photo.toPhotoEntity(timeStamp)
         )
     }
 

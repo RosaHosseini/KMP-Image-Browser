@@ -29,7 +29,10 @@ ext {
             composeViewmodel  : '2.4.1',
             composeActivity   : '1.5.1',
             composeMaterial   : '1.0.0-alpha12',
-            room              : '2.4.3'
+            room              : '2.4.3',
+            autoValue         : '1.10.1',
+            androidxHilt      : '1.0.0',
+            work              : '2.7.1'
     ]
 
     build = [

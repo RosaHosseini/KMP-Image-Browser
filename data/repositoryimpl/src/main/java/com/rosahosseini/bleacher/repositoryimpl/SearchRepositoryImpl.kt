@@ -1,19 +1,19 @@
 package com.rosahosseini.bleacher.repositoryimpl
 
+import com.rosahosseini.bleacher.core.extensions.isInDurationOf
 import com.rosahosseini.bleacher.local.datasource.SearchPhotoLocalDataSource
 import com.rosahosseini.bleacher.model.Either
 import com.rosahosseini.bleacher.model.Page
 import com.rosahosseini.bleacher.model.Photo
 import com.rosahosseini.bleacher.remote.datasource.PhotoRemoteDataSource
 import com.rosahosseini.bleacher.repository.SearchRepository
-import com.rosahosseini.bleacher.repositoryimpl.extensions.isInDurationOf
 import com.rosahosseini.bleacher.repositoryimpl.map.toPagePhotos
 import com.rosahosseini.bleacher.repositoryimpl.map.toPhoto
 import com.rosahosseini.bleacher.repositoryimpl.map.toSearchedPhotosEntities
-import com.rosahosseini.bleacher.repositoryimpl.utils.RequestManager.Companion.Builder as RequestManagerBuilder
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.rosahosseini.bleacher.repositoryimpl.utils.RequestManager.Companion.Builder as RequestManagerBuilder
 
 class SearchRepositoryImpl @Inject constructor(
     private val photosRemoteDataSource: PhotoRemoteDataSource,
@@ -53,6 +53,10 @@ class SearchRepositoryImpl @Inject constructor(
     ): Flow<List<Photo>> {
         return searchLocalDataSource.searchFlow(query, fromPage, toPage, limit)
             .map { it.map { it.photoEntity.toPhoto() } }
+    }
+
+    override suspend fun clearExpiredData(expiredTimeMillis: Long) {
+        searchLocalDataSource.clearExpiredQueries(expiredTimeMillis)
     }
 
     private fun Page<Photo>.isDataOutDated(): Boolean {

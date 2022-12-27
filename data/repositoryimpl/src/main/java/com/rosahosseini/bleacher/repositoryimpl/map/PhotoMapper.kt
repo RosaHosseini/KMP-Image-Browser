@@ -22,7 +22,7 @@ fun PhotoDto.toPhoto() = Photo(
     urlThumbnailSquare?.orNullIfEmpty()
 )
 
-fun Photo.toPhotoEntity() = PhotoEntity(
+fun Photo.toPhotoEntity(timeStamp: Long) = PhotoEntity(
     id,
     isBookmarked,
     title,
@@ -36,7 +36,8 @@ fun Photo.toPhotoEntity() = PhotoEntity(
     urlThumbnail150px,
     urlThumbnail100px,
     urlThumbnail75px,
-    urlThumbnailSquare
+    urlThumbnailSquare,
+    timeStamp
 )
 
 fun PhotoEntity.toPhoto() = Photo(

@@ -6,6 +6,7 @@ import com.rosahosseini.bleacher.local.database.entity.SearchedPhotoEntity
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.rosahosseini.bleacher.core.extensions.getCurrentTimeMillis
 
 class SearchPhotoLocalDataSource @Inject constructor(
     private val searchDao: SearchDao,
@@ -18,6 +19,13 @@ class SearchPhotoLocalDataSource @Inject constructor(
         }
         photoDao.insertOrUpdate(photos)
         searchDao.insertOrUpdate(data.map { it.searchEntity })
+    }
+
+    suspend fun clearExpiredQueries(expireTimeMillis: Long) {
+        check(expireTimeMillis > 0) { "expire time should be positive" }
+        val leastTimestamp = getCurrentTimeMillis() - expireTimeMillis
+        searchDao.clearExpiredSearch(leastTimestamp)
+        photoDao.clearExpiredPhotos(leastTimestamp)
     }
 
     suspend fun search(query: String?, page: Int, limit: Int): List<SearchedPhotoEntity> {

@@ -20,6 +20,7 @@ dependencies {
     implementation project(':data:repositoryimpl')
     implementation project(':library:ui')
     implementation project(':library:navigation')
+    implementation project(":library:startup")
     implementation project(':feature:search')
     implementation project(':feature:bookmark')
     implementation project(':feature:photodetail')

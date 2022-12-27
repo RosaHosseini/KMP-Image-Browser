@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import com.rosahosseini.bleacher.commontest.CoroutineTestRule
@@ -230,6 +231,19 @@ class SearchRepositoryTest {
         then {
             verify(searchLocalDataSource).searchFlow(any(), any(), any(), any())
             verifyZeroInteractions(photoRemoteDataSource)
+        }
+    }
+
+    @Test
+    fun `on clearExpiredData call local datasource`() = coroutineTestCase {
+        val expireTime = 10L
+        whenever {
+            repository.clearExpiredData(expireTime)
+        }
+        then {
+            verify(searchLocalDataSource, times(1)).clearExpiredQueries(expireTime)
+            verifyZeroInteractions(photoRemoteDataSource)
+            verifyNoMoreInteractions(searchLocalDataSource)
         }
     }
 }

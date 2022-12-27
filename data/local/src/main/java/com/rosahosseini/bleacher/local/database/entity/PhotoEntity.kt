@@ -19,5 +19,6 @@ data class PhotoEntity(
     val urlThumbnail150px: String? = null,
     val urlThumbnail100px: String? = null,
     val urlThumbnail75px: String? = null,
-    val urlThumbnailSquare: String? = null
+    val urlThumbnailSquare: String? = null,
+    val timeStamp: Long
 )

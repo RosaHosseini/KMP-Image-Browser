@@ -19,11 +19,14 @@ android {
 
 dependencies {
     testImplementation project(":library:common-test")
+    implementation project(":library:startup")
     implementation project(":library:core")
     implementation project(":library:ui")
     implementation project(":library:navigation")
     implementation project(":domain:model")
     implementation project(":domain:repository")
+    implementation "androidx.work:work-runtime-ktx:${library.work}"
+    implementation "androidx.hilt:hilt-work:${library.androidxHilt}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:${library.lifecycle}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${library.lifecycle}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:${library.lifecycle}"
