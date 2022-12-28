@@ -1,6 +1,7 @@
 package com.rosahosseini.bleacher.search.view
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,14 +29,19 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.flowlayout.FlowRow
 import com.rosahosseini.bleacher.model.Photo
+import com.rosahosseini.bleacher.search.model.SuggestionModel
 import com.rosahosseini.bleacher.search.view.components.LoadingScreen
 import com.rosahosseini.bleacher.search.view.components.SearchBarItem
 import com.rosahosseini.bleacher.search.viewmodel.PhotoSearchViewModel
+import com.rosahosseini.bleacher.ui.component.CancelableChip
 import com.rosahosseini.bleacher.ui.component.PhotosGridScreen
 import com.rosahosseini.bleacher.ui.component.search.SearchDisplay
 import com.rosahosseini.bleacher.ui.component.search.SearchState
@@ -54,7 +60,6 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
     val searchedPhotos by searchViewModel.searchedPhotos.collectAsStateWithLifecycle()
     val isLoading by searchViewModel.isLoading.collectAsStateWithLifecycle(false)
     val error by searchViewModel.error.collectAsStateWithLifecycle(null)
-    val errorMessage = error?.localMessage?.let { stringResource(it) } ?: error?.message
     val listState = rememberLazyGridState()
     val searchState = rememberSearchState(
         debounceMillis = DEBOUNCE_TIME_MILLIS,
@@ -68,63 +73,49 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
             listState.scrollToItem(0)
         }
     }
-    val context = LocalContext.current
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let {
-            Toast.makeText(
-                context, it, Toast.LENGTH_LONG
-            ).show()
-        }
-    }
     SearchScreen(
         searchedPhotos,
-        { isLoading },
+        isLoading,
+        errorMessage = error?.localMessage?.let { stringResource(it) } ?: error?.message,
         listState,
         searchState,
         searchViewModel::onPhotoClick,
         searchViewModel::onToggleBookmark,
-        searchViewModel::onBookmarksClick,
-    )
+        searchViewModel::onBookmarksClick
+    ) {
+        listOf(
+            SuggestionModel("hi"),
+            SuggestionModel("night"),
+            SuggestionModel("blah balh blah fmdl"),
+            SuggestionModel("finlally"),
+            SuggestionModel("get rid of you"),
+            SuggestionModel("com one"),
+            SuggestionModel("mkfd"), SuggestionModel("lr;elr;e"),
+            SuggestionModel("gmklfgmk"), SuggestionModel("yessss")
+        )
+    }
 }
 
 @Composable
 private fun SearchScreen(
     photos: List<Photo>,
-    isLoading: () -> Boolean,
+    isLoading: Boolean,
+    errorMessage: String?,
     listState: LazyGridState,
     searchState: SearchState,
     onPhotoClick: (Photo) -> Unit,
     onToggleBookmark: (Photo) -> Unit,
     onBookmarksClick: () -> Unit,
+    suggestions: () -> List<SuggestionModel>
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(BleacherColor.DarkBackground)
     ) {
-        val alphaList = if (isLoading()) 0.8f else 1f
+        val alphaList = if (isLoading) 0.8f else 1f
         Column {
-            Card(elevation = Dimen.defaultElevation) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min)
-                        .background(BleacherColor.DarkBackground)
-                        .padding(Dimen.defaultMarginHalf),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SearchBarItem(
-                        Modifier.weight(weight = 1f, fill = true),
-                        searchState,
-                    )
-                    Spacer(modifier = Modifier.width(Dimen.defaultMarginDouble))
-                    BookmarksButton(onBookmarksClick)
-                    Spacer(modifier = Modifier.width(Dimen.defaultMargin))
-                }
-            }
-            if (searchState.searchDisplay == SearchDisplay.SUGGESTIONS) {
-                // show suggestions
-            }
+            TopHeader(searchState, onBookmarksClick, suggestions, {})
             PhotosGridScreen(
                 photos,
                 onPhotoClick,
@@ -133,7 +124,84 @@ private fun SearchScreen(
                 listState
             )
         }
-        if (isLoading()) LoadingScreen()
+        if (isLoading) LoadingScreen()
+    }
+    val context = LocalContext.current
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            Toast.makeText(
+                context, it, Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+}
+
+@Composable
+private fun TopHeader(
+    searchState: SearchState,
+    onBookmarksClick: () -> Unit,
+    suggestions: () -> List<SuggestionModel>,
+    onCancelSuggestion: (SuggestionModel) -> Unit
+) {
+    Card(elevation = Dimen.defaultElevation) {
+        Column {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .background(BleacherColor.DarkBackground)
+                    .padding(Dimen.defaultMarginHalf),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SearchBarItem(
+                    Modifier.weight(weight = 1f, fill = true),
+                    searchState,
+                )
+                Spacer(modifier = Modifier.width(Dimen.defaultMarginDouble))
+                BookmarksButton(onBookmarksClick)
+                Spacer(modifier = Modifier.width(Dimen.defaultMargin))
+            }
+            AnimatedVisibility(visible = searchState.searchDisplay == SearchDisplay.SUGGESTIONS) {
+                SuggestionGridLayout(
+                    suggestions = suggestions(),
+                    onCancelSuggestion = onCancelSuggestion
+                ) {
+                    var query = searchState.query.text
+                    if (query.isEmpty()) query = it.tag else query += " ${it.tag}"
+                    query.trim()
+                    // Set text and cursor position to end of text
+                    searchState.query = TextFieldValue(query, TextRange(query.length))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SuggestionGridLayout(
+    modifier: Modifier = Modifier,
+    suggestions: List<SuggestionModel>,
+    onCancelSuggestion: (SuggestionModel) -> Unit,
+    onSuggestionClick: (SuggestionModel) -> Unit
+) {
+    FlowRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(BleacherColor.DarkBackground)
+            .padding(
+                start = Dimen.defaultMarginDouble,
+                end = Dimen.defaultMarginDouble,
+                bottom = Dimen.defaultMargin
+            )
+    ) {
+        suggestions.forEach { suggestionModel ->
+            CancelableChip(
+                modifier = Modifier.padding(Dimen.defaultMarginHalf),
+                tag = suggestionModel.tag,
+                onClick = { onSuggestionClick(suggestionModel) },
+                onCancel = { onCancelSuggestion(suggestionModel) },
+            )
+        }
     }
 }
 

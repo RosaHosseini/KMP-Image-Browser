@@ -43,4 +43,5 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:${library.navigation}"
     implementation "com.google.dagger:hilt-android:${library.hilt}"
     kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"
+    implementation "com.google.accompanist:accompanist-flowlayout:${library.flexbox}"
 }
