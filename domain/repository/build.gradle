@@ -1,8 +1,6 @@
 apply plugin: 'com.android.library'
 apply from: "$rootDir/configs/android_commons.gradle"
-apply plugin: 'kotlin-kapt'
 
 dependencies {
     implementation project(":domain:model")
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${library.kotlin}"
 }

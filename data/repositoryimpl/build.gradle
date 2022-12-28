@@ -11,8 +11,6 @@ dependencies {
     implementation project(":domain:repository")
     implementation project(":domain:model")
     implementation project(":library:core")
-    implementation project(":library:common-test")
-    testImplementation project(":library:common-test")
     // ANDROID
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${library.coroutines}"
     //DI
