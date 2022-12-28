@@ -15,16 +15,16 @@ import com.rosahosseini.bleacher.navigation.destinations.BookmarkDestination
 import com.rosahosseini.bleacher.navigation.destinations.PhotoDetailDestination
 import com.rosahosseini.bleacher.repository.BookmarkRepository
 import com.rosahosseini.bleacher.repository.SearchRepository
+import com.rosahosseini.bleacher.search.model.SearchQueryModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -36,31 +36,18 @@ class PhotoSearchViewModel @Inject internal constructor(
     private val navigator: Navigator
 ) : BaseViewModel(navigator) {
 
-    private var searchJobs: MutableList<Job> = mutableListOf()
-    private val queryFlow = MutableStateFlow<String?>(null)
-    private val latestSearchPageFlow = MutableStateFlow<Either<Page<Photo>>>(Either.Loading())
+    private val latestSearchResponse = MutableStateFlow<Either<Page<Photo>>>(Either.Loading())
 
-    private var currentPageNumber: StateFlow<Int> = latestSearchPageFlow
-        .map { it.data?.pageNumber }
-        .filterNotNull()
-        .stateIn(0)
+    private var searchJobs: MutableList<Job> = mutableListOf()
+    private val searchQuery = MutableStateFlow(SearchQueryModel())
 
     @OptIn(FlowPreview::class)
-    val searchedPhotosFlow: StateFlow<List<Photo>> = queryFlow
-        .combine(currentPageNumber) { query, page -> Pair(query, page) }
-        .flatMapMerge {
-            searchRepository.searchLocalPhotos(
-                query = it.first, fromPage = 0, toPage = it.second, PAGE_COUNT
-            )
-        }.stateIn(emptyList())
+    val searchedPhotos: StateFlow<List<Photo>> = searchQuery
+        .flatMapMerge { queryPhotos(it.text, toPage = it.pageNumber) }
+        .stateIn(emptyList())
 
-    val loadingFlow: StateFlow<Boolean> = latestSearchPageFlow
-        .map { it.isLoading() }
-        .stateIn(initialValue = false)
-
-    val errorFlow: StateFlow<ErrorModel?> = latestSearchPageFlow
-        .map { it.getError() }
-        .stateIn(initialValue = null)
+    val isLoading: Flow<Boolean> = latestSearchResponse.map { it.isLoading() }
+    val error: Flow<ErrorModel?> = latestSearchResponse.map { it.getError() }
 
     private val _scrollToTop = MutableSharedFlow<Unit>(replay = 0)
     val scrollToTop: SharedFlow<Unit> = _scrollToTop
@@ -78,17 +65,6 @@ class PhotoSearchViewModel @Inject internal constructor(
         }
     }
 
-    fun onQueryTextChange(newQuery: String) {
-        // if query is repeated and latest state is success don't search again
-        if ((newQuery == queryFlow.value) and latestSearchPageFlow.value.isSuccess()) return
-        searchJobs.forEach { it.cancel() }
-        searchJobs.clear()
-        viewModelScope.launch {
-            queryFlow.value = newQuery
-            searchPhoto(newQuery)
-        }.also { searchJobs.add(it) }
-    }
-
     fun onBookmarksClick() {
         viewModelScope.launch {
             navigator.navigateTo(BookmarkDestination)
@@ -101,40 +77,49 @@ class PhotoSearchViewModel @Inject internal constructor(
         }
     }
 
+    fun onQueryTextChange(newQuery: String) {
+        // if query is repeated and latest state is success don't search again
+        if ((newQuery == searchQuery.value.text) and latestSearchResponse.value.isSuccess())
+            return
+        searchJobs.forEach { it.cancel() }
+        searchJobs.clear()
+        searchPhotoPage(SearchQueryModel(text = newQuery))
+    }
+
     fun onLoadMore() {
-        getSearchNextPageNumber()?.let { nextPage ->
-            viewModelScope.launch {
-                searchPhoto(queryFlow.value, nextPage)
-            }.also { searchJobs.add(it) }
+        with( latestSearchResponse.value) {
+            val hasNext = data?.hasNext ?: false
+            val lastQuery = searchQuery.value
+            when {
+                isFailure() -> searchPhotoPage(lastQuery)
+                isSuccess() and hasNext -> searchPhotoPage(lastQuery.nextPageQuery)
+            }
         }
     }
 
-    /** next page number of search photos,
-     * returns null if we are not allowed to load more **/
-    private fun getSearchNextPageNumber(): Int? {
-        val latestResult = latestSearchPageFlow.value
-        val hasNext = latestResult.data?.hasNext ?: false
-        return when {
-            latestResult.isFailure() -> {
-                currentPageNumber.value
+    private fun searchPhotoPage(queryModel: SearchQueryModel) {
+        viewModelScope.launch {
+            searchQuery.value = queryModel
+            if (queryModel.pageNumber == 0) _scrollToTop.emit(Unit)
+            val result = if (queryModel.text?.isNotBlank() != true) {
+                searchRepository.getRecentPhotos(queryModel.pageNumber, limit = PAGE_COUNT)
+            } else {
+                searchRepository.searchPhotos(
+                    queryModel.text,
+                    queryModel.pageNumber,
+                    limit = PAGE_COUNT
+                )
             }
-            latestResult.isSuccess() and hasNext -> {
-                currentPageNumber.value + 1
+            result.collect {
+                latestSearchResponse.value = it
             }
-            else -> null
-        }
+        }.also { searchJobs.add(it) }
     }
 
-    private suspend fun searchPhoto(queryText: String?, pageNumber: Int = 0) {
-        if (pageNumber == 0) _scrollToTop.emit(Unit)
-        val result = if (queryText?.isNotBlank() != true) {
-            searchRepository.getRecentPhotos(pageNumber, limit = PAGE_COUNT)
-        } else {
-            searchRepository.searchPhotos(queryText, pageNumber, limit = PAGE_COUNT)
-        }
-        result.collect {
-            latestSearchPageFlow.value = it
-        }
+    private fun queryPhotos(queryText: String?, toPage: Int): Flow<List<Photo>> {
+        return searchRepository.searchLocalPhotos(
+            query = queryText, fromPage = 0, toPage = toPage, PAGE_COUNT
+        )
     }
 
     companion object {
