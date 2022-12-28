@@ -58,9 +58,9 @@ private const val DEBOUNCE_TIME_MILLIS = 500L
 @Composable
 fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
     val searchedPhotos by searchViewModel.searchedPhotos.collectAsStateWithLifecycle()
-    val isLoading by searchViewModel.isLoading.collectAsStateWithLifecycle(false)
-    val error by searchViewModel.error.collectAsStateWithLifecycle(null)
-    val suggestions by searchViewModel.searchSuggestions.collectAsStateWithLifecycle(emptyList())
+    val suggestions by searchViewModel.searchSuggestions.collectAsStateWithLifecycle()
+    val isLoading by searchViewModel.isLoading.collectAsStateWithLifecycle(initialValue = false)
+    val error by searchViewModel.error.collectAsStateWithLifecycle(initialValue = null)
     val listState = rememberLazyGridState()
     val searchState = rememberSearchState(
         debounceMillis = DEBOUNCE_TIME_MILLIS,

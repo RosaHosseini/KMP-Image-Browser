@@ -19,14 +19,14 @@ import com.rosahosseini.bleacher.search.model.SearchQueryModel
 import com.rosahosseini.bleacher.search.model.SuggestionModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -42,12 +42,13 @@ class PhotoSearchViewModel @Inject internal constructor(
     private var searchJobs: MutableList<Job> = mutableListOf()
     private val searchQuery = MutableStateFlow(SearchQueryModel())
 
-    @OptIn(FlowPreview::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     val searchedPhotos: StateFlow<List<Photo>> = searchQuery
-        .flatMapMerge { queryPhotos(queryText = it.text, toPage = it.pageNumber) }
+        .flatMapLatest { queryPhotos(queryText = it.text, toPage = it.pageNumber) }
         .stateIn(emptyList())
 
-    val searchSuggestions: Flow<List<SuggestionModel>> = getSearchSuggestion()
+    val searchSuggestions: StateFlow<List<SuggestionModel>> = getSearchSuggestion()
+        .stateIn(emptyList())
 
     val isLoading: Flow<Boolean> = latestSearchResponse.map { it.isLoading() }
     val error: Flow<ErrorModel?> = latestSearchResponse.map { it.getError() }

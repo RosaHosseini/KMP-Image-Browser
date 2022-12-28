@@ -83,8 +83,10 @@ class SearchState {
 
     val searchDisplay: SearchDisplay
         get() = when {
-            !focused && query.text.isEmpty() -> SearchDisplay.RESULTS
-            query.text.isEmpty() -> SearchDisplay.SUGGESTIONS
+            focused && query.text.isEmpty() -> {
+                previousQueryText = query.text
+                SearchDisplay.SUGGESTIONS
+            }
             searchInProgress -> SearchDisplay.SEARCH_IN_PROGRESS
             else -> {
                 previousQueryText = query.text
