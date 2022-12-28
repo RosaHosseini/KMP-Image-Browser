@@ -4,6 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "dagger.hilt.android.plugin"
 dependencies {
     implementation project(":library:common-test")
+    implementation project(":library:core")
     // ROOM
     kapt "androidx.room:room-compiler:${library.room}"
     implementation "androidx.room:room-runtime:${library.room}"

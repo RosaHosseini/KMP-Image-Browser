@@ -22,6 +22,6 @@ interface PhotoDao {
     @Query("UPDATE photo set isBookmarked = :isBookmarked WHERE photoId=:photoId")
     suspend fun updateBookmark(photoId: String, isBookmarked: Boolean)
 
-    @Query("DELETE from photo WHERE timeStamp < :until")
-    suspend fun clearExpiredPhotos(until: Long)
+    @Query("DELETE from photo WHERE timeStamp < :until AND isBookmarked=0")
+    suspend fun clearExpiredBookmarkedPhotos(until: Long)
 }

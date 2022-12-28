@@ -25,7 +25,7 @@ class SearchPhotoLocalDataSource @Inject constructor(
         check(expireTimeMillis > 0) { "expire time should be positive" }
         val leastTimestamp = getCurrentTimeMillis() - expireTimeMillis
         searchDao.clearExpiredSearch(leastTimestamp)
-        photoDao.clearExpiredPhotos(leastTimestamp)
+        photoDao.clearExpiredBookmarkedPhotos(leastTimestamp)
     }
 
     suspend fun search(query: String?, page: Int, limit: Int): List<SearchedPhotoEntity> {
