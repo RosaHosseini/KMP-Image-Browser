@@ -80,8 +80,7 @@ fun SearchBar(
 
 /**
  * This is a stateless TextField for searching with a Hint when query is empty,
- * and clear and loading [IconButton]s to clear query or show progress indicator when
- * a query is in progress.
+ * and clear [IconButton] to clear query
  */
 @Composable
 fun SearchTextField(

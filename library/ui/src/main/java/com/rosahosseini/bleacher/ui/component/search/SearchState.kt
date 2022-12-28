@@ -19,13 +19,10 @@ import kotlinx.coroutines.flow.*
  *  After [debounceMillis] has passed [SearchState.searching] is set to `true`, progress icon
  *   can be displayed here.
  *
- * @param suggestions chip or cards that can be suggested to user when Search composable is focused
- * but query is empty
  * @param debounceMillis timeout before user finishes typing. After this
  * timeout [SearchState.searching] is set to true.
  *
  * @param onQueryChange this lambda is for getting results from db, REST api or a ViewModel.
- *
  */
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @Composable
@@ -58,10 +55,6 @@ fun rememberSearchState(
     }
 }
 
-/**
- *  A state object that can be hoisted to control and observe scrolling for [SearchBar]
- * or [SearchTextField].
- */
 class SearchState {
     var query by mutableStateOf(TextFieldValue())
     var focused by mutableStateOf(false)
