@@ -1,6 +1,7 @@
 package com.rosahosseini.bleacher.repositoryimpl
 
 import com.rosahosseini.bleacher.core.extensions.isInDurationOf
+import com.rosahosseini.bleacher.local.datasource.SearchHistoryLocalDataSource
 import com.rosahosseini.bleacher.local.datasource.SearchPhotoLocalDataSource
 import com.rosahosseini.bleacher.model.Either
 import com.rosahosseini.bleacher.model.Page
@@ -17,7 +18,8 @@ import com.rosahosseini.bleacher.repositoryimpl.utils.RequestManager.Companion.B
 
 class SearchRepositoryImpl @Inject constructor(
     private val photosRemoteDataSource: PhotoRemoteDataSource,
-    private val searchLocalDataSource: SearchPhotoLocalDataSource
+    private val searchLocalDataSource: SearchPhotoLocalDataSource,
+    private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource
 ) : SearchRepository {
 
     override suspend fun searchPhotos(
@@ -57,6 +59,20 @@ class SearchRepositoryImpl @Inject constructor(
 
     override suspend fun clearExpiredData(expiredTimeMillis: Long) {
         searchLocalDataSource.clearExpiredQueries(expiredTimeMillis)
+        searchHistoryLocalDataSource.clearExpiredQueries(expiredTimeMillis)
+    }
+
+    override fun getSearchSuggestion(query: String, limit: Int): Flow<List<String>> {
+        return searchHistoryLocalDataSource.getLatestQueries(query, limit)
+            .map { it.map { it.queryText } }
+    }
+
+    override suspend fun removeSuggestion(query: String) {
+        searchHistoryLocalDataSource.removeQuery(query)
+    }
+
+    override suspend fun saveSearchQuery(query: String) {
+        searchHistoryLocalDataSource.saveQuery(query)
     }
 
     private fun Page<Photo>.isDataOutDated(): Boolean {

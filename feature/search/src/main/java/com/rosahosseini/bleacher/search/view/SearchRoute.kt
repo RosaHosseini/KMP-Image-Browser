@@ -60,6 +60,7 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
     val searchedPhotos by searchViewModel.searchedPhotos.collectAsStateWithLifecycle()
     val isLoading by searchViewModel.isLoading.collectAsStateWithLifecycle(false)
     val error by searchViewModel.error.collectAsStateWithLifecycle(null)
+    val suggestions by searchViewModel.searchSuggestions.collectAsStateWithLifecycle(emptyList())
     val listState = rememberLazyGridState()
     val searchState = rememberSearchState(
         debounceMillis = DEBOUNCE_TIME_MILLIS,
@@ -73,6 +74,7 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
             listState.scrollToItem(0)
         }
     }
+
     SearchScreen(
         searchedPhotos,
         isLoading,
@@ -81,19 +83,10 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
         searchState,
         searchViewModel::onPhotoClick,
         searchViewModel::onToggleBookmark,
-        searchViewModel::onBookmarksClick
-    ) {
-        listOf(
-            SuggestionModel("hi"),
-            SuggestionModel("night"),
-            SuggestionModel("blah balh blah fmdl"),
-            SuggestionModel("finlally"),
-            SuggestionModel("get rid of you"),
-            SuggestionModel("com one"),
-            SuggestionModel("mkfd"), SuggestionModel("lr;elr;e"),
-            SuggestionModel("gmklfgmk"), SuggestionModel("yessss")
-        )
-    }
+        searchViewModel::onBookmarksClick,
+        { suggestions },
+        searchViewModel::onCancelSearchSuggestion
+    )
 }
 
 @Composable
@@ -106,7 +99,8 @@ private fun SearchScreen(
     onPhotoClick: (Photo) -> Unit,
     onToggleBookmark: (Photo) -> Unit,
     onBookmarksClick: () -> Unit,
-    suggestions: () -> List<SuggestionModel>
+    suggestions: () -> List<SuggestionModel>,
+    onCancelSuggestion: (SuggestionModel) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -115,7 +109,7 @@ private fun SearchScreen(
     ) {
         val alphaList = if (isLoading) 0.8f else 1f
         Column {
-            TopHeader(searchState, onBookmarksClick, suggestions, {})
+            TopHeader(searchState, onBookmarksClick, suggestions, onCancelSuggestion)
             PhotosGridScreen(
                 photos,
                 onPhotoClick,

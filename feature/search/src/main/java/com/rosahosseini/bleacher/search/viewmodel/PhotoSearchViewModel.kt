@@ -16,6 +16,7 @@ import com.rosahosseini.bleacher.navigation.destinations.PhotoDetailDestination
 import com.rosahosseini.bleacher.repository.BookmarkRepository
 import com.rosahosseini.bleacher.repository.SearchRepository
 import com.rosahosseini.bleacher.search.model.SearchQueryModel
+import com.rosahosseini.bleacher.search.model.SuggestionModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.FlowPreview
@@ -43,8 +44,10 @@ class PhotoSearchViewModel @Inject internal constructor(
 
     @OptIn(FlowPreview::class)
     val searchedPhotos: StateFlow<List<Photo>> = searchQuery
-        .flatMapMerge { queryPhotos(it.text, toPage = it.pageNumber) }
+        .flatMapMerge { queryPhotos(queryText = it.text, toPage = it.pageNumber) }
         .stateIn(emptyList())
+
+    val searchSuggestions: Flow<List<SuggestionModel>> = getSearchSuggestion()
 
     val isLoading: Flow<Boolean> = latestSearchResponse.map { it.isLoading() }
     val error: Flow<ErrorModel?> = latestSearchResponse.map { it.getError() }
@@ -77,17 +80,25 @@ class PhotoSearchViewModel @Inject internal constructor(
         }
     }
 
+    fun onCancelSearchSuggestion(suggestionModel: SuggestionModel) {
+        viewModelScope.launch {
+            searchRepository.removeSuggestion(suggestionModel.tag)
+        }
+    }
+
     fun onQueryTextChange(newQuery: String) {
         // if query is repeated and latest state is success don't search again
-        if ((newQuery == searchQuery.value.text) and latestSearchResponse.value.isSuccess())
+        if ((newQuery == searchQuery.value.text) and latestSearchResponse.value.isSuccess()) {
             return
+        }
         searchJobs.forEach { it.cancel() }
         searchJobs.clear()
         searchPhotoPage(SearchQueryModel(text = newQuery))
+        saveToSearchHistory(newQuery)
     }
 
     fun onLoadMore() {
-        with( latestSearchResponse.value) {
+        with(latestSearchResponse.value) {
             val hasNext = data?.hasNext ?: false
             val lastQuery = searchQuery.value
             when {
@@ -122,7 +133,21 @@ class PhotoSearchViewModel @Inject internal constructor(
         )
     }
 
+    private fun saveToSearchHistory(queryText: String) {
+        viewModelScope.launch {
+            if (queryText.isNotBlank()) {
+                searchRepository.saveSearchQuery(queryText)
+            }
+        }
+    }
+
+    private fun getSearchSuggestion(): Flow<List<SuggestionModel>> {
+        return searchRepository.getSearchSuggestion("", SUGGESTION_LIMIT)
+            .map { it.map { SuggestionModel(it) } }
+    }
+
     companion object {
         private const val PAGE_COUNT = 25
+        private const val SUGGESTION_LIMIT = 6
     }
 }

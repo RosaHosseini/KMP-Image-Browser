@@ -14,4 +14,10 @@ interface SearchRepository {
     fun searchLocalPhotos(query: String?, fromPage: Int, toPage: Int, limit: Int): Flow<List<Photo>>
 
     suspend fun clearExpiredData(expiredTimeMillis: Long)
+
+    fun getSearchSuggestion(query: String, limit: Int): Flow<List<String>>
+
+    suspend fun removeSuggestion(query: String)
+
+    suspend fun saveSearchQuery(query: String)
 }

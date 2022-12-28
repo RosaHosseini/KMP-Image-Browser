@@ -4,6 +4,7 @@ import android.content.Context
 import com.rosahosseini.bleacher.local.database.AppDatabase
 import com.rosahosseini.bleacher.local.database.dao.PhotoDao
 import com.rosahosseini.bleacher.local.database.dao.SearchDao
+import com.rosahosseini.bleacher.local.database.dao.SearchHistoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +30,10 @@ class LocalModule {
     @Provides
     fun providePhotoDao(database: AppDatabase): PhotoDao {
         return database.photoDao()
+    }
+
+    @Provides
+    fun provideSearchHistoryDao(database: AppDatabase): SearchHistoryDao {
+        return database.searchHistoryDao()
     }
 }
