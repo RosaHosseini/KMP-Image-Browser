@@ -13,6 +13,7 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import com.rosahosseini.bleacher.commontest.CoroutineTestRule
 import com.rosahosseini.bleacher.commontest.coroutineTestCase
+import com.rosahosseini.bleacher.local.datasource.SearchHistoryLocalDataSource
 import com.rosahosseini.bleacher.local.datasource.SearchPhotoLocalDataSource
 import com.rosahosseini.bleacher.model.Either
 import com.rosahosseini.bleacher.model.Page
@@ -30,8 +31,14 @@ import org.junit.Test
 class SearchRepositoryTest {
     private val photoRemoteDataSource: PhotoRemoteDataSource = mock()
     private val searchLocalDataSource: SearchPhotoLocalDataSource = mock()
+    private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource = mock()
+
     private val repository: SearchRepository by lazy {
-        SearchRepositoryImpl(photoRemoteDataSource, searchLocalDataSource)
+        SearchRepositoryImpl(
+            photoRemoteDataSource,
+            searchLocalDataSource,
+            searchHistoryLocalDataSource
+        )
     }
 
     @get:Rule
@@ -235,15 +242,62 @@ class SearchRepositoryTest {
     }
 
     @Test
-    fun `on clearExpiredData call local datasource`() = coroutineTestCase {
+    fun `on clearExpiredData clear data by local datasources`() = coroutineTestCase {
         val expireTime = 10L
         whenever {
             repository.clearExpiredData(expireTime)
         }
         then {
             verify(searchLocalDataSource, times(1)).clearExpiredQueries(expireTime)
+            verify(searchLocalDataSource, times(1)).clearExpiredQueries(expireTime)
+            verify(searchHistoryLocalDataSource, times(1)).clearExpiredQueries(expireTime)
             verifyZeroInteractions(photoRemoteDataSource)
             verifyNoMoreInteractions(searchLocalDataSource)
+            verifyNoMoreInteractions(searchHistoryLocalDataSource)
         }
     }
+
+    @Test
+    fun `on saveSearchQuery save query in search history local datasource`() = coroutineTestCase {
+        val query = "query"
+        whenever {
+            repository.saveSearchQuery(query)
+        }
+        then {
+            verify(searchHistoryLocalDataSource, times(1)).saveQuery(query)
+            verifyZeroInteractions(searchLocalDataSource)
+            verifyZeroInteractions(photoRemoteDataSource)
+            verifyNoMoreInteractions(searchHistoryLocalDataSource)
+        }
+    }
+
+    @Test
+    fun `on removeSuggestion remove query from search history local datasource`() =
+        coroutineTestCase {
+            val query = "query"
+            whenever {
+                repository.removeSuggestion(query)
+            }
+            then {
+                verify(searchHistoryLocalDataSource, times(1)).removeQuery(query)
+                verifyZeroInteractions(searchLocalDataSource)
+                verifyZeroInteractions(photoRemoteDataSource)
+                verifyNoMoreInteractions(searchHistoryLocalDataSource)
+            }
+        }
+
+    @Test
+    fun `on getSearchSuggestion get recent queries from search history local datasource`() =
+        coroutineTestCase {
+            val query = "query"
+            whenever {
+                repository.getSearchSuggestion(query, 10)
+            }
+            then {
+                verify(searchHistoryLocalDataSource, times(1)).getLatestQueries(query, 10)
+                verifyZeroInteractions(searchLocalDataSource)
+                verifyZeroInteractions(photoRemoteDataSource)
+                verifyNoMoreInteractions(searchHistoryLocalDataSource)
+            }
+        }
 }

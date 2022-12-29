@@ -7,7 +7,6 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import com.rosahosseini.bleacher.commontest.CoroutineTestRule
 import com.rosahosseini.bleacher.commontest.coroutineTestCase
@@ -20,9 +19,12 @@ import com.rosahosseini.bleacher.navigation.destinations.BookmarkDestination
 import com.rosahosseini.bleacher.navigation.destinations.PhotoDetailDestination
 import com.rosahosseini.bleacher.repository.BookmarkRepository
 import com.rosahosseini.bleacher.repository.SearchRepository
+import com.rosahosseini.bleacher.search.model.SuggestionModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,6 +41,8 @@ class PhotoSearchViewModelTest {
             navigator
         )
     }
+
+    private val suggestionModel = SuggestionModel("tag")
 
     private val photo = Photo(
         id = "", isBookmarked = false, title = null, description = null, urlOriginal = null,
@@ -114,7 +118,6 @@ class PhotoSearchViewModelTest {
         }
         then {
             verify(searchRepository, times(2)).getRecentPhotos(eq(0), any())
-            verifyNoMoreInteractions(searchRepository)
         }
     }
 
@@ -124,7 +127,7 @@ class PhotoSearchViewModelTest {
         given {
             whenever(
                 searchRepository.searchPhotos(any(), eq(0), any())
-            ) doReturn (flowOf(Either.Success(pagedPhoto(0))))
+            ) doReturn flowOf(Either.Success(pagedPhoto(0)))
         }
         whenever {
             viewModel.onQueryTextChange(query)
@@ -140,23 +143,21 @@ class PhotoSearchViewModelTest {
         given {
             whenever(
                 searchRepository.searchPhotos(any(), eq(0), any())
-            ) doReturn (flowOf(Either.Success(pagedPhoto(0))))
+            ) doReturn flowOf(Either.Success(pagedPhoto(0)))
             whenever(
                 searchRepository.searchPhotos(any(), eq(1), any())
-            ) doReturn (flowOf(Either.Success(pagedPhoto(1))))
+            ) doReturn flowOf(Either.Success(pagedPhoto(1)))
             whenever(
                 searchRepository.searchPhotos(any(), eq(2), any())
-            ) doReturn (flowOf(Either.Success(pagedPhoto(2))))
+            ) doReturn flowOf(Either.Success(pagedPhoto(2)))
         }
         whenever {
             viewModel.onQueryTextChange(query)
             viewModel.onLoadMore()
         }
         then {
-            verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
             verify(searchRepository, times(1)).searchPhotos(eq(query), eq(0), any())
             verify(searchRepository, times(1)).searchPhotos(eq(query), eq(1), any())
-            verifyNoMoreInteractions(searchRepository)
         }
     }
 
@@ -166,7 +167,7 @@ class PhotoSearchViewModelTest {
         given {
             whenever(
                 searchRepository.searchPhotos(any(), any(), any())
-            ) doReturn (flowOf(Either.Loading(pagedPhoto(0))))
+            ) doReturn flowOf(Either.Loading(pagedPhoto(0)))
         }
         whenever {
             viewModel.onQueryTextChange(query)
@@ -175,7 +176,6 @@ class PhotoSearchViewModelTest {
         then {
             verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
             verify(searchRepository, times(1)).searchPhotos(eq(query), eq(0), any())
-            verifyNoMoreInteractions(searchRepository)
         }
     }
 
@@ -194,7 +194,6 @@ class PhotoSearchViewModelTest {
         then {
             verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
             verify(searchRepository, times(2)).searchPhotos(eq(query), eq(0), any())
-            verifyNoMoreInteractions(searchRepository)
         }
     }
 
@@ -205,7 +204,50 @@ class PhotoSearchViewModelTest {
         }
         then {
             verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
-            verifyNoMoreInteractions(searchRepository)
+        }
+    }
+
+    @Test
+    fun `onCancelSearchSuggestion would call removeSuggestion`() = coroutineTestCase {
+        whenever {
+            viewModel.onCancelSearchSuggestion(suggestionModel) // init viewmodel
+        }
+        then {
+            verify(searchRepository, times(1)).removeSuggestion(suggestionModel.tag)
+        }
+    }
+
+    @Test
+    fun `searchedPhotos is fetched from searchLocalPhotos`() = coroutineTestCase {
+        val localPhotos = listOf(photo, photo, photo)
+        given {
+            whenever(
+                searchRepository.searchLocalPhotos(any(), any(), any(), any())
+            ) doReturn flowOf(localPhotos)
+        }
+        var result: List<Photo>? = null
+        whenever {
+            result = viewModel.searchedPhotos.first()
+        }
+        then {
+            assertEquals(result, localPhotos)
+        }
+    }
+
+    @Test
+    fun `searchSuggestions is fetched from get`() = coroutineTestCase {
+        val suggestions = listOf(suggestionModel, suggestionModel, suggestionModel)
+        given {
+            whenever(
+                searchRepository.getSearchSuggestion(any(), any())
+            ) doReturn flowOf(suggestions.map { it.tag })
+        }
+        var result: List<SuggestionModel>? = null
+        whenever {
+            result = viewModel.searchSuggestions.first()
+        }
+        then {
+            assertEquals(suggestions, result)
         }
     }
 }
