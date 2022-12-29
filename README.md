@@ -1,6 +1,6 @@
 # ImageBrowser
 An image brower supporting
- - pagination for supporting infinite scroll
+ - pagination for infinite scroll
  - bookmarks
  - search history
  - offline first: It caches searched photos
