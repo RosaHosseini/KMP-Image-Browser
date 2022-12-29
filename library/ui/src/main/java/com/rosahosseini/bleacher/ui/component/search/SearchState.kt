@@ -46,7 +46,7 @@ fun rememberSearchState(
                 .debounce(debounceMillis)
                 .mapLatest { query: TextFieldValue ->
                     state.searching = true
-                    onQueryChange(query.text)
+                    onQueryChange(query.text.trim())
                 }.collect {
                     state.searchInProgress = false
                     state.searching = false
@@ -90,7 +90,7 @@ class SearchState {
     /**
      * Check if user is running same query as the previous one
      */
-    fun sameAsPreviousQuery() = query.text == previousQueryText
+    fun sameAsPreviousQuery() = query.text.trim() == previousQueryText.trim()
 }
 
 /**
