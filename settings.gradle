@@ -5,7 +5,7 @@ pluginManagement {
         mavenCentral()
     }
 }
-rootProject.name = "bleacher"
+rootProject.name = "findr"
 include ':app'
 include ':feature:search'
 include ':data:remote'
