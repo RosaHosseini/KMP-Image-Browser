@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -118,6 +119,28 @@ class PhotoSearchViewModelTest {
         }
         then {
             verify(searchRepository, times(2)).getRecentPhotos(eq(0), any())
+        }
+    }
+
+    @Test
+    fun `onQueryTextChange save query in searchHistory if its not blank`() = coroutineTestCase {
+        val query = "query"
+        whenever {
+            viewModel.onQueryTextChange(query)
+        }
+        then {
+            verify(searchRepository).saveSearchQuery(query)
+        }
+    }
+
+    @Test
+    fun `onQueryTextChange does not save query in searchHistory if it is blank`() = coroutineTestCase {
+        whenever {
+            viewModel.onQueryTextChange("   ")
+            viewModel.onQueryTextChange("")
+        }
+        then {
+            verify(searchRepository, never()).saveSearchQuery(any())
         }
     }
 
