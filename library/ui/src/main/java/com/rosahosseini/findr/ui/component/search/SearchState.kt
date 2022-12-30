@@ -57,8 +57,7 @@ fun rememberSearchState(
 class SearchState {
     var query by mutableStateOf(TextFieldValue())
     var focused by mutableStateOf(false)
-    var previousQueryText = ""
-        private set
+    private var previousQueryText by mutableStateOf("")
 
     /**
      * Check if search initial conditions are met and a search operation is going on.
@@ -71,7 +70,7 @@ class SearchState {
      * If  debounce or delay before user stops typing is not needed it can be
      * set to value of [searching].
      */
-    var searchInProgress = searching
+    var searchInProgress by mutableStateOf(searching)
 
     val searchDisplay: SearchDisplay
         get() = when {
@@ -89,6 +88,10 @@ class SearchState {
     fun sameAsPreviousQuery() = query.text.trim() == previousQueryText.trim()
 }
 
+/**
+ * Enum class with different values to set search state based on text, focus, initial state and
+ * results from search.
+ */
 enum class SearchDisplay {
     SUGGESTIONS,
     SEARCH_IN_PROGRESS,

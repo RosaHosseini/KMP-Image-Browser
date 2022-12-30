@@ -123,9 +123,7 @@ private fun SearchScreen(
     val context = LocalContext.current
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
-            Toast.makeText(
-                context, it, Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 }
