@@ -49,7 +49,7 @@ class RequestManager<T>(
             private var shouldFetch: (data: T?) -> Boolean = { true }
             private var errorManager: ErrorManager = RemoteErrorManager()
 
-            fun netWorkCall(action: suspend () -> T): Builder<T> {
+            fun networkCall(action: suspend () -> T): Builder<T> {
                 netWorkCall = action
                 return this
             }

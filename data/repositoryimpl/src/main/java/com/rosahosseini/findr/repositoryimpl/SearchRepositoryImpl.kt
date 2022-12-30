@@ -27,7 +27,7 @@ class SearchRepositoryImpl @Inject constructor(
         pageNumber: Int,
         limit: Int
     ): Flow<Either<Page<Photo>>> = RequestManagerBuilder<Page<Photo>>()
-        .netWorkCall { photosRemoteDataSource.search(query, limit, pageNumber).toPagePhotos() }
+        .networkCall { photosRemoteDataSource.search(query, limit, pageNumber).toPagePhotos() }
         .loadFromDb { searchLocalDataSource.search(query, pageNumber, limit).toPagePhotos(limit) }
         .saveCallResults { searchLocalDataSource.saveSearch(it.toSearchedPhotosEntities(query)) }
         .shouldFetch { it?.isDataOutDated() ?: true }
@@ -37,7 +37,7 @@ class SearchRepositoryImpl @Inject constructor(
         pageNumber: Int,
         limit: Int
     ): Flow<Either<Page<Photo>>> = RequestManagerBuilder<Page<Photo>>()
-        .netWorkCall { photosRemoteDataSource.getRecent(limit, pageNumber).toPagePhotos() }
+        .networkCall { photosRemoteDataSource.getRecent(limit, pageNumber).toPagePhotos() }
         .loadFromDb {
             searchLocalDataSource.search(query = null, pageNumber, limit).toPagePhotos(limit)
         }
