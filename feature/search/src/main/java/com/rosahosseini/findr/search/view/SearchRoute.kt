@@ -52,7 +52,7 @@ import com.rosahosseini.findr.ui.theme.Dimen
 import kotlinx.coroutines.flow.collectLatest
 import com.rosahosseini.findr.ui.R as UiR
 
-private const val DEBOUNCE_TIME_MILLIS = 500L
+private const val DEBOUNCE_TIME_MILLIS = 1000L
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
