@@ -16,8 +16,7 @@ import kotlinx.coroutines.flow.*
  *  * Immediately after user starts typing [SearchState.searchInProgress] sets to `true`
  *  to not get results while recomposition happens.
  *
- *  After [debounceMillis] has passed [SearchState.searching] is set to `true`, progress icon
- *   can be displayed here.
+ *  After [debounceMillis] has passed [SearchState.searching] is set to `true`
  *
  * @param debounceMillis timeout before user finishes typing. After this
  * timeout [SearchState.searching] is set to true.
@@ -87,31 +86,11 @@ class SearchState {
             }
         }
 
-    /**
-     * Check if user is running same query as the previous one
-     */
     fun sameAsPreviousQuery() = query.text.trim() == previousQueryText.trim()
 }
 
-/**
- * Enum class with different values to set search state based on text, focus, initial state and
- * results from search.
- */
 enum class SearchDisplay {
-    /**
-     * represents the state where search Composable gained focus but query is empty.
-     * */
     SUGGESTIONS,
-
-    /**
-     * represents initiation of search but not actively searching.
-     * For instance search might require at least 3 letters or some specific condition.
-     * After condition is passed
-     */
     SEARCH_IN_PROGRESS,
-
-    /**
-     * represents the state after a successful search operation that returned non empty results
-     */
     RESULTS
 }
