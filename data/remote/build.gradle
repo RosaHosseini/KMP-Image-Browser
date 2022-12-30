@@ -15,3 +15,14 @@ dependencies {
     implementation "com.google.dagger:hilt-android:${library.hilt}"
     kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"
 }
+
+def apikeyPropertiesFile = rootProject.file("apikey.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
+android {
+
+    defaultConfig {
+        buildConfigField("String", "FLICKR_API_KEY", apikeyProperties['FLICKR_KEY'])
+    }
+}
