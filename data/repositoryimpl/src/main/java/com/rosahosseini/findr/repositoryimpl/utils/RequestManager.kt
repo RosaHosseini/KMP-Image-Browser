@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.*
  * A helper class that supports db request, api requests, and Offline first apis
  * @return a flow of responses
  */
-class RequestManager<T>(
+internal class RequestManager<T>(
     private val networkCall: suspend () -> T,
     private val loadFromDb: suspend () -> T?,
     private val saveCallResults: suspend (data: T) -> Unit,
