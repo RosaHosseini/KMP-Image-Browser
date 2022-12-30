@@ -16,12 +16,12 @@ interface PhotoDao {
     @Query("SELECT * FROM photo WHERE photoId=:photoId LIMIT 1")
     suspend fun getPhoto(photoId: String): PhotoEntity?
 
-    @Query("SELECT * FROM photo WHERE isBookmarked=1")
+    @Query("SELECT * FROM photo WHERE is_bookmarked=1")
     fun getBookmarkedFlow(): Flow<List<PhotoEntity>>
 
-    @Query("UPDATE photo set isBookmarked = :isBookmarked WHERE photoId=:photoId")
+    @Query("UPDATE photo set is_bookmarked = :isBookmarked WHERE photoId=:photoId")
     suspend fun updateBookmark(photoId: String, isBookmarked: Boolean)
 
-    @Query("DELETE from photo WHERE timeStamp < :until AND isBookmarked=0")
+    @Query("DELETE from photo WHERE timeStamp < :until AND is_bookmarked=0")
     suspend fun clearExpiredBookmarkedPhotos(until: Long)
 }
