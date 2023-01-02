@@ -12,7 +12,7 @@ dependencies {
     implementation project(":library:ui")
     implementation project(":library:navigation")
     implementation project(":domain:model")
-    implementation project(":domain:repository")
+    implementation project(":data:repository")
     implementation "androidx.lifecycle:lifecycle-runtime-compose:${library.lifecycle}"
     implementation "com.google.dagger:hilt-android:${library.hilt}"
     kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"

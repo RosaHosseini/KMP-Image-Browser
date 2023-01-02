@@ -1,6 +1,0 @@
-apply plugin: 'com.android.library'
-apply from: "$rootDir/configs/android_commons.gradle"
-
-dependencies {
-    implementation project(":domain:model")
-}
