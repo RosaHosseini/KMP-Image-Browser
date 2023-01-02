@@ -1,6 +1,7 @@
 package com.rosahosseini.findr.remote.model.response
 
 import com.google.gson.annotations.SerializedName
+import com.rosahosseini.findr.remote.model.FlickrException
 
 open class FlickrResponse(
     @SerializedName("stat") val status: String,
