@@ -72,12 +72,13 @@ private fun PhotoCard(
             description = photo.description,
         )
         Bookmark(
-            photo.isBookmarked,
-            Modifier
+            isBookmarked = { photo.isBookmarked },
+            onClick = { onToggleBookmark(photo) },
+            modifier = Modifier
                 .padding(Dimen.defaultMargin)
                 .align(Alignment.TopEnd)
                 .size(24.dp)
-        ) { onToggleBookmark(photo) }
+        )
         TitleBar(photo.title)
     }
 }

@@ -38,7 +38,7 @@ fun PhotoDetailScreen(photo: Photo, onBackPressed: () -> Unit) {
         LoadImage(
             modifier = Modifier
                 .fillMaxSize(),
-            url = photo.urlOriginal.orEmpty(),
+            url = photo.urlLarge,
             description = photo.description,
             contentScale = ContentScale.FillBounds
         )
