@@ -34,18 +34,19 @@ fun rememberSearchState(
         LaunchedEffect(key1 = Unit) {
             snapshotFlow { state.query }
                 .distinctUntilChanged()
+                .map { it.text.clean() }
                 .filter { !state.sameAsPreviousQuery() }
-                .map { query: TextFieldValue ->
+                .map { queryText: String ->
                     if (debounceMillis > 0) {
                         state.searching = false
                     }
                     state.searchInProgress = true
-                    query
+                    queryText
                 }
                 .debounce(debounceMillis)
-                .mapLatest { query: TextFieldValue ->
+                .mapLatest {
                     state.searching = true
-                    onQueryChange(query.text.trim())
+                    onQueryChange(it)
                 }.collect {
                     state.searchInProgress = false
                     state.searching = false
@@ -75,18 +76,20 @@ class SearchState {
     val searchDisplay: SearchDisplay
         get() = when {
             focused && query.text.isEmpty() -> {
-                previousQueryText = query.text
+                previousQueryText = query.text.clean()
                 SearchDisplay.SUGGESTIONS
             }
             searchInProgress -> SearchDisplay.SEARCH_IN_PROGRESS
             else -> {
-                previousQueryText = query.text
+                previousQueryText = query.text.clean()
                 SearchDisplay.RESULTS
             }
         }
 
-    fun sameAsPreviousQuery() = query.text.trim() == previousQueryText.trim()
+    fun sameAsPreviousQuery() = query.text == previousQueryText
 }
+
+private fun String.clean(): String = trim().lowercase()
 
 /**
  * Enum class with different values to set search state based on text, focus, initial state and

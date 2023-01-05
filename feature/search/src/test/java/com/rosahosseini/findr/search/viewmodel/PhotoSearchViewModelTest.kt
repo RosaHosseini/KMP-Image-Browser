@@ -125,6 +125,11 @@ class PhotoSearchViewModelTest {
     @Test
     fun `onQueryTextChange save query in searchHistory if its not blank`() = coroutineTestCase {
         val query = "query"
+        given {
+            whenever(
+                searchRepository.searchPhotos(any(), any(), any())
+            ).doReturn(flowOf(Either.Loading()))
+        }
         whenever {
             viewModel.onQueryTextChange(query)
         }
@@ -134,15 +139,16 @@ class PhotoSearchViewModelTest {
     }
 
     @Test
-    fun `onQueryTextChange does not save query in searchHistory if it is blank`() = coroutineTestCase {
-        whenever {
-            viewModel.onQueryTextChange("   ")
-            viewModel.onQueryTextChange("")
+    fun `onQueryTextChange does not save query in searchHistory if it is blank`() =
+        coroutineTestCase {
+            whenever {
+                viewModel.onQueryTextChange("   ")
+                viewModel.onQueryTextChange("")
+            }
+            then {
+                verify(searchRepository, never()).saveSearchQuery(any())
+            }
         }
-        then {
-            verify(searchRepository, never()).saveSearchQuery(any())
-        }
-    }
 
     @Test
     fun `onQueryTextChange if query is not null or empty searchPhotos`() = coroutineTestCase {

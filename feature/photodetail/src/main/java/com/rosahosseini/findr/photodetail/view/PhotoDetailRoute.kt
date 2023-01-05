@@ -40,7 +40,7 @@ fun PhotoDetailScreen(photo: Photo, onBackPressed: () -> Unit) {
                 .fillMaxSize(),
             url = photo.urlLarge,
             description = photo.description,
-            contentScale = ContentScale.FillBounds
+            contentScale = ContentScale.Crop
         )
         TopTool(onBackPressed)
         BottomContent(photo)
