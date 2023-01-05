@@ -1,7 +1,7 @@
 package com.rosahosseini.findr.app
 
-import android.app.Application
+import com.rosahosseini.findr.startup.StartupApplication
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class FindrApp : Application()
+class FindrApp : StartupApplication()
