@@ -16,6 +16,6 @@ fun NavGraphBuilder.photoDetailGraph(navController: NavController) {
         val photo: Photo? by rememberSaveable {
             mutableStateOf(navController.getArg(PhotoDetailDestination.arg))
         }
-        PhotoDetailRoute({ requireNotNull(photo) }) { navController.popBackStack() }
+        PhotoDetailRoute(requireNotNull(photo), onBackPressed = navController::popBackStack)
     }
 }

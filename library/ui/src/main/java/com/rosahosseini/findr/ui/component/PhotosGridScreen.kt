@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -43,7 +44,9 @@ fun PhotosGridScreen(
         modifier = modifier
     ) {
         itemsIndexed(photos) { _, item ->
-            PhotoCard(item, onPhotoClick, onToggleBookmark)
+            key(item.id) {
+                PhotoCard(item, onPhotoClick, onToggleBookmark)
+            }
         }
     }
 }
@@ -75,18 +78,18 @@ private fun PhotoCard(
                 .align(Alignment.TopEnd)
                 .size(24.dp)
         ) { onToggleBookmark(photo) }
-        TitleBar { photo.title }
+        TitleBar(photo.title)
     }
 }
 
 @Composable
-private fun BoxScope.TitleBar(getTitle: () -> String?) {
+private fun BoxScope.TitleBar(title: String?) {
     Box(
         modifier = Modifier
             .align(Alignment.BottomCenter)
     ) {
         Text(
-            text = getTitle()?.takeIf { it.isNotBlank() }.orEmpty(),
+            text = title?.takeIf { it.isNotBlank() }.orEmpty(),
             style = Typography.caption,
             color = FindrColor.TextLight,
             modifier = Modifier

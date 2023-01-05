@@ -28,22 +28,22 @@ import com.rosahosseini.findr.ui.theme.Typography
 import com.rosahosseini.findr.ui.widget.LoadImage
 
 @Composable
-fun PhotoDetailRoute(getPhoto: () -> Photo, onBackPressed: () -> Unit) {
-    PhotoDetailScreen(getPhoto, onBackPressed)
+fun PhotoDetailRoute(photo: Photo, onBackPressed: () -> Unit) {
+    PhotoDetailScreen(photo, onBackPressed)
 }
 
 @Composable
-fun PhotoDetailScreen(getPhoto: () -> Photo, onBackPressed: () -> Unit) {
+fun PhotoDetailScreen(photo: Photo, onBackPressed: () -> Unit) {
     Box(Modifier.background(FindrColor.DarkBackground)) {
         LoadImage(
             modifier = Modifier
                 .fillMaxSize(),
-            url = getPhoto().urlSmall,
-            description = getPhoto().description,
+            url = photo.urlOriginal.orEmpty(),
+            description = photo.description,
             contentScale = ContentScale.FillBounds
         )
         TopTool(onBackPressed)
-        BottomContent(getPhoto)
+        BottomContent(photo)
     }
 }
 
@@ -72,8 +72,8 @@ private fun BoxScope.TopTool(onBackPressed: () -> Unit) {
 }
 
 @Composable
-private fun BoxScope.BottomContent(getPhoto: () -> Photo) {
-    getPhoto().title?.let { title ->
+private fun BoxScope.BottomContent(photo: Photo) {
+    photo.title?.let { title ->
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -93,7 +93,7 @@ private fun BoxScope.BottomContent(getPhoto: () -> Photo) {
                 modifier = Modifier
                     .fillMaxWidth(),
             )
-            getPhoto().description?.let { description ->
+            photo.description?.let { description ->
                 Text(
                     text = description,
                     style = Typography.body2,
