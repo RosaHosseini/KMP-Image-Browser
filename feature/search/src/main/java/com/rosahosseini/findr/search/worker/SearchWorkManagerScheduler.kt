@@ -1,6 +1,7 @@
 package com.rosahosseini.findr.search.worker
 
 import android.content.Context
+import androidx.annotation.WorkerThread
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -11,6 +12,9 @@ import javax.inject.Inject
 class SearchWorkManagerScheduler @Inject constructor(private val context: Context) {
 
     fun scheduleClearCachePeriodically() {
+        if (hasClearCacheScheduled()) {
+            return
+        }
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(true)
             .build()
@@ -26,6 +30,15 @@ class SearchWorkManagerScheduler @Inject constructor(private val context: Contex
             ExistingPeriodicWorkPolicy.REPLACE,
             worker
         )
+    }
+
+    @WorkerThread
+    fun hasClearCacheScheduled(): Boolean {
+        return WorkManager.getInstance(context)
+            .getWorkInfosForUniqueWork(TAG_CLEAR_CACHE)
+            .get()
+            .all { it.state.isFinished }
+            .not()
     }
 
     companion object {
