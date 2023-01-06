@@ -50,6 +50,8 @@ class PhotoSearchViewModel @Inject internal constructor(
     val searchSuggestions: StateFlow<List<SuggestionModel>> = getSearchSuggestion()
         .stateIn(emptyList())
 
+    val queryText: StateFlow<String> = searchQuery.map { it.text.orEmpty() }
+        .stateIn(initialValue = "")
     val isLoading: Flow<Boolean> = latestSearchResponse.map { it.isLoading() }
     val error: Flow<ErrorModel?> = latestSearchResponse.map { it.getError() }
 

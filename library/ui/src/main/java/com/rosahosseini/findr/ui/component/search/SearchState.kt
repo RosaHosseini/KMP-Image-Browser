@@ -26,11 +26,12 @@ import kotlinx.coroutines.flow.*
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun rememberSearchState(
+    initialQuery: String,
     debounceMillis: Long = 0,
     onQueryChange: (String) -> Unit,
 ): SearchState {
 
-    return remember { SearchState() }.also { state ->
+    return remember { SearchState(initialQuery) }.also { state ->
         LaunchedEffect(key1 = Unit) {
             snapshotFlow { state.query }
                 .distinctUntilChanged()
@@ -55,8 +56,8 @@ fun rememberSearchState(
     }
 }
 
-class SearchState {
-    var query by mutableStateOf(TextFieldValue())
+class SearchState(initialQueryText: String) {
+    var query by mutableStateOf(TextFieldValue(initialQueryText))
     var focused by mutableStateOf(false)
     private var previousQueryText by mutableStateOf("")
 

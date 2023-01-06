@@ -47,8 +47,8 @@ import com.rosahosseini.findr.ui.component.search.SearchDisplay
 import com.rosahosseini.findr.ui.component.search.SearchState
 import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.extensions.OnBottomReached
-import com.rosahosseini.findr.ui.theme.FindrColor
 import com.rosahosseini.findr.ui.theme.Dimen
+import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.coroutines.flow.collectLatest
 import com.rosahosseini.findr.ui.R as UiR
 
@@ -61,8 +61,10 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
     val suggestions by searchViewModel.searchSuggestions.collectAsStateWithLifecycle()
     val isLoading by searchViewModel.isLoading.collectAsStateWithLifecycle(initialValue = false)
     val error by searchViewModel.error.collectAsStateWithLifecycle(initialValue = null)
+    val queryText by searchViewModel.queryText.collectAsStateWithLifecycle()
     val listState = rememberLazyGridState()
     val searchState = rememberSearchState(
+        initialQuery = queryText,
         debounceMillis = DEBOUNCE_TIME_MILLIS,
         onQueryChange = searchViewModel::onQueryTextChange
     )
