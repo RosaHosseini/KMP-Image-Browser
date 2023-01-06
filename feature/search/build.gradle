@@ -20,4 +20,5 @@ dependencies {
     implementation "com.google.accompanist:accompanist-flowlayout:${library.flexbox}"
     implementation "androidx.work:work-runtime-ktx:${library.work}"
     implementation "androidx.hilt:hilt-work:${library.androidxHilt}"
+    kapt "androidx.hilt:hilt-compiler:${library.androidxHilt}"
 }

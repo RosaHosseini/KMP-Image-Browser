@@ -6,30 +6,39 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.rosahosseini.findr.core.AppDispatchers
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class SearchWorkManagerScheduler @Inject constructor(private val context: Context) {
+class SearchWorkManagerScheduler @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val appDispatchers: AppDispatchers
+) {
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun scheduleClearCachePeriodically() {
-        if (hasClearCacheScheduled()) {
-            return
+        GlobalScope.launch(appDispatchers.io) {
+            if (hasClearCacheScheduled()) {
+                return@launch
+            }
+            val constraints = Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .build()
+            val worker = PeriodicWorkRequest.Builder(
+                ClearCacheWorker::class.java,
+                REPEAT_INTERVAL_DAYS,
+                TimeUnit.DAYS
+            ).setConstraints(constraints).build()
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                TAG_CLEAR_CACHE,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                worker
+            )
         }
-        val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
-            .build()
-        val worker = PeriodicWorkRequest.Builder(
-            ClearCacheWorker::class.java,
-            REPEAT_INTERVAL_DAYS,
-            TimeUnit.DAYS
-        ).addTag(TAG_CLEAR_CACHE)
-            .setConstraints(constraints)
-            .build()
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            TAG_CLEAR_CACHE,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            worker
-        )
     }
 
     @WorkerThread

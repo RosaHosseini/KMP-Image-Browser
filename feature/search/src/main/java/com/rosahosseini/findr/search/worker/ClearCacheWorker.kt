@@ -9,9 +9,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 @HiltWorker
-class ClearCacheWorker @AssistedInject constructor(
+internal class ClearCacheWorker @AssistedInject constructor(
     private val searchRepository: SearchRepository,
-    @Assisted private val context: Context,
+    @Assisted context: Context,
     @Assisted params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 

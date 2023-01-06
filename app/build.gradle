@@ -7,6 +7,10 @@ plugins {
 apply from: "$rootDir/configs/android_commons.gradle"
 
 android {
+    defaultConfig {
+        applicationId = "com.rosahosseini.findr"
+    }
+
     buildFeatures {
         compose true
     }
@@ -31,4 +35,6 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:${library.navigation}"
     implementation "com.google.dagger:hilt-android:${library.hilt}"
     kapt "com.google.dagger:hilt-android-compiler:${library.hilt}"
+    implementation "androidx.work:work-runtime-ktx:${library.work}"
+    implementation "androidx.hilt:hilt-work:${library.androidxHilt}"
 }
