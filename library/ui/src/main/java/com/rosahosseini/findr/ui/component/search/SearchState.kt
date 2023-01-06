@@ -15,11 +15,8 @@ import kotlinx.coroutines.flow.*
  *
  *  * Immediately after user starts typing [SearchState.searchInProgress] sets to `true`
  *  to not get results while recomposition happens.
- *
- *  After [debounceMillis] has passed [SearchState.searching] is set to `true`
- *
- * @param debounceMillis timeout before user finishes typing. After this
- * timeout [SearchState.searching] is set to true.
+ **
+ * @param debounceMillis timeout before user finishes typing.
  *
  * @param onQueryChange this lambda is for getting results from db, REST api or a ViewModel.
  */
@@ -38,19 +35,14 @@ fun rememberSearchState(
                 .map { it.text.clean() }
                 .filter { !state.sameAsPreviousQuery() }
                 .map { queryText: String ->
-                    if (debounceMillis > 0) {
-                        state.searching = false
-                    }
                     state.searchInProgress = true
                     queryText
                 }
                 .debounce(debounceMillis)
                 .mapLatest {
-                    state.searching = true
                     onQueryChange(it)
                 }.collect {
                     state.searchInProgress = false
-                    state.searching = false
                 }
         }
     }
@@ -62,17 +54,9 @@ class SearchState(initialQueryText: String) {
     private var previousQueryText by mutableStateOf("")
 
     /**
-     * Check if search initial conditions are met and a search operation is going on.
-     * This flag is for showing progressbar.
-     */
-    var searching by mutableStateOf(false)
-
-    /**
      * Check if a search is initiated. Search is initiated after a specific condition
-     * If  debounce or delay before user stops typing is not needed it can be
-     * set to value of [searching].
      */
-    var searchInProgress by mutableStateOf(searching)
+    var searchInProgress by mutableStateOf(false)
 
     val searchDisplay: SearchDisplay
         get() = when {
