@@ -3,7 +3,7 @@ package com.rosahosseini.findr.repository.utils
 import com.rosahosseini.findr.core.extensions.orNullIfEmpty
 import com.rosahosseini.findr.model.ErrorModel
 import com.rosahosseini.findr.remote.model.FlickrException
-import com.rosahosseini.findr.repository.R
+import com.rosahosseini.findr.data.repository.R
 import java.io.IOException
 import retrofit2.HttpException
 

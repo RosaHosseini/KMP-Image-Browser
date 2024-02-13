@@ -7,7 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.rosahosseini.findr.ui.R
+import com.rosahosseini.findr.library.ui.R
 
 @Composable
 fun LoadImage(

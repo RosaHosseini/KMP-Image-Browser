@@ -1,15 +1,15 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        google()
         mavenCentral()
+        google()
     }
 }
+
 rootProject.name = "findr"
 include ':library:common-test'
 include ':library:core'
 include ':library:startup'
-include ':library:navigation'
 include ':library:ui'
 include ':data:local'
 include ':data:remote'

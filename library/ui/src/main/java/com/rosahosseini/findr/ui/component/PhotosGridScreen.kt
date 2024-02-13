@@ -14,7 +14,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -25,9 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.model.Photo
+import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
-import com.rosahosseini.findr.ui.theme.Dimen
-import com.rosahosseini.findr.ui.theme.Typography
 import com.rosahosseini.findr.ui.widget.LoadImage
 
 @Composable
@@ -61,7 +61,7 @@ private fun PhotoCard(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(Dimen.defaultMarginQuarter)
+            .padding(Dimensions.defaultMarginQuarter)
             .clickable { onPhotoClick(photo) }
     ) {
         LoadImage(
@@ -75,7 +75,7 @@ private fun PhotoCard(
             isBookmarked = { photo.isBookmarked },
             onClick = { onToggleBookmark(photo) },
             modifier = Modifier
-                .padding(Dimen.defaultMargin)
+                .padding(Dimensions.defaultMargin)
                 .align(Alignment.TopEnd)
                 .size(24.dp)
         )
@@ -91,7 +91,7 @@ private fun BoxScope.TitleBar(title: String?) {
     ) {
         Text(
             text = title?.takeIf { it.isNotBlank() }.orEmpty(),
-            style = Typography.caption,
+            style = MaterialTheme.typography.titleSmall,
             color = FindrColor.TextLight,
             modifier = Modifier
                 .background(
@@ -101,7 +101,7 @@ private fun BoxScope.TitleBar(title: String?) {
                         endY = 0f
                     )
                 )
-                .padding(Dimen.defaultMarginHalf)
+                .padding(Dimensions.defaultMarginHalf)
                 .fillMaxWidth(),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

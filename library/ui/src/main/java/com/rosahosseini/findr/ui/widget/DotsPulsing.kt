@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DotsPulsing(dotSize: Dp, delayUnit: Int, color: Color = MaterialTheme.colors.primary) {
+fun DotsPulsing(dotSize: Dp, delayUnit: Int, color: Color = MaterialTheme.colorScheme.primary) {
 
     @Composable
     fun Dot(
@@ -37,7 +37,7 @@ fun DotsPulsing(dotSize: Dp, delayUnit: Int, color: Color = MaterialTheme.colors
             )
     )
 
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "dot")
 
     @Composable
     fun animateScaleWithDelay(delay: Int) = infiniteTransition.animateFloat(
@@ -50,7 +50,8 @@ fun DotsPulsing(dotSize: Dp, delayUnit: Int, color: Color = MaterialTheme.colors
                 1f at delay + delayUnit with LinearEasing
                 0f at delay + delayUnit * 2
             }
-        )
+        ),
+        label = "dot"
     )
 
     val scale1 by animateScaleWithDelay(0)

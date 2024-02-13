@@ -1,5 +1,5 @@
 # ImageBrowser
-An image brower supporting
+An image browser supporting
  - Pagination for infinite scroll
  - Bookmarks
  - Photo detail

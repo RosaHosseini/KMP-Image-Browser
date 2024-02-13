@@ -10,15 +10,11 @@ import com.rosahosseini.findr.model.getError
 import com.rosahosseini.findr.model.isFailure
 import com.rosahosseini.findr.model.isLoading
 import com.rosahosseini.findr.model.isSuccess
-import com.rosahosseini.findr.navigation.Navigator
-import com.rosahosseini.findr.navigation.destinations.BookmarkDestination
-import com.rosahosseini.findr.navigation.destinations.PhotoDetailDestination
 import com.rosahosseini.findr.repository.BookmarkRepository
 import com.rosahosseini.findr.repository.SearchRepository
 import com.rosahosseini.findr.search.model.SearchQueryModel
 import com.rosahosseini.findr.search.model.SuggestionModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -29,13 +25,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class PhotoSearchViewModel @Inject internal constructor(
     private val searchRepository: SearchRepository,
     private val bookmarkRepository: BookmarkRepository,
-    private val navigator: Navigator
-) : BaseViewModel(navigator) {
+) : BaseViewModel() {
 
     private val latestSearchResponse = MutableStateFlow<Either<Page<Photo>>>(Either.Loading())
 
@@ -60,21 +56,6 @@ class PhotoSearchViewModel @Inject internal constructor(
 
     init {
         onQueryTextChange("")
-    }
-
-    fun onPhotoClick(photo: Photo) {
-        viewModelScope.launch {
-            navigator.navigateTo(
-                navTarget = PhotoDetailDestination,
-                args = listOf(Pair(PhotoDetailDestination.arg, photo))
-            )
-        }
-    }
-
-    fun onBookmarksClick() {
-        viewModelScope.launch {
-            navigator.navigateTo(BookmarkDestination)
-        }
     }
 
     fun onToggleBookmark(photo: Photo) {

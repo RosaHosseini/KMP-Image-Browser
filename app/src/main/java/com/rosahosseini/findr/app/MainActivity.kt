@@ -3,7 +3,6 @@ package com.rosahosseini.findr.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.rosahosseini.findr.navigation.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

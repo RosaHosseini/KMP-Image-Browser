@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.rosahosseini.findr.ui.R
+import com.rosahosseini.findr.library.ui.R
 
 @Composable
 fun Bookmark(

@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,26 +25,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.rosahosseini.findr.bookmark.R
 import com.rosahosseini.findr.bookmark.viewmodel.BookmarkViewModel
+import com.rosahosseini.findr.feature.bookmark.R
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.component.PhotosGridScreen
+import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
-import com.rosahosseini.findr.ui.theme.Dimen
-import com.rosahosseini.findr.ui.theme.Typography
-import com.rosahosseini.findr.ui.R as UiR
+import com.rosahosseini.findr.library.ui.R as UiR
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun BookmarkRoute(bookmarkViewModel: BookmarkViewModel = hiltViewModel()) {
+fun BookmarkRoute(
+    navigateToPhotoDetail: (
+        url: String,
+        title: String?,
+        description: String?,
+    ) -> Unit,
+    onBackPressed: () -> Unit,
+    bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
+) {
     val bookmarkedPhotos by bookmarkViewModel.bookmarkedPhotos.collectAsStateWithLifecycle()
     BookmarkScreen(
         photos = bookmarkedPhotos,
-        onPhotoClick = bookmarkViewModel::onPhotoClick,
+        onPhotoClick = { navigateToPhotoDetail(it.urlOriginal, it.title, it.description) },
         onToggleBookmark = bookmarkViewModel::onToggleBookmark,
-        onBackPressed = bookmarkViewModel::onBackPressed
+        onBackPressed = onBackPressed
     )
 }
 
@@ -51,7 +58,7 @@ fun BookmarkScreen(
     photos: List<Photo>,
     onPhotoClick: (Photo) -> Unit,
     onToggleBookmark: (Photo) -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
 ) {
     Column(Modifier.background(FindrColor.DarkBackground)) {
         AppBar(onBackPressed)
@@ -61,7 +68,7 @@ fun BookmarkScreen(
             onToggleBookmark = onToggleBookmark,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(Dimen.defaultMarginHalf),
+                .padding(Dimensions.defaultMarginHalf),
         )
     }
 }
@@ -70,12 +77,12 @@ fun BookmarkScreen(
 private fun AppBar(onBackPressed: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        backgroundColor = FindrColor.DarkBackground,
-        elevation = Dimen.defaultElevation
+        colors = CardDefaults.cardColors(containerColor = FindrColor.DarkBackground),
+        elevation = CardDefaults.cardElevation(defaultElevation = Dimensions.defaultElevation)
     ) {
         Row(
             Modifier
-                .padding(Dimen.defaultMarginDouble)
+                .padding(Dimensions.defaultMarginDouble)
                 .background(Color.Transparent),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -86,10 +93,10 @@ private fun AppBar(onBackPressed: () -> Unit) {
                     .size(24.dp)
                     .clickable { onBackPressed() }
             )
-            Spacer(modifier = Modifier.width(Dimen.defaultMarginDouble))
+            Spacer(modifier = Modifier.width(Dimensions.defaultMarginDouble))
             Text(
                 text = stringResource(id = R.string.bookmarks),
-                style = Typography.h3,
+                style = MaterialTheme.typography.headlineSmall,
                 color = FindrColor.TextLight,
                 textAlign = TextAlign.Center
             )

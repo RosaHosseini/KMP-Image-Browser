@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,9 +36,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.flowlayout.FlowRow
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.search.model.SuggestionModel
 import com.rosahosseini.findr.search.view.components.LoadingScreen
@@ -47,16 +48,23 @@ import com.rosahosseini.findr.ui.component.search.SearchDisplay
 import com.rosahosseini.findr.ui.component.search.SearchState
 import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.extensions.OnBottomReached
-import com.rosahosseini.findr.ui.theme.Dimen
+import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.coroutines.flow.collectLatest
-import com.rosahosseini.findr.ui.R as UiR
+import com.rosahosseini.findr.library.ui.R as UiR
 
 private const val DEBOUNCE_TIME_MILLIS = 1000L
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
+fun SearchRoute(
+    navigateToPhotoDetail: (
+        url: String,
+        title: String?,
+        description: String?,
+    ) -> Unit,
+    navigateToBookmarks: () -> Unit,
+    searchViewModel: PhotoSearchViewModel = hiltViewModel(),
+) {
     val searchedPhotos by searchViewModel.searchedPhotos.collectAsStateWithLifecycle()
     val suggestions by searchViewModel.searchSuggestions.collectAsStateWithLifecycle()
     val isLoading by searchViewModel.isLoading.collectAsStateWithLifecycle(initialValue = false)
@@ -78,16 +86,16 @@ fun SearchRoot(searchViewModel: PhotoSearchViewModel = hiltViewModel()) {
     }
 
     SearchScreen(
-        searchedPhotos,
-        isLoading,
+        photos = searchedPhotos,
+        isLoading = isLoading,
         errorMessage = error?.localMessage?.let { stringResource(it) } ?: error?.message,
-        listState,
-        searchState,
-        searchViewModel::onPhotoClick,
-        searchViewModel::onToggleBookmark,
-        searchViewModel::onBookmarksClick,
-        { suggestions },
-        searchViewModel::onCancelSearchSuggestion
+        listState = listState,
+        searchState = searchState,
+        onPhotoClick = { navigateToPhotoDetail(it.urlOriginal, it.title, it.description) },
+        onToggleBookmark = searchViewModel::onToggleBookmark,
+        onBookmarksClick = navigateToBookmarks,
+        suggestions = { suggestions },
+        onCancelSuggestion = searchViewModel::onCancelSearchSuggestion
     )
 }
 
@@ -102,7 +110,7 @@ private fun SearchScreen(
     onToggleBookmark: (Photo) -> Unit,
     onBookmarksClick: () -> Unit,
     suggestions: () -> List<SuggestionModel>,
-    onCancelSuggestion: (SuggestionModel) -> Unit
+    onCancelSuggestion: (SuggestionModel) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -135,25 +143,27 @@ private fun TopHeader(
     searchState: SearchState,
     onBookmarksClick: () -> Unit,
     suggestions: () -> List<SuggestionModel>,
-    onCancelSuggestion: (SuggestionModel) -> Unit
+    onCancelSuggestion: (SuggestionModel) -> Unit,
 ) {
-    Card(elevation = Dimen.defaultElevation) {
+    Card(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = Dimensions.defaultElevation)
+    ) {
         Column {
             Row(
                 Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min)
                     .background(FindrColor.DarkBackground)
-                    .padding(Dimen.defaultMarginHalf),
+                    .padding(Dimensions.defaultMarginHalf),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SearchBarItem(
                     Modifier.weight(weight = 1f, fill = true),
                     searchState,
                 )
-                Spacer(modifier = Modifier.width(Dimen.defaultMarginDouble))
+                Spacer(modifier = Modifier.width(Dimensions.defaultMarginDouble))
                 BookmarksButton(onBookmarksClick)
-                Spacer(modifier = Modifier.width(Dimen.defaultMargin))
+                Spacer(modifier = Modifier.width(Dimensions.defaultMargin))
             }
             AnimatedVisibility(visible = searchState.searchDisplay == SearchDisplay.SUGGESTIONS) {
                 SuggestionGridLayout(
@@ -171,26 +181,27 @@ private fun TopHeader(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SuggestionGridLayout(
     modifier: Modifier = Modifier,
     suggestions: List<SuggestionModel>,
     onCancelSuggestion: (SuggestionModel) -> Unit,
-    onSuggestionClick: (SuggestionModel) -> Unit
+    onSuggestionClick: (SuggestionModel) -> Unit,
 ) {
     FlowRow(
         modifier = modifier
             .fillMaxWidth()
             .background(FindrColor.DarkBackground)
             .padding(
-                start = Dimen.defaultMarginDouble,
-                end = Dimen.defaultMarginDouble,
-                bottom = Dimen.defaultMargin
+                start = Dimensions.defaultMarginDouble,
+                end = Dimensions.defaultMarginDouble,
+                bottom = Dimensions.defaultMargin
             )
     ) {
         suggestions.forEach { suggestionModel ->
             CancelableChip(
-                modifier = Modifier.padding(Dimen.defaultMarginHalf),
+                modifier = Modifier.padding(Dimensions.defaultMarginHalf),
                 tag = suggestionModel.tag,
                 onClick = { onSuggestionClick(suggestionModel) },
                 onCancel = { onCancelSuggestion(suggestionModel) },
