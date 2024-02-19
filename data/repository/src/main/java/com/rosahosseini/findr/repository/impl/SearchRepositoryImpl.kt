@@ -11,10 +11,10 @@ import com.rosahosseini.findr.repository.SearchRepository
 import com.rosahosseini.findr.repository.map.toPagePhotos
 import com.rosahosseini.findr.repository.map.toPhoto
 import com.rosahosseini.findr.repository.map.toSearchedPhotosEntities
+import com.rosahosseini.findr.repository.utils.RequestManager.Companion.Builder as RequestManagerBuilder
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import com.rosahosseini.findr.repository.utils.RequestManager.Companion.Builder as RequestManagerBuilder
 
 internal class SearchRepositoryImpl @Inject constructor(
     private val photosRemoteDataSource: PhotoRemoteDataSource,

@@ -24,11 +24,14 @@ dependencies {
     implementation(platform(libs.composeBom))
     implementation(libs.lifecycleCompose)
     implementation(libs.composeNavigation)
+    implementation(libs.immutableCollections)
     implementation(libs.composeMaterial3)
     implementation(libs.composeFlowLayout)
     implementation(libs.hiltNavigationCompose)
-    implementation(libs.hiltAndroid)
     implementation(libs.workManagerRuntime)
     implementation(libs.workManagerHilt)
+    implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)
+
+    testImplementation(libs.bundles.testCore)
 }

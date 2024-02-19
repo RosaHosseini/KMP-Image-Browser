@@ -1,52 +1,39 @@
 package com.rosahosseini.findr.search.viewmodel
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
-import com.rosahosseini.findr.commontest.CoroutineTestRule
-import com.rosahosseini.findr.commontest.coroutineTestCase
 import com.rosahosseini.findr.model.Either
 import com.rosahosseini.findr.model.ErrorModel
 import com.rosahosseini.findr.model.Page
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.navigation.Navigator
-import com.rosahosseini.findr.navigation.destinations.BookmarkDestination
-import com.rosahosseini.findr.navigation.destinations.PhotoDetailDestination
 import com.rosahosseini.findr.repository.BookmarkRepository
 import com.rosahosseini.findr.repository.SearchRepository
-import com.rosahosseini.findr.search.model.SuggestionModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.rosahosseini.findr.feature.search.model.SuggestionModel
+import com.rosahosseini.findr.feature.search.viewmodel.PhotoSearchViewModel
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class PhotoSearchViewModelTest {
-    private val bookmarkRepository: BookmarkRepository = mock()
-    private val searchRepository: SearchRepository = mock()
-    private val navigator: Navigator = mock()
+    private val bookmarkRepository: BookmarkRepository = mockk()
+    private val searchRepository: SearchRepository = mockk()
     private val viewModel: PhotoSearchViewModel by lazy {
         PhotoSearchViewModel(
             searchRepository,
-            bookmarkRepository,
-            navigator
+            bookmarkRepository
         )
     }
 
     private val suggestionModel = SuggestionModel("tag")
 
     private val photo = Photo(
-        id = "", isBookmarked = false, title = null, description = null, urlOriginal = null,
+        id = "", isBookmarked = false, title = null, description = null, urlOriginal = "",
         urlLargeNullable = null, urlMedium800px = null, urlMedium640px = null, urlSmall320px = null,
         urlSmall240px = null, urlThumbnail150px = null, urlThumbnail100px = null,
         urlThumbnail75px = null, urlThumbnailSquare = null
@@ -56,227 +43,182 @@ class PhotoSearchViewModelTest {
         listOf(photo, photo), pageNumber, pageSize = 2, hasNext = true, timeStamp = 0
     )
 
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
-
-    @get:Rule
-    var coroutineTestRule = CoroutineTestRule()
-
     @Before
-    fun setUp() {
-        runTest {
-            whenever(
-                searchRepository.getRecentPhotos(any(), any())
-            ) doReturn flowOf(Either.Loading())
-            whenever(
-                searchRepository.searchLocalPhotos(any(), any(), any(), any())
-            ) doReturn flowOf(listOf(photo, photo))
-        }
+    fun setup() {
+        coEvery {
+            searchRepository.getRecentPhotos(any(), any())
+        } returns flowOf(Either.Loading())
+        coEvery {
+            searchRepository.searchLocalPhotos(any(), any(), any(), any())
+        } returns flowOf(listOf(photo, photo))
     }
 
     @Test
-    fun `onPhotoClick would navigate to photo detail`() = coroutineTestCase {
-        whenever {
-            viewModel.onPhotoClick(photo)
-        }
-        then {
-            verify(navigator, times(1)).navigateTo(
-                eq(PhotoDetailDestination),
-                eq(listOf(Pair("photo", photo)))
-            )
-        }
+    fun `onToggleBookmark would change bookmark state from bookmarkRepository`() = runTest {
+
+        // given
+        val photo1 = photo.copy(id = "1", isBookmarked = false)
+        val photo2 = photo.copy(id = "2", isBookmarked = true)
+
+        // whenever
+        viewModel.onToggleBookmark(photo1)
+        viewModel.onToggleBookmark(photo2)
+
+        // then
+        coVerify(exactly = 1) { bookmarkRepository.changeBookmarkState(photo1.id, true) }
+        coVerify(exactly = 1) { bookmarkRepository.changeBookmarkState(photo2.id, false) }
+    }
+
+
+    @Test
+    fun `onQueryTextChange if query is empty getRecentPhotos`() = runBlocking {
+        // whenever
+        viewModel.onQueryTextChange("")
+
+        // then
+        coVerify(exactly = 2) { searchRepository.getRecentPhotos(eq(0), any()) }
     }
 
     @Test
-    fun `onToggleBookmark would change bookmark state from bookmarkRepository`() =
-        coroutineTestCase {
-            val photo1 = photo.copy(id = "1", isBookmarked = false)
-            val photo2 = photo.copy(id = "2", isBookmarked = true)
-            whenever {
-                viewModel.onToggleBookmark(photo1)
-                viewModel.onToggleBookmark(photo2)
-            }
-            then {
-                verify(bookmarkRepository).changeBookmarkState(photo1.id, true)
-                verify(bookmarkRepository).changeBookmarkState(photo2.id, false)
-            }
-        }
-
-    @Test
-    fun `onBookmarksClick would navigate to bookmark destination `() = coroutineTestCase {
-        whenever {
-            viewModel.onBookmarksClick()
-        }
-        then {
-            verify(navigator).navigateTo(BookmarkDestination)
-        }
-    }
-
-    @Test
-    fun `onQueryTextChange if query is empty getRecentPhotos`() = coroutineTestCase {
-        whenever {
-            viewModel.onQueryTextChange("")
-        }
-        then {
-            verify(searchRepository, times(2)).getRecentPhotos(eq(0), any())
-        }
-    }
-
-    @Test
-    fun `onQueryTextChange save query in searchHistory if its not blank`() = coroutineTestCase {
+    fun `onQueryTextChange save query in searchHistory if its not blank`() = runBlocking {
+        // given
         val query = "query"
-        given {
-            whenever(
-                searchRepository.searchPhotos(any(), any(), any())
-            ).doReturn(flowOf(Either.Loading()))
-        }
-        whenever {
-            viewModel.onQueryTextChange(query)
-        }
-        then {
-            verify(searchRepository).saveSearchQuery(query)
-        }
+        coEvery {
+            searchRepository.searchPhotos(any(), any(), any())
+        } returns flowOf(Either.Loading())
+
+        // whenever
+        viewModel.onQueryTextChange(query)
+
+        // then
+        coVerify(exactly = 1) { searchRepository.saveSearchQuery(query) }
     }
 
     @Test
-    fun `onQueryTextChange does not save query in searchHistory if it is blank`() =
-        coroutineTestCase {
-            whenever {
-                viewModel.onQueryTextChange("   ")
-                viewModel.onQueryTextChange("")
-            }
-            then {
-                verify(searchRepository, never()).saveSearchQuery(any())
-            }
-        }
+    fun `onQueryTextChange does not save query in searchHistory if it is blank`() = runBlocking {
+        // whenever
+        viewModel.onQueryTextChange("   ")
+        viewModel.onQueryTextChange("")
+
+        // then
+        confirmVerified(searchRepository)
+        coVerify(exactly = 0) { searchRepository.saveSearchQuery(any()) }
+    }
 
     @Test
-    fun `onQueryTextChange if query is not null or empty searchPhotos`() = coroutineTestCase {
+    fun `onQueryTextChange if query is not null or empty searchPhotos`() = runBlocking {
+        // given
         val query = "query"
-        given {
-            whenever(
-                searchRepository.searchPhotos(any(), eq(0), any())
-            ) doReturn flowOf(Either.Success(pagedPhoto(0)))
-        }
-        whenever {
-            viewModel.onQueryTextChange(query)
-        }
-        then {
-            verify(searchRepository).searchPhotos(eq(query), eq(0), any())
-        }
+        coEvery {
+            searchRepository.searchPhotos(any(), eq(0), any())
+        } returns flowOf(Either.Success(pagedPhoto(0)))
+
+
+        // whenever
+        viewModel.onQueryTextChange(query)
+
+        // then
+        coVerify(exactly = 1) { searchRepository.searchPhotos(eq(query), eq(0), any()) }
     }
 
     @Test
-    fun `onLoadMore if last response is success search next page`() = coroutineTestCase {
+    fun `onLoadMore if last response is success search next page`() = runBlocking {
+        // given
         val query = "query"
-        given {
-            whenever(
-                searchRepository.searchPhotos(any(), eq(0), any())
-            ) doReturn flowOf(Either.Success(pagedPhoto(0)))
-            whenever(
-                searchRepository.searchPhotos(any(), eq(1), any())
-            ) doReturn flowOf(Either.Success(pagedPhoto(1)))
-            whenever(
-                searchRepository.searchPhotos(any(), eq(2), any())
-            ) doReturn flowOf(Either.Success(pagedPhoto(2)))
+        repeat(3) { pageNumber ->
+            coEvery {
+                searchRepository.searchPhotos(any(), eq(pageNumber), any())
+            } returns flowOf(Either.Success(pagedPhoto(pageNumber)))
         }
-        whenever {
-            viewModel.onQueryTextChange(query)
-            viewModel.onLoadMore()
-        }
-        then {
-            verify(searchRepository, times(1)).searchPhotos(eq(query), eq(0), any())
-            verify(searchRepository, times(1)).searchPhotos(eq(query), eq(1), any())
-        }
+
+        // whenever
+        viewModel.onQueryTextChange(query)
+        viewModel.onLoadMore()
+
+        // then
+        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
+        coVerify(exactly = 1) { searchRepository.searchPhotos(eq(query), eq(1), any()) }
     }
 
     @Test
-    fun `onLoadMore if last response is loading does not search anything`() = coroutineTestCase {
+    fun `onLoadMore if last response is loading does not search anything`() = runBlocking {
+        // given
         val query = "query"
-        given {
-            whenever(
-                searchRepository.searchPhotos(any(), any(), any())
-            ) doReturn flowOf(Either.Loading(pagedPhoto(0)))
-        }
-        whenever {
-            viewModel.onQueryTextChange(query)
-            viewModel.onLoadMore()
-        }
-        then {
-            verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
-            verify(searchRepository, times(1)).searchPhotos(eq(query), eq(0), any())
-        }
+        coEvery {
+            searchRepository.searchPhotos(any(), any(), any())
+        } returns flowOf(Either.Loading(pagedPhoto(0)))
+
+        // whenever
+        viewModel.onQueryTextChange(query)
+        viewModel.onLoadMore()
+
+        // then
+        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
+        coVerify(exactly = 2) { searchRepository.searchPhotos(eq(query), eq(0), any()) }
     }
 
     @Test
-    fun `onLoadMore if last response is error research the last page`() = coroutineTestCase {
+    fun `onLoadMore if last response is error research the last page`() = runBlocking {
+        // given
         val query = "query"
-        given {
-            whenever(
-                searchRepository.searchPhotos(any(), any(), any())
-            ) doReturn (flowOf(Either.Error(ErrorModel(), pagedPhoto(0))))
-        }
-        whenever {
-            viewModel.onQueryTextChange(query)
-            viewModel.onLoadMore()
-        }
-        then {
-            verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
-            verify(searchRepository, times(2)).searchPhotos(eq(query), eq(0), any())
-        }
+        coEvery {
+            searchRepository.searchPhotos(any(), any(), any())
+        } returns flowOf(Either.Error(ErrorModel(), pagedPhoto(0)))
+
+        // whenever
+        viewModel.onQueryTextChange(query)
+        viewModel.onLoadMore()
+
+        // then
+        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
+        coVerify(exactly = 2) { searchRepository.searchPhotos(eq(query), eq(0), any()) }
     }
 
     @Test
-    fun `onCreate getRecentPhotos`() = coroutineTestCase {
-        whenever {
-            viewModel // init viewmodel
-        }
-        then {
-            verify(searchRepository, times(1)).getRecentPhotos(eq(0), any())
-        }
+    fun `onCreate getRecentPhotos`() = runBlocking {
+        // whenever
+        viewModel // init viewmodel
+
+        // then
+        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
     }
 
     @Test
-    fun `onCancelSearchSuggestion would call removeSuggestion`() = coroutineTestCase {
-        whenever {
-            viewModel.onCancelSearchSuggestion(suggestionModel) // init viewmodel
-        }
-        then {
-            verify(searchRepository, times(1)).removeSuggestion(suggestionModel.tag)
-        }
+    fun `onCancelSearchSuggestion would call removeSuggestion`() = runBlocking {
+        // whenever
+        viewModel.onCancelSearchSuggestion(suggestionModel)
+
+        // then
+        coVerify(exactly = 1) { searchRepository.removeSuggestion(suggestionModel.tag) }
     }
 
     @Test
-    fun `searchedPhotos is fetched from searchLocalPhotos`() = coroutineTestCase {
+    fun `searchedPhotos is fetched from searchLocalPhotos`() = runBlocking {
+        // given
         val localPhotos = listOf(photo, photo, photo)
-        given {
-            whenever(
-                searchRepository.searchLocalPhotos(any(), any(), any(), any())
-            ) doReturn flowOf(localPhotos)
-        }
-        var result: List<Photo>? = null
-        whenever {
-            result = viewModel.searchedPhotos.first()
-        }
-        then {
-            assertEquals(result, localPhotos)
-        }
+        coEvery {
+            searchRepository.searchLocalPhotos(any(), any(), any(), any())
+        } returns flowOf(localPhotos)
+
+        // whenever {
+        val actual = viewModel.searchedPhotos.first()
+
+        // then
+        assertEquals(actual, localPhotos)
     }
 
     @Test
-    fun `searchSuggestions is fetched from get`() = coroutineTestCase {
-        val suggestions = listOf(suggestionModel, suggestionModel, suggestionModel)
-        given {
-            whenever(
-                searchRepository.getSearchSuggestion(any(), any())
-            ) doReturn flowOf(suggestions.map { it.tag })
-        }
-        var result: List<SuggestionModel>? = null
-        whenever {
-            result = viewModel.searchSuggestions.first()
-        }
-        then {
-            assertEquals(suggestions, result)
-        }
+    fun `searchSuggestions is fetched from get`() = runTest {
+        // given
+        val expected = listOf(suggestionModel, suggestionModel, suggestionModel)
+        coEvery {
+            searchRepository.getSearchSuggestion(any(), any())
+        } returns flowOf(expected.map { it.tag })
+
+        // whenever
+        val actual = viewModel.searchSuggestions.first()
+
+        // then
+        assertEquals(expected, actual)
     }
 }

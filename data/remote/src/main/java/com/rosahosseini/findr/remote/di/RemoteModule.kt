@@ -3,9 +3,9 @@ package com.rosahosseini.findr.remote.di
 import com.rosahosseini.findr.remote.retrofit.FLICKR_BASE_URL
 import com.rosahosseini.findr.remote.retrofit.buildRetrofit
 import com.rosahosseini.findr.remote.service.PhotoService
+import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.Module
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,7 +13,7 @@ import retrofit2.Retrofit
 
 @InstallIn(SingletonComponent::class)
 @Module
-object RemoteModule {
+internal object RemoteModule {
     // RETROFIT
     @Provides
     fun provideOKHttpClient(): OkHttpClient {

@@ -22,11 +22,15 @@ dependencies {
     implementation(project(":data:repository"))
     implementation(platform(libs.composeBom))
     implementation(libs.composeRuntime)
+    implementation(libs.immutableCollections)
     implementation(libs.composeMaterial3)
     implementation(libs.hiltNavigationCompose)
     implementation(libs.composeNavigation)
     implementation(libs.composeTooling)
+    implementation(libs.lifecycleViewModel)
     implementation(libs.lifecycleCompose)
     implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)
+
+    testImplementation(libs.bundles.testCore)
 }

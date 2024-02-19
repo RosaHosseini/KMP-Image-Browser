@@ -3,6 +3,8 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
+val javaVersion = JavaVersion.VERSION_19
+
 plugins {
     alias(libs.plugins.androidApplication).apply(false)
     alias(libs.plugins.androidLibrary).apply(false)
@@ -22,7 +24,6 @@ allprojects {
         google()
         mavenCentral()
     }
-
     configureKtlint()
     configureDetekt()
     configureJava()
@@ -51,7 +52,7 @@ fun Project.configureDetekt() {
         autoCorrect = false
     }
     tasks.withType<Detekt>().configureEach {
-        jvmTarget = "19"
+        jvmTarget = javaVersion.majorVersion
         reports {
             html.required.set(false)
             xml.required.set(false)
@@ -84,8 +85,8 @@ fun Project.configureAndroidVersions() {
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_19
-            targetCompatibility = JavaVersion.VERSION_19
+            sourceCompatibility = javaVersion
+            targetCompatibility = javaVersion
         }
     }
 }
@@ -94,7 +95,7 @@ fun Project.configureJava() {
     plugins.withType<JavaBasePlugin>().configureEach {
         extensions.configure<JavaPluginExtension> {
             toolchain {
-                languageVersion = JavaLanguageVersion.of("19")
+                languageVersion = JavaLanguageVersion.of(javaVersion.majorVersion)
             }
         }
     }

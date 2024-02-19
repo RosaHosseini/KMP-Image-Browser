@@ -10,7 +10,7 @@ internal fun PhotoDto.toPhoto() = Photo(
     isBookmarked = false,
     title,
     description?.orNullIfEmpty(),
-    urlOriginal?.orNullIfEmpty(),
+    urlOriginal.orEmpty(),
     urlLarge?.orNullIfEmpty(),
     urlMedium800px?.orNullIfEmpty(),
     urlMedium640px?.orNullIfEmpty(),

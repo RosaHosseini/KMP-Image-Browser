@@ -13,10 +13,9 @@ internal const val ARG_URL = "url"
 internal const val ARG_DESCRIPTION = "photo_id"
 internal const val ARG_TITLE = "title"
 private const val ROUTE_PHOTO_DETAIL = "$BASE_PHOTO_DETAIL?" +
-        "url={$ARG_URL}&" +
-        "title={$ARG_TITLE}&" +
-        "desc={$ARG_DESCRIPTION}"
-
+    "url={$ARG_URL}&" +
+    "title={$ARG_TITLE}&" +
+    "desc={$ARG_DESCRIPTION}"
 
 fun NavGraphBuilder.photoDetailGraph(navController: NavController) {
     composable(
@@ -35,7 +34,6 @@ fun NavGraphBuilder.photoDetailGraph(navController: NavController) {
             }
         )
     ) {
-
         PhotoDetailRoute(
             state = PhotoDetailArgs(requireNotNull(it.arguments)),
             onBackPressed = navController::navigateUp
@@ -56,4 +54,3 @@ fun NavController.navigateToPhotoDetail(
     }
     navigate(route, navOptions)
 }
-

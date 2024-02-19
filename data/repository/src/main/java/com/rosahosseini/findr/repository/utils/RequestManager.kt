@@ -2,7 +2,10 @@ package com.rosahosseini.findr.repository.utils
 
 import com.rosahosseini.findr.model.Either
 import com.rosahosseini.findr.model.ErrorModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.flow
 
 /**
  * A helper class that supports db request, api requests, and Offline first apis
@@ -16,15 +19,19 @@ internal class RequestManager<T>(
     private val errorManager: ErrorManager
 ) {
     operator fun invoke(): Flow<Either<T>> {
-        return flow {
+        return flow<Either<T>> {
             emit(Either.Loading())
             // first load from db with state LOADING
             val dbResult: T? = loadFromDb.invoke()?.also { emit(Either.Loading(it)) }
             // if should fetch, fetch from network with state SUCCESS
-            if (shouldFetch(dbResult)) fetchFromNetwork()
-            // else, send DB data with SUCCESS state
-            else if (dbResult != null) emit(Either.Success(dbResult))
-            else emit(Either.Error(ErrorModel(ErrorModel.Type.EMPTY_DATA)))
+            if (shouldFetch(dbResult)) {
+                fetchFromNetwork()
+            } // else, send DB data with SUCCESS state
+            else if (dbResult != null) {
+                emit(Either.Success(dbResult))
+            } else {
+                emit(Either.Error(ErrorModel(ErrorModel.Type.EMPTY_DATA)))
+            }
         }.cancellable()
     }
 

@@ -1,10 +1,20 @@
 package com.rosahosseini.findr.ui.component.search
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 
 /**
  * Creates a [SearchState] that is remembered across compositions. Uses [LaunchedEffect]
@@ -25,9 +35,8 @@ import kotlinx.coroutines.flow.*
 fun rememberSearchState(
     initialQuery: String,
     debounceMillis: Long = 0,
-    onQueryChange: (String) -> Unit,
+    onQueryChange: (String) -> Unit
 ): SearchState {
-
     return remember { SearchState(initialQuery) }.also { state ->
         LaunchedEffect(key1 = Unit) {
             snapshotFlow { state.query }

@@ -26,8 +26,8 @@ import com.rosahosseini.findr.ui.theme.FindrColor
 
 @Composable
 fun CancelableChip(
-    modifier: Modifier = Modifier,
     tag: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onCancel: () -> Unit = {},
     backgroundColor: Color = FindrColor.Grey40,
@@ -36,13 +36,16 @@ fun CancelableChip(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor),
+            .background(backgroundColor)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .clickable { onClick() }
-                .padding(vertical = Dimensions.defaultMarginHalf, horizontal = Dimensions.defaultMarginOneHalf)
+                .padding(
+                    vertical = Dimensions.defaultMarginHalf,
+                    horizontal = Dimensions.defaultMarginOneHalf
+                )
         ) {
             Text(
                 text = tag,

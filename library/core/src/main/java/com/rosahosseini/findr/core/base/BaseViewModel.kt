@@ -2,15 +2,12 @@ package com.rosahosseini.findr.core.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-@HiltViewModel
-open class BaseViewModel @Inject constructor() : ViewModel() {
+open class BaseViewModel : ViewModel() {
     fun <T> Flow<T>.stateIn(initialValue: T): StateFlow<T> {
         return stateIn(
             viewModelScope,

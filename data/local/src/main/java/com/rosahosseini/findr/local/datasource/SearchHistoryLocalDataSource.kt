@@ -7,7 +7,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 class SearchHistoryLocalDataSource @Inject constructor(
-    private val searchHistoryDao: SearchHistoryDao,
+    private val searchHistoryDao: SearchHistoryDao
 ) {
     suspend fun saveQuery(query: String) {
         searchHistoryDao.insertOrUpdate(SearchHistoryEntity(query, getCurrentTimeMillis()))

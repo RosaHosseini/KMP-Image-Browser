@@ -29,13 +29,14 @@ import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import com.rosahosseini.findr.ui.widget.LoadImage
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun PhotosGridScreen(
-    photos: List<Photo>,
+    photos: ImmutableList<Photo>,
     onPhotoClick: (Photo) -> Unit,
     onToggleBookmark: (Photo) -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     listState: LazyGridState = rememberLazyGridState()
 ) {
     LazyVerticalGrid(
@@ -69,7 +70,7 @@ private fun PhotoCard(
                 .fillMaxWidth()
                 .aspectRatio(0.8f),
             url = photo.urlThumbnail,
-            description = photo.description,
+            description = photo.description
         )
         Bookmark(
             isBookmarked = { photo.isBookmarked },

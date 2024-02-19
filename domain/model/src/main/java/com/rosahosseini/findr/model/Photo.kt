@@ -14,7 +14,7 @@ data class Photo(
     val urlThumbnail150px: String?,
     val urlThumbnail100px: String?,
     val urlThumbnail75px: String?,
-    val urlThumbnailSquare: String?,
+    val urlThumbnailSquare: String?
 ) {
     val urlSmall: String
         get() = urlSmall240px ?: urlSmall320px ?: urlMedium
@@ -27,5 +27,5 @@ data class Photo(
 
     val urlThumbnail: String
         get() = urlThumbnail150px ?: urlThumbnail100px ?: urlThumbnail75px ?: urlThumbnailSquare
-        ?: urlSmall
+            ?: urlSmall
 }

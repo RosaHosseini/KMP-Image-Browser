@@ -1,9 +1,9 @@
 package com.rosahosseini.findr.model
 
 sealed class Either<out T>(open val data: T?) {
-    class Success<T>(data: T) : Either<T>(data)
-    class Error<T>(val error: ErrorModel, override val data: T? = null) : Either<T>(data)
-    class Loading<T>(data: T? = null) : Either<T>(data)
+    data class Success<T>(override val data: T) : Either<T>(data)
+    data class Error<T>(val error: ErrorModel, override val data: T? = null) : Either<T>(data)
+    data class Loading<T>(override val data: T? = null) : Either<T>(data)
 }
 
 fun <T> Either<T>.hasData(): Boolean {
@@ -23,9 +23,11 @@ fun <T> Either<T>.isLoading(): Boolean {
 }
 
 fun <T> Either<T>.getError(): ErrorModel? {
-    return if (this is Either.Error)
+    return if (this is Either.Error) {
         return error
-    else null
+    } else {
+        null
+    }
 }
 
 fun <T, R> Either<T>.map(mapper: T.() -> R): Either<R> {

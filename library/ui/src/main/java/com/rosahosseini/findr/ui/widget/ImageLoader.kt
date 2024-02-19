@@ -13,7 +13,7 @@ import com.rosahosseini.findr.library.ui.R
 fun LoadImage(
     url: String,
     description: String?,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop
 ) {
     AsyncImage(

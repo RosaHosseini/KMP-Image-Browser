@@ -1,37 +1,23 @@
 package com.rosahosseini.findr.bookmark.viewmodel
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
-import com.rosahosseini.findr.commontest.CoroutineTestRule
-import com.rosahosseini.findr.commontest.coroutineTestCase
+import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkViewModel
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.navigation.Navigator
-import com.rosahosseini.findr.navigation.destinations.PhotoDetailDestination
 import com.rosahosseini.findr.repository.BookmarkRepository
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class BookmarkViewModelTest {
-    private val bookmarkRepository: BookmarkRepository = mock()
-    private val navigator: Navigator = mock()
-    private val viewModel: BookmarkViewModel by lazy {
-        BookmarkViewModel(
-            bookmarkRepository,
-            navigator
-        )
-    }
+    private val bookmarkRepository: BookmarkRepository = mockk()
+    private val viewModel: BookmarkViewModel by lazy { BookmarkViewModel(bookmarkRepository) }
 
-    @get:Rule
-    var coroutineTestRule = CoroutineTestRule()
 
     private val photo = Photo(
-        id = "", isBookmarked = false, title = null, description = null, urlOriginal = null,
+        id = "", isBookmarked = false, title = null, description = null, urlOriginal = "",
         urlLargeNullable = null, urlMedium800px = null, urlMedium640px = null, urlSmall320px = null,
         urlSmall240px = null, urlThumbnail150px = null, urlThumbnail100px = null,
         urlThumbnail75px = null, urlThumbnailSquare = null
@@ -39,33 +25,26 @@ class BookmarkViewModelTest {
 
     @Before
     fun setUp() {
-        whenever(bookmarkRepository.getAllBookmarkedPhotos()) doReturn flowOf(emptyList())
+        every { bookmarkRepository.getAllBookmarkedPhotos() } returns flowOf(emptyList())
     }
 
     @Test
-    fun `onToggleBookmark change bookmark start by repository`() = coroutineTestCase {
+    fun `onToggleBookmark change bookmark start by repository`() = runTest {
+
+        // given
         val photo1 = photo.copy(id = "1", isBookmarked = false)
         val photo2 = photo.copy(id = "2", isBookmarked = true)
-        whenever {
-            viewModel.onToggleBookmark(photo1)
-            viewModel.onToggleBookmark(photo2)
-        }
-        then {
-            verify(bookmarkRepository).changeBookmarkState(photo1.id, true)
-            verify(bookmarkRepository).changeBookmarkState(photo2.id, false)
-        }
-    }
 
-    @Test
-    fun `onPhotoClick would navigate to photo detail`() = coroutineTestCase {
-        whenever {
-            viewModel.onPhotoClick(photo)
+        // whenever
+        viewModel.onToggleBookmark(photo1)
+        viewModel.onToggleBookmark(photo2)
+
+        // then
+        coVerify(exactly = 1) {
+            bookmarkRepository.changeBookmarkState(photo1.id, true)
         }
-        then {
-            verify(navigator, times(1)).navigateTo(
-                eq(PhotoDetailDestination),
-                eq(listOf(Pair("photo", photo)))
-            )
+        coVerify(exactly = 1) {
+            bookmarkRepository.changeBookmarkState(photo2.id, false)
         }
     }
 }

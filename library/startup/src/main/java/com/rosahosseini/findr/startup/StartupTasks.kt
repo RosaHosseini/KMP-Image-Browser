@@ -1,7 +1,6 @@
 package com.rosahosseini.findr.startup
 
-import com.google.auto.value.AutoAnnotation
-import dagger.MapKey
+import javax.inject.Qualifier
 
 /**
  * The RunnableTask should be implemented by any class whose wants to execute codes for initializing
@@ -16,8 +15,8 @@ import dagger.MapKey
  * object StartupTasksModule {
  *
  *     @Provides
- *     @IntoMap
- *     @StartupTaskKey("MyStartupTask")
+ *     @IntoSet
+ *     @StartupTaskKey
  *     fun provideStartupTask() = RunnableTask {
  *         Log.d("TAG", "This is a startup task!")
  *     }
@@ -25,8 +24,8 @@ import dagger.MapKey
  * ```
  *
  * ```
- * @BindType(contributesTo = BindType.Collection.MAP)
- * @StartupTaskKey("MyStartupTask")
+ * @BindType(contributesTo = BindType.Collection.SET)
+ * @StartupTaskKey
  * class MyStartupTask : RunnableTask {
  *
  *     override suspend fun run() {
@@ -43,12 +42,6 @@ fun interface RunnableTask {
     suspend fun run()
 }
 
-typealias StartupTasks = MutableMap<StartupTaskKey, RunnableTask>
-
-@MapKey(unwrapValue = false)
-annotation class StartupTaskKey(val name: String, val order: Int = Int.MAX_VALUE)
-
-@AutoAnnotation
-fun createStartupTaskKey(name: String, order: Int): StartupTaskKey {
-    return StartupTaskKeyCreator.createStartupTaskKey(name, order)
-}
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class StartupTaskKey

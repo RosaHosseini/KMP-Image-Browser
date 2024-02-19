@@ -1,16 +1,16 @@
 package com.rosahosseini.findr.startup
 
 import android.app.Application
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 open class StartupApplication : Application() {
 
     @Inject
-    @JvmField
-    var startupTasks: StartupTasks? = null
+    @StartupTaskKey
+    lateinit var startupTasks: @JvmSuppressWildcards Set<RunnableTask>
 
     override fun onCreate() {
         super.onCreate()
@@ -18,15 +18,15 @@ open class StartupApplication : Application() {
     }
 
     private fun runStartupTasks() {
-        requireNotNull(startupTasks).entries.sortedBy { it.key.order }.forEach { taskEntry ->
+        startupTasks.forEach { taskEntry ->
             MainScope().launch(Dispatchers.Default) {
-                taskEntry.value.run()
+                taskEntry.run()
             }
         }
         clearStartupTasks()
     }
 
     private fun clearStartupTasks() {
-        startupTasks = null
+        startupTasks = emptySet()
     }
 }

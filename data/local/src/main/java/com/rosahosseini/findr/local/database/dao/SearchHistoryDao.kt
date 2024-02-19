@@ -15,9 +15,9 @@ interface SearchHistoryDao {
 
     @Query(
         "SELECT * FROM search_history" +
-                " WHERE queryText LIKE '%' || :query || '%'  " +
-                "ORDER BY timeStamp DESC " +
-                "LIMIT :limit"
+            " WHERE queryText LIKE '%' || :query || '%'  " +
+            "ORDER BY timeStamp DESC " +
+            "LIMIT :limit"
     )
     fun getLatestSearch(query: String, limit: Int): Flow<List<SearchHistoryEntity>>
 

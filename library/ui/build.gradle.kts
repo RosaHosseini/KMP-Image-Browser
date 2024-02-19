@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
@@ -17,6 +18,7 @@ dependencies {
     implementation(project(":domain:model"))
     implementation(platform(libs.composeBom))
     implementation(libs.composeMaterial3)
+    implementation(libs.immutableCollections)
 //    implementation "androidx.compose.animation:animation:${library.compose}"
     implementation(libs.composeTooling)
     implementation(libs.composeCoil)

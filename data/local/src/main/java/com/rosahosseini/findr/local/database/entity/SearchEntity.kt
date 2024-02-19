@@ -4,7 +4,7 @@ import androidx.room.Entity
 
 @Entity(
     tableName = "search_photo",
-    primaryKeys = ["queryText", "offset"],
+    primaryKeys = ["queryText", "offset"]
 )
 data class SearchEntity(
     val queryText: String,

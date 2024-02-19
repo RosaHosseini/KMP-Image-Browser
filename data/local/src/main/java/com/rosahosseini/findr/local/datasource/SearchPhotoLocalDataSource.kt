@@ -1,12 +1,12 @@
 package com.rosahosseini.findr.local.datasource
 
+import com.rosahosseini.findr.core.extensions.getCurrentTimeMillis
 import com.rosahosseini.findr.local.database.dao.PhotoDao
 import com.rosahosseini.findr.local.database.dao.SearchDao
 import com.rosahosseini.findr.local.database.entity.SearchedPhotoEntity
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import com.rosahosseini.findr.core.extensions.getCurrentTimeMillis
 
 class SearchPhotoLocalDataSource @Inject constructor(
     private val searchDao: SearchDao,

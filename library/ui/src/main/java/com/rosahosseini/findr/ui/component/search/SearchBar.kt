@@ -47,11 +47,10 @@ fun SearchBar(
     onSearchFocusChange: (Boolean) -> Unit,
     onBack: () -> Unit,
     focused: Boolean,
-    modifier: Modifier = Modifier,
     backgroundColor: Color,
     contentColor: Color,
+    modifier: Modifier = Modifier
 ) {
-
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -66,7 +65,8 @@ fun SearchBar(
                     focusManager.clearFocus()
                     keyboardController?.hide()
                     onBack()
-                }) {
+                }
+            ) {
                 Icon(
                     painterResource(id = R.drawable.ic_back),
                     contentDescription = null,
@@ -75,13 +75,13 @@ fun SearchBar(
             }
         }
         SearchTextField(
-            query,
-            onQueryChange,
-            onSearchFocusChange,
-            focused,
-            Modifier.weight(1f),
-            backgroundColor,
-            contentColor
+            query = query,
+            onQueryChange = onQueryChange,
+            onSearchFocusChange = onSearchFocusChange,
+            focused = focused,
+            modifier = Modifier.weight(1f),
+            backgroundColor = backgroundColor,
+            contentColor = contentColor
         )
     }
 }
@@ -96,11 +96,10 @@ fun SearchTextField(
     onQueryChange: (TextFieldValue) -> Unit,
     onSearchFocusChange: (Boolean) -> Unit,
     focused: Boolean,
-    modifier: Modifier = Modifier,
     backgroundColor: Color,
     contentColor: Color,
+    modifier: Modifier = Modifier
 ) {
-
     val focusRequester = remember { FocusRequester() }
 
     Surface(
@@ -114,9 +113,8 @@ fun SearchTextField(
                 )
         ),
         color = backgroundColor,
-        shape = RoundedCornerShape(percent = 50),
+        shape = RoundedCornerShape(percent = 50)
     ) {
-
         Box(contentAlignment = Alignment.CenterStart) {
             if (query.text.isEmpty()) SearchHint()
 
@@ -158,7 +156,7 @@ private fun SearchHint() {
     ) {
         Text(
             color = FindrColor.Grey30,
-            text = stringResource(R.string.search_hint),
+            text = stringResource(R.string.search_hint)
         )
     }
 }

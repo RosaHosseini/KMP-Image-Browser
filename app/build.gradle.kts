@@ -27,6 +27,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -46,13 +47,16 @@ android {
     }
 }
 
-
 dependencies {
     implementation(project(":library:ui"))
     implementation(project(":library:startup"))
+    implementation(project(":data:remote"))
+    implementation(project(":data:repository"))
+    implementation(project(":domain:model"))
     implementation(project(":feature:search"))
     implementation(project(":feature:bookmark"))
     implementation(project(":feature:photodetail"))
+    implementation(libs.appcompat)
     implementation(platform(libs.composeBom))
     implementation(libs.hiltNavigationCompose)
     implementation(libs.composeActivity)
@@ -60,6 +64,5 @@ dependencies {
     implementation(libs.accompanistInsets)
     implementation(libs.workManagerHilt)
     implementation(libs.hiltAndroid)
-    implementation(libs.hiltNavigationCompose)
     ksp(libs.hiltCompiler)
 }

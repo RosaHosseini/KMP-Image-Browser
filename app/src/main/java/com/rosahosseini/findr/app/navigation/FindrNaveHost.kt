@@ -5,12 +5,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.rosahosseini.findr.bookmark.navigation.bookmarkGraph
-import com.rosahosseini.findr.bookmark.navigation.navigateToBookmarks
+import com.rosahosseini.findr.feature.bookmark.navigation.bookmarkGraph
+import com.rosahosseini.findr.feature.bookmark.navigation.navigateToBookmarks
+import com.rosahosseini.findr.feature.search.navigation.ROUTE_SEARCH
+import com.rosahosseini.findr.feature.search.navigation.searchGraph
 import com.rosahosseini.findr.photodetail.navigation.navigateToPhotoDetail
 import com.rosahosseini.findr.photodetail.navigation.photoDetailGraph
-import com.rosahosseini.findr.search.navigation.ROUTE_SEARCH
-import com.rosahosseini.findr.search.navigation.searchGraph
 
 /**
  * Top-level navigation graph. Navigation is organized as explained at
@@ -23,7 +23,7 @@ import com.rosahosseini.findr.search.navigation.searchGraph
 fun FindrNaveHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = ROUTE_SEARCH,
+    startDestination: String = ROUTE_SEARCH
 ) {
     NavHost(
         navController = navController,

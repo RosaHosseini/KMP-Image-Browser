@@ -13,7 +13,7 @@ data class PhotoEntity(
     val isBookmarked: Boolean,
     val title: String? = null,
     val description: String? = null,
-    val urlOriginal: String? = null,
+    val urlOriginal: String,
     val urlLarge: String? = null,
     val urlMedium800px: String? = null,
     val urlMedium640px: String? = null,

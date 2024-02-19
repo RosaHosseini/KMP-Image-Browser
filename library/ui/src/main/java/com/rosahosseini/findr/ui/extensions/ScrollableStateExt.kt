@@ -10,7 +10,7 @@ import androidx.compose.runtime.snapshotFlow
 @Composable
 fun LazyGridState.OnBottomReached(
     buffer: Int = 0,
-    loadMore: () -> Unit,
+    loadMore: () -> Unit
 ) {
     require(buffer >= 0) { "buffer cannot be negative, but was $buffer" }
     val shouldLoadMore = remember {

@@ -1,8 +1,8 @@
 package com.rosahosseini.findr.commontest
 
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlin.coroutines.EmptyCoroutineContext
 
 inline fun testCase(testCase: TestCase.() -> Unit) {
     TestCase().apply(testCase).apply {

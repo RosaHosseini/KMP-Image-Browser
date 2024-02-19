@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
@@ -18,6 +19,7 @@ dependencies {
     implementation(project(":library:ui"))
     implementation(project(":domain:model"))
     implementation(platform(libs.composeBom))
+    implementation(libs.lifecycleCompose)
     implementation(libs.composeNavigation)
     implementation(libs.composeMaterial3)
 }

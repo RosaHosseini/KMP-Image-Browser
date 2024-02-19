@@ -22,20 +22,20 @@ interface SearchDao {
     @Transaction
     @Query(
         "SELECT * FROM search_photo " +
-                "WHERE queryText = :queryText " +
-                "AND `offset` >= :from " +
-                "AND `offset` < :to " +
-                "ORDER BY `offset` ASC"
+            "WHERE queryText = :queryText " +
+            "AND `offset` >= :from " +
+            "AND `offset` < :to " +
+            "ORDER BY `offset` ASC"
     )
     suspend fun search(queryText: String?, from: Int, to: Int): List<SearchedPhotoEntity>
 
     @Transaction
     @Query(
         "SELECT * FROM search_photo " +
-                "WHERE queryText = :queryText " +
-                "AND `offset` >= :from " +
-                "AND `offset` < :to " +
-                "ORDER BY `offset` ASC"
+            "WHERE queryText = :queryText " +
+            "AND `offset` >= :from " +
+            "AND `offset` < :to " +
+            "ORDER BY `offset` ASC"
     )
     fun searchFlow(queryText: String?, from: Int, to: Int): Flow<List<SearchedPhotoEntity>>
 

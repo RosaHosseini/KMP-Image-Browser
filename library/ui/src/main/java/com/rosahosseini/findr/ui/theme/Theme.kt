@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 @Composable
 fun FindrTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     MaterialTheme(
         typography = Typography,
