@@ -2,6 +2,8 @@ package com.rosahosseini.findr.feature.search.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rosahosseini.findr.domain.bookmark.BookmarkRepository
+import com.rosahosseini.findr.domain.search.SearchRepository
 import com.rosahosseini.findr.feature.search.model.SearchQueryModel
 import com.rosahosseini.findr.feature.search.model.SuggestionModel
 import com.rosahosseini.findr.model.Either
@@ -12,8 +14,6 @@ import com.rosahosseini.findr.model.getError
 import com.rosahosseini.findr.model.isFailure
 import com.rosahosseini.findr.model.isLoading
 import com.rosahosseini.findr.model.isSuccess
-import com.rosahosseini.findr.repository.BookmarkRepository
-import com.rosahosseini.findr.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList

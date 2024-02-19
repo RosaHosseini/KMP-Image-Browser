@@ -17,10 +17,11 @@ android {
 
 dependencies {
     implementation(project(":library:startup"))
-    implementation(project(":library:core"))
+    implementation(project(":library:coroutine"))
     implementation(project(":library:ui"))
     implementation(project(":domain:model"))
-    implementation(project(":data:repository"))
+    implementation(project(":domain:bookmark"))
+    implementation(project(":domain:search"))
     implementation(platform(libs.composeBom))
     implementation(libs.lifecycleCompose)
     implementation(libs.composeNavigation)

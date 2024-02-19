@@ -69,7 +69,7 @@ private fun PhotoCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(0.8f),
-            url = photo.urlThumbnail,
+            url = photo.thumbnailUrl ?: photo.url,
             description = photo.description
         )
         Bookmark(

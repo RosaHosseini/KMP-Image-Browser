@@ -15,7 +15,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":library:core"))
+    implementation(project(":library:coroutine"))
     implementation(project(":library:ui"))
     implementation(project(":domain:model"))
     implementation(platform(libs.composeBom))

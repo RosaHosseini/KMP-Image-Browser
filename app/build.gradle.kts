@@ -50,8 +50,9 @@ android {
 dependencies {
     implementation(project(":library:ui"))
     implementation(project(":library:startup"))
-    implementation(project(":data:remote"))
-    implementation(project(":data:repository"))
+    implementation(project(":data:network"))
+    implementation(project(":data:search"))
+    implementation(project(":data:bookmark"))
     implementation(project(":domain:model"))
     implementation(project(":feature:search"))
     implementation(project(":feature:bookmark"))

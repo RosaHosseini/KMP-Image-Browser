@@ -16,10 +16,10 @@ android {
 }
 
 dependencies {
-    implementation(project(":library:core"))
+    implementation(project(":library:coroutine"))
     implementation(project(":library:ui"))
     implementation(project(":domain:model"))
-    implementation(project(":data:repository"))
+    implementation(project(":domain:bookmark"))
     implementation(platform(libs.composeBom))
     implementation(libs.composeRuntime)
     implementation(libs.immutableCollections)

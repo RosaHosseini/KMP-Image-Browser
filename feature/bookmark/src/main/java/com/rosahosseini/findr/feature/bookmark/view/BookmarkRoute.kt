@@ -19,7 +19,7 @@ internal fun BookmarkRoute(
     val bookmarkedPhotos by bookmarkViewModel.bookmarkedPhotos.collectAsStateWithLifecycle()
     BookmarkScreen(
         photos = bookmarkedPhotos,
-        onPhotoClick = { navigateToPhotoDetail(it.urlOriginal, it.title, it.description) },
+        onPhotoClick = { navigateToPhotoDetail(it.url, it.title, it.description) },
         onToggleBookmark = bookmarkViewModel::onToggleBookmark,
         onBackPressed = onBackPressed
     )

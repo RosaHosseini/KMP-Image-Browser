@@ -4,12 +4,12 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rosahosseini.findr.feature.search.viewmodel.PhotoSearchViewModel
 import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.extensions.OnBottomReached
+import com.rosahosseini.findr.ui.extensions.localMessage
 import kotlinx.coroutines.flow.collectLatest
 
 private const val DEBOUNCE_TIME_MILLIS = 1000L
@@ -47,10 +47,10 @@ internal fun SearchRoute(
     SearchScreen(
         photos = searchedPhotos,
         isLoading = isLoading,
-        errorMessage = error?.localMessage?.let { stringResource(it) } ?: error?.message,
+        errorMessage = error?.localMessage,
         listState = listState,
         searchState = searchState,
-        onPhotoClick = { navigateToPhotoDetail(it.urlOriginal, it.title, it.description) },
+        onPhotoClick = { navigateToPhotoDetail(it.url, it.title, it.description) },
         onToggleBookmark = searchViewModel::onToggleBookmark,
         onBookmarksClick = navigateToBookmarks,
         suggestions = suggestions,

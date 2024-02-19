@@ -19,7 +19,6 @@ dependencies {
     implementation(platform(libs.composeBom))
     implementation(libs.composeMaterial3)
     implementation(libs.immutableCollections)
-//    implementation "androidx.compose.animation:animation:${library.compose}"
     implementation(libs.composeTooling)
     implementation(libs.composeCoil)
 }

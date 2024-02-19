@@ -1,8 +1,8 @@
 package com.rosahosseini.findr.bookmark.viewmodel
 
+import com.rosahosseini.findr.domain.bookmark.BookmarkRepository
 import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkViewModel
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.repository.BookmarkRepository
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -16,12 +16,7 @@ class BookmarkViewModelTest {
     private val viewModel: BookmarkViewModel by lazy { BookmarkViewModel(bookmarkRepository) }
 
 
-    private val photo = Photo(
-        id = "", isBookmarked = false, title = null, description = null, urlOriginal = "",
-        urlLargeNullable = null, urlMedium800px = null, urlMedium640px = null, urlSmall320px = null,
-        urlSmall240px = null, urlThumbnail150px = null, urlThumbnail100px = null,
-        urlThumbnail75px = null, urlThumbnailSquare = null
-    )
+    private val photo = Photo("", false, null, null, "", null)
 
     @Before
     fun setUp() {

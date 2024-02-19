@@ -7,14 +7,18 @@ pluginManagement {
 }
 
 rootProject.name = "findr"
-include ':library:core'
 include ':library:startup'
 include ':library:ui'
-include ':data:local'
-include ':data:remote'
-include ':data:repository'
+include ':data:db'
+include ':data:network'
+include ':data:search'
+include ':data:common'
 include ':domain:model'
 include ':feature:photodetail'
 include ':feature:bookmark'
 include ':feature:search'
 include ':app'
+include ':data:bookmark'
+include ':domain:search'
+include ':domain:bookmark'
+include ':library:coroutine'

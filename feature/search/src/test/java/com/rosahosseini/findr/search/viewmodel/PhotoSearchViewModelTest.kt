@@ -1,13 +1,13 @@
 package com.rosahosseini.findr.search.viewmodel
 
+import com.rosahosseini.findr.domain.bookmark.BookmarkRepository
+import com.rosahosseini.findr.feature.search.model.SuggestionModel
+import com.rosahosseini.findr.feature.search.viewmodel.PhotoSearchViewModel
 import com.rosahosseini.findr.model.Either
 import com.rosahosseini.findr.model.ErrorModel
 import com.rosahosseini.findr.model.Page
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.repository.BookmarkRepository
-import com.rosahosseini.findr.repository.SearchRepository
-import com.rosahosseini.findr.feature.search.model.SuggestionModel
-import com.rosahosseini.findr.feature.search.viewmodel.PhotoSearchViewModel
+import com.rosahosseini.findr.domain.search.SearchRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
@@ -24,20 +24,11 @@ class PhotoSearchViewModelTest {
     private val bookmarkRepository: BookmarkRepository = mockk()
     private val searchRepository: SearchRepository = mockk()
     private val viewModel: PhotoSearchViewModel by lazy {
-        PhotoSearchViewModel(
-            searchRepository,
-            bookmarkRepository
-        )
+        PhotoSearchViewModel(searchRepository, bookmarkRepository)
     }
 
     private val suggestionModel = SuggestionModel("tag")
-
-    private val photo = Photo(
-        id = "", isBookmarked = false, title = null, description = null, urlOriginal = "",
-        urlLargeNullable = null, urlMedium800px = null, urlMedium640px = null, urlSmall320px = null,
-        urlSmall240px = null, urlThumbnail150px = null, urlThumbnail100px = null,
-        urlThumbnail75px = null, urlThumbnailSquare = null
-    )
+    private val photo = Photo("", false, null, null, "", null)
 
     private fun pagedPhoto(pageNumber: Int) = Page(
         listOf(photo, photo), pageNumber, pageSize = 2, hasNext = true, timeStamp = 0

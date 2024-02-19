@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="search_hint">Search a Tag or Description</string>
+    <string name="an_error_happened" tools:ignore="ExtraTranslation">An error happened, please retry !</string>
+    <string name="unexpected" tools:ignore="ExtraTranslation">some error occurred!</string>
+    <string name="server_error" tools:ignore="ExtraTranslation">error server</string>
+    <string name="network_connection" tools:ignore="ExtraTranslation">Unable to connect to the internet</string>
+    <string name="bookmark">bookmark</string>
 </resources>
