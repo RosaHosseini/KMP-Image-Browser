@@ -12,7 +12,12 @@ internal val photoDto = PhotoDto(
     urlThumbnail150px = null,
     urlThumbnail100px = null,
     urlThumbnail75px = null,
-    urlThumbnailSquare = null
+    urlThumbnailSquare = null,
+    urlLarge = null,
+    urlMedium640px = null,
+    urlMedium800px = null,
+    urlSmall240px = null,
+    urlSmall320px = null
 )
 
 internal val searchDto = SearchPhotosDto(
