@@ -35,12 +35,12 @@ internal fun PhotoDetailScreen(photo: PhotoDetailArgs, onBackPressed: () -> Unit
             contentScale = ContentScale.Crop
         )
         PhotoToolbar(onBackPressed)
-        photo.title?.let {
+        photo.title?.takeIf { it.isNotBlank() }?.let {
             PhotoInfo(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth(),
-                title = photo.title,
+                title = it,
                 description = photo.description
             )
         }

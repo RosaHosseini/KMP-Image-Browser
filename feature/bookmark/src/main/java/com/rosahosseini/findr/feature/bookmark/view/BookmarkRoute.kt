@@ -16,9 +16,9 @@ internal fun BookmarkRoute(
     onBackPressed: () -> Unit,
     bookmarkViewModel: BookmarkViewModel = hiltViewModel()
 ) {
-    val bookmarkedPhotos by bookmarkViewModel.bookmarkedPhotos.collectAsStateWithLifecycle()
+    val state by bookmarkViewModel.state.collectAsStateWithLifecycle()
     BookmarkScreen(
-        photos = bookmarkedPhotos,
+        photos = state.photos,
         onPhotoClick = { navigateToPhotoDetail(it.url, it.title, it.description) },
         onToggleBookmark = bookmarkViewModel::onToggleBookmark,
         onBackPressed = onBackPressed

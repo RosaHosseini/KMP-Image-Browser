@@ -19,7 +19,7 @@ fun App(modifier: Modifier = Modifier) {
             val navController = rememberNavController()
             Scaffold(
                 modifier = modifier,
-                containerColor = FindrColor.GreyBackground,
+                containerColor = FindrColor.DarkBackground,
                 contentColor = MaterialTheme.colorScheme.onBackground
             ) { padding ->
                 FindrNaveHost(
