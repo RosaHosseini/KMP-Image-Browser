@@ -34,7 +34,7 @@ internal fun SearchBarItem(
                     isEnabled = false
                     dispatcher.onBackPressed()
                 } else {
-                    state.query = TextFieldValue("")
+                    state.termTextField = TextFieldValue("")
                     state.focused = false
                     focusManager.clearFocus()
                     keyboardController?.hide()
@@ -42,17 +42,19 @@ internal fun SearchBarItem(
             }
         }
     }
+
     DisposableEffect(dispatcher) { // dispose/relaunch if dispatcher changes
         dispatcher.addCallback(backCallback)
         onDispose {
             backCallback.remove() // avoid leaks!
         }
     }
+
     SearchBar(
-        query = state.query,
-        onQueryChange = { state.query = it },
+        query = state.termTextField,
+        onQueryChange = { state.termTextField = it },
         onSearchFocusChange = { state.focused = it },
-        onBack = { state.query = TextFieldValue("") },
+        onBack = { state.termTextField = TextFieldValue("") },
         focused = state.focused,
         modifier = modifier,
         backgroundColor = FindrColor.LightBackground,

@@ -9,10 +9,10 @@ import com.rosahosseini.findr.library.ui.R
 
 @Composable
 fun Bookmark(
-    isBookmarked: () -> Boolean,
+    enable: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val icon = if (isBookmarked()) R.drawable.ic_heart_filled else R.drawable.ic_heart_red
+    val icon = if (enable) R.drawable.ic_heart_filled else R.drawable.ic_heart_red
     Image(
         painter = painterResource(id = icon),
         contentDescription = stringResource(id = R.string.bookmark),

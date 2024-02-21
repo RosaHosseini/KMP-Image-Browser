@@ -6,7 +6,6 @@ import com.rosahosseini.findr.data.search.repository.DefaultSearchRepository
 import com.rosahosseini.findr.db.entity.SearchedPhotoEntity
 import com.rosahosseini.findr.db.entity.toPagePhotos
 import com.rosahosseini.findr.data.search.local.SearchHistoryLocalDataSource
-import com.rosahosseini.findr.data.search.local.SearchPhotoLocalDataSource
 import com.rosahosseini.findr.model.Either
 import com.rosahosseini.findr.remote.model.PhotoDto
 import com.rosahosseini.findr.remote.model.toPhoto

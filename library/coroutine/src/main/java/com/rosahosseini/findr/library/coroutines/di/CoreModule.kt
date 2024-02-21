@@ -1,6 +1,6 @@
 package com.rosahosseini.findr.library.coroutines.di
 
-import com.rosahosseini.findr.library.coroutines.AppDispatchers
+import com.rosahosseini.findr.library.coroutines.CoroutineDispatchers
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 @Module
 class CoreModule {
     @Provides
-    fun provideAppDispatcher() = AppDispatchers(
+    fun provideAppDispatcher() = CoroutineDispatchers(
         Dispatchers.Main,
         Dispatchers.Default,
         Dispatchers.IO

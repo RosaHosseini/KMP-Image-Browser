@@ -3,7 +3,6 @@ package com.rosahosseini.findr.db.di
 import android.content.Context
 import com.rosahosseini.findr.db.AppDatabase
 import com.rosahosseini.findr.db.dao.PhotoDao
-import com.rosahosseini.findr.db.dao.SearchDao
 import com.rosahosseini.findr.db.dao.SearchHistoryDao
 import dagger.Module
 import dagger.Provides
@@ -21,12 +20,6 @@ internal class LocalModule {
     @Provides
     fun provideAppDataBase(@ApplicationContext appContext: Context): AppDatabase {
         return AppDatabase.buildDatabase(appContext)
-    }
-
-    @Provides
-    @Reusable
-    fun provideSearchDao(database: AppDatabase): SearchDao {
-        return database.searchDao()
     }
 
     @Provides

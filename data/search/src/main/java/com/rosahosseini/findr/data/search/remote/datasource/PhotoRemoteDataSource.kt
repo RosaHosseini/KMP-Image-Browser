@@ -1,12 +1,12 @@
 package com.rosahosseini.findr.data.search.remote.datasource
 
 import com.rosahosseini.findr.data.search.remote.response.SearchPhotosDto
-import com.rosahosseini.findr.data.search.remote.service.PhotoService
+import com.rosahosseini.findr.data.search.remote.service.SearchService
 import com.rosahosseini.findr.model.BuildConfiguration
 import javax.inject.Inject
 
 internal class PhotoRemoteDataSource @Inject constructor(
-    private val service: PhotoService,
+    private val service: SearchService,
     buildConfiguration: BuildConfiguration
 ) {
 

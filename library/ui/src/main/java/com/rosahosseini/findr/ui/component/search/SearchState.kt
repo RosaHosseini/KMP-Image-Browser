@@ -39,10 +39,10 @@ fun rememberSearchState(
 ): SearchState {
     return remember { SearchState(initialQuery) }.also { state ->
         LaunchedEffect(key1 = Unit) {
-            snapshotFlow { state.query }
+            snapshotFlow { state.termTextField }
                 .distinctUntilChanged()
-                .map { it.text.clean() }
-                .filter { !state.sameAsPreviousQuery() }
+                .map { it.text.format() }
+                .filter { !state.sameAsPreviousTerm() }
                 .map { queryText: String ->
                     state.searchInProgress = true
                     queryText
@@ -57,10 +57,10 @@ fun rememberSearchState(
     }
 }
 
-class SearchState(initialQueryText: String) {
-    var query by mutableStateOf(TextFieldValue(initialQueryText))
+class SearchState internal constructor(initialQueryText: String) {
+    var termTextField by mutableStateOf(TextFieldValue(initialQueryText))
     var focused by mutableStateOf(false)
-    private var previousQueryText by mutableStateOf("")
+    private var previousTerm by mutableStateOf("")
 
     /**
      * Check if a search is initiated. Search is initiated after a specific condition
@@ -69,21 +69,21 @@ class SearchState(initialQueryText: String) {
 
     val searchDisplay: SearchDisplay
         get() = when {
-            focused && query.text.isEmpty() -> {
-                previousQueryText = query.text.clean()
+            focused && termTextField.text.isEmpty() -> {
+                previousTerm = termTextField.text.format()
                 SearchDisplay.SUGGESTIONS
             }
             searchInProgress -> SearchDisplay.SEARCH_IN_PROGRESS
             else -> {
-                previousQueryText = query.text.clean()
+                previousTerm = termTextField.text.format()
                 SearchDisplay.RESULTS
             }
         }
 
-    fun sameAsPreviousQuery() = query.text == previousQueryText
+    fun sameAsPreviousTerm() = termTextField.text == previousTerm
 }
 
-private fun String.clean(): String = trim().lowercase()
+private fun String.format(): String = trim().lowercase()
 
 /**
  * Enum class with different values to set search state based on text, focus, initial state and

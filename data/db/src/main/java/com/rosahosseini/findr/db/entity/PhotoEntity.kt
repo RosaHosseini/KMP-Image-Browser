@@ -19,7 +19,10 @@ data class PhotoEntity(
     val timeStamp: Long
 )
 
-fun Photo.toPhotoEntity(timeStamp: Long) = PhotoEntity(
+fun Photo.toPhotoEntity(
+    isBookmarked: Boolean,
+    timeStamp: Long = System.currentTimeMillis()
+) = PhotoEntity(
     photoId = id,
     isBookmarked = isBookmarked,
     title = title,
@@ -31,7 +34,6 @@ fun Photo.toPhotoEntity(timeStamp: Long) = PhotoEntity(
 
 fun PhotoEntity.toPhoto() = Photo(
     id = photoId,
-    isBookmarked = isBookmarked,
     title = title,
     description = description,
     url = url,

@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":data:db"))
     implementation(project(":domain:search"))
     implementation(project(":domain:model"))
+    implementation(project(":library:coroutine"))
     implementation(libs.coroutinesAndroid)
     implementation(libs.gson)
     implementation(libs.retrofit)

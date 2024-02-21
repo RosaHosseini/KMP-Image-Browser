@@ -23,7 +23,6 @@ data class PhotoDto(
 fun PhotoDto.toPhoto() =
     Photo(
         id = id,
-        isBookmarked = false,
         title = title,
         description = description,
         url = urlOriginal?.orNullIfEmpty()

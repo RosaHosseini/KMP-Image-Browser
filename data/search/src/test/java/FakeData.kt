@@ -1,6 +1,5 @@
 import com.rosahosseini.findr.data.search.remote.response.SearchPhotosDto
 import com.rosahosseini.findr.db.entity.PhotoEntity
-import com.rosahosseini.findr.db.entity.SearchEntity
 import com.rosahosseini.findr.db.entity.SearchedPhotoEntity
 import com.rosahosseini.findr.remote.model.PhotoDto
 

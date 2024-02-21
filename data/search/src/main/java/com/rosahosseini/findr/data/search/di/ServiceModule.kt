@@ -1,6 +1,6 @@
 package com.rosahosseini.findr.data.search.di
 
-import com.rosahosseini.findr.data.search.remote.service.PhotoService
+import com.rosahosseini.findr.data.search.remote.service.SearchService
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -14,7 +14,7 @@ internal object ServiceModule {
 
     @Provides
     @Reusable
-    fun providePhotoService(retrofit: Retrofit): PhotoService {
-        return retrofit.create(PhotoService::class.java)
+    fun providePhotoService(retrofit: Retrofit): SearchService {
+        return retrofit.create(SearchService::class.java)
     }
 }

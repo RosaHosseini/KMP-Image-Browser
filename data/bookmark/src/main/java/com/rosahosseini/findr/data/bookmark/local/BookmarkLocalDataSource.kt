@@ -6,8 +6,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 internal class BookmarkLocalDataSource @Inject constructor(private val photoDao: PhotoDao) {
-    suspend fun changeBookmarkState(photoId: String, isBookmarked: Boolean) {
-        photoDao.updateBookmark(photoId, isBookmarked)
+    suspend fun changeBookmarkState(photo: PhotoEntity) {
+        photoDao.updateOrRemoveIfNotBookmark(photo)
     }
 
     fun getBookmarkedPhotos(): Flow<List<PhotoEntity>> {

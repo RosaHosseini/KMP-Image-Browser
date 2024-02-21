@@ -1,179 +1,117 @@
 package com.rosahosseini.findr.feature.search.view
 
-import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.rosahosseini.findr.feature.search.model.SuggestionModel
-import com.rosahosseini.findr.feature.search.view.components.LoadingScreen
-import com.rosahosseini.findr.feature.search.view.components.SearchBarItem
-import com.rosahosseini.findr.library.ui.R as UiR
+import com.rosahosseini.findr.feature.search.view.components.SearchTopAppBar
+import com.rosahosseini.findr.feature.search.viewmodel.SearchContract
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.ui.component.CancelableChip
-import com.rosahosseini.findr.ui.component.PhotosGridScreen
-import com.rosahosseini.findr.ui.component.search.SearchDisplay
-import com.rosahosseini.findr.ui.component.search.SearchState
+import com.rosahosseini.findr.ui.component.LoadingComponent
+import com.rosahosseini.findr.ui.component.PhotoCard
+import com.rosahosseini.findr.ui.extensions.OnBottomReached
+import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
 
 @Suppress("LongParameterList")
 @Composable
 internal fun SearchScreen(
-    photos: ImmutableList<Photo>,
-    suggestions: ImmutableList<SuggestionModel>,
-    isLoading: Boolean,
-    errorMessage: String?,
-    listState: LazyGridState,
-    searchState: SearchState,
+    searchState: SearchContract.State,
+    bookmarks: ImmutableMap<String, Boolean>,
     onPhotoClick: (Photo) -> Unit,
-    onToggleBookmark: (Photo) -> Unit,
+    onItemBookmarkClick: (Photo) -> Unit,
     onBookmarksClick: () -> Unit,
-    onCancelSuggestion: (SuggestionModel) -> Unit
+    onRemoveSuggestion: (String) -> Unit,
+    onTermChange: (String) -> Unit,
+    onLoadMore: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(FindrColor.DarkBackground)
-    ) {
-        val alphaList = if (isLoading) 0.8f else 1f
-        Column {
-            TopHeader(
-                searchState = searchState,
+    val gridState = rememberLazyGridState()
+    Scaffold(
+        topBar = {
+            SearchTopAppBar(
+                term = searchState.term,
                 onBookmarksClick = onBookmarksClick,
-                suggestions = suggestions,
-                onCancelSuggestion = onCancelSuggestion
+                suggestions = searchState.suggestions,
+                onTermChange = onTermChange,
+                onRemoveSuggestion = onRemoveSuggestion
             )
-            PhotosGridScreen(
-                photos = photos,
-                onPhotoClick = onPhotoClick,
-                onToggleBookmark = onToggleBookmark,
-                modifier = Modifier.alpha(alphaList),
-                listState = listState
+        },
+        containerColor = FindrColor.DarkBackground
+    ) { paddingValues ->
+        val photosState = searchState.photos
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(150.dp),
+            state = gridState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (photosState.status == PagingState.Status.Refreshing) loadingItem()
+            photoItems(
+                photos = photosState.data,
+                bookmarks = bookmarks,
+                onBookmarkClick = onItemBookmarkClick,
+                onItemClick = onPhotoClick
             )
+            when (photosState.status) {
+                PagingState.Status.Failure -> photosState.throwable?.let(::errorItem)
+                PagingState.Status.Loading -> loadingItem()
+                else -> {}
+            }
         }
-        if (isLoading) LoadingScreen()
     }
-    val context = LocalContext.current
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-        }
+
+    gridState.OnBottomReached(buffer = 2) {
+        onLoadMore()
     }
 }
 
-@Composable
-private fun TopHeader(
-    searchState: SearchState,
-    suggestions: ImmutableList<SuggestionModel>,
-    onBookmarksClick: () -> Unit,
-    onCancelSuggestion: (SuggestionModel) -> Unit
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyGridScope.photoItems(
+    photos: ImmutableList<Photo>,
+    bookmarks: ImmutableMap<String, Boolean>,
+    onBookmarkClick: (Photo) -> Unit,
+    onItemClick: (Photo) -> Unit
 ) {
-    Card(
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = Dimensions.defaultElevation
+    items(photos, contentType = { "image-card" }) { item ->
+        PhotoCard(
+            photo = item,
+            isBookmarked = bookmarks[item.id] ?: false,
+            onBookmarkClick = { onBookmarkClick(item) },
+            modifier = Modifier
+                .animateItemPlacement()
+                .padding(Dimensions.defaultMarginQuarter)
+                .clickable { onItemClick(item) }
         )
-    ) {
-        Column {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-                    .background(FindrColor.DarkBackground)
-                    .padding(Dimensions.defaultMarginHalf),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SearchBarItem(
-                    modifier = Modifier.weight(weight = 1f, fill = true),
-                    state = searchState
-                )
-                Spacer(modifier = Modifier.width(Dimensions.defaultMarginDouble))
-                BookmarksButton(onBookmarksClick)
-                Spacer(modifier = Modifier.width(Dimensions.defaultMargin))
-            }
-            AnimatedVisibility(visible = searchState.searchDisplay == SearchDisplay.SUGGESTIONS) {
-                SuggestionGridLayout(
-                    suggestions = suggestions,
-                    onCancelSuggestion = onCancelSuggestion,
-                    onSuggestionClick = {
-                        var query = searchState.query.text
-                        if (query.isEmpty()) query = it.tag else query += " ${it.tag}"
-                        query.trim()
-                        // Set text and cursor position to end of text
-                        searchState.query = TextFieldValue(query, TextRange(query.length))
-                    }
-                )
-            }
-        }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun SuggestionGridLayout(
-    suggestions: ImmutableList<SuggestionModel>,
-    onCancelSuggestion: (SuggestionModel) -> Unit,
-    onSuggestionClick: (SuggestionModel) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    FlowRow(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(FindrColor.DarkBackground)
-            .padding(
-                start = Dimensions.defaultMarginDouble,
-                end = Dimensions.defaultMarginDouble,
-                bottom = Dimensions.defaultMargin
-            )
+private fun LazyGridScope.loadingItem() {
+    item(
+        span = { GridItemSpan(maxLineSpan) },
+        contentType = "loading"
     ) {
-        suggestions.forEach { suggestionModel ->
-            CancelableChip(
-                modifier = Modifier.padding(Dimensions.defaultMarginHalf),
-                tag = suggestionModel.tag,
-                onClick = { onSuggestionClick(suggestionModel) },
-                onCancel = { onCancelSuggestion(suggestionModel) }
-            )
-        }
+        LoadingComponent(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Dimensions.defaultMarginDouble)
+        )
     }
 }
 
-@Composable
-private fun BookmarksButton(onBookmarksClick: () -> Unit) {
-    Image(
-        painter = painterResource(id = UiR.drawable.ic_heart),
-        contentDescription = stringResource(id = UiR.string.bookmark),
-        modifier = Modifier
-            .fillMaxHeight()
-            .widthIn(min = 36.dp)
-            .clickable { onBookmarksClick() }
-    )
+private fun LazyGridScope.errorItem(throwable: Throwable) {
+    // todo
 }

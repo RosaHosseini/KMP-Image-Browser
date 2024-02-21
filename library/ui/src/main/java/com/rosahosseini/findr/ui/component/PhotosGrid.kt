@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -30,15 +31,19 @@ import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import com.rosahosseini.findr.ui.widget.LoadImage
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PhotosGridScreen(
+fun PhotosGrid(
     photos: ImmutableList<Photo>,
+    bookmarks: ImmutableMap<String, Boolean>,
     onPhotoClick: (Photo) -> Unit,
-    onToggleBookmark: (Photo) -> Unit,
+    onItemBookmarkClick: (Photo) -> Unit,
     modifier: Modifier = Modifier,
-    listState: LazyGridState = rememberLazyGridState()
+    listState: LazyGridState = rememberLazyGridState(),
+    isLoading: Boolean = false,
+    key: ((Photo) -> Any)? = null
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
@@ -47,25 +52,36 @@ fun PhotosGridScreen(
     ) {
         items(
             photos,
-            key = { item -> item.id },
+            key = key,
             contentType = { "image-card" }
         ) { item ->
             PhotoCard(
                 photo = item,
-                onToggleBookmark = onToggleBookmark,
+                isBookmarked = bookmarks[item.id] ?: false,
+                onBookmarkClick = { onItemBookmarkClick(item) },
                 modifier = Modifier
                     .animateItemPlacement()
                     .padding(Dimensions.defaultMarginQuarter)
                     .clickable { onPhotoClick(item) }
             )
         }
+        if (isLoading) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                LoadingComponent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Dimensions.defaultMargin)
+                )
+            }
+        }
     }
 }
 
 @Composable
-private fun PhotoCard(
+fun PhotoCard(
     photo: Photo,
-    onToggleBookmark: (Photo) -> Unit,
+    isBookmarked: Boolean,
+    onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -77,12 +93,12 @@ private fun PhotoCard(
             description = photo.description
         )
         Bookmark(
-            isBookmarked = { photo.isBookmarked },
+            enable = isBookmarked,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(Dimensions.defaultMargin)
                 .clip(CircleShape)
-                .clickable { onToggleBookmark(photo) }
+                .clickable { onBookmarkClick() }
                 .size(24.dp)
         )
         photo.title?.takeIf { it.isNotBlank() }?.let {

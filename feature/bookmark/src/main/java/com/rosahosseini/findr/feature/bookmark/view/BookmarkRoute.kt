@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkContract.Intent
 import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkViewModel
 
 @Composable
@@ -18,9 +19,12 @@ internal fun BookmarkRoute(
 ) {
     val state by bookmarkViewModel.state.collectAsStateWithLifecycle()
     BookmarkScreen(
-        photos = state.photos,
+        state = state,
         onPhotoClick = { navigateToPhotoDetail(it.url, it.title, it.description) },
-        onToggleBookmark = bookmarkViewModel::onToggleBookmark,
+        onBookmarkClick = {
+            val enabled = !(state.bookmarks[it.id] ?: false)
+            bookmarkViewModel.onIntent(Intent.OnUpdateBookmark(it, enabled))
+        },
         onBackPressed = onBackPressed
     )
 }

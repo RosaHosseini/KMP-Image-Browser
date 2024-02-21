@@ -6,7 +6,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.rosahosseini.findr.library.coroutines.AppDispatchers
+import com.rosahosseini.findr.library.coroutines.CoroutineDispatchers
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -16,12 +16,12 @@ import kotlinx.coroutines.launch
 
 class SearchWorkManagerScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val appDispatchers: com.rosahosseini.findr.library.coroutines.AppDispatchers
+    private val coroutineDispatchers: CoroutineDispatchers
 ) {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun scheduleClearCachePeriodically() {
-        GlobalScope.launch(appDispatchers.io) {
+        GlobalScope.launch(coroutineDispatchers.io) {
             if (hasClearCacheScheduled()) {
                 return@launch
             }

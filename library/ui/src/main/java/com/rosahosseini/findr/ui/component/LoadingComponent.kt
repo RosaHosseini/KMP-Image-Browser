@@ -1,7 +1,6 @@
-package com.rosahosseini.findr.feature.search.view.components
+package com.rosahosseini.findr.ui.component
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -11,8 +10,8 @@ import com.rosahosseini.findr.ui.theme.FindrColor
 import com.rosahosseini.findr.ui.widget.DotsPulsing
 
 @Composable
-internal fun BoxScope.LoadingScreen() {
-    Box(modifier = Modifier.align(Alignment.Center)) {
+fun LoadingComponent(modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
         DotsPulsing(
             delayUnit = 300,
             color = FindrColor.BrandColor,
