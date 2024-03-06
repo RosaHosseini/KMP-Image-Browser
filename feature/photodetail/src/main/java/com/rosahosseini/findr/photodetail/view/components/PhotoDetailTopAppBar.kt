@@ -16,9 +16,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.library.ui.R as UiR
 import com.rosahosseini.findr.ui.theme.Dimensions
+import com.rosahosseini.findr.ui.theme.FindrTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,4 +51,14 @@ internal fun PhotoDetailTopAppBar(
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         )
     )
+}
+
+@Preview
+@Composable
+private fun PhotoDetailTopAppBarPreview() {
+    FindrTheme {
+        PhotoDetailTopAppBar(
+            onBackPressed = {}
+        )
+    }
 }

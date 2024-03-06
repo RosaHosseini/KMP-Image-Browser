@@ -13,12 +13,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import com.rosahosseini.findr.ui.component.search.SearchBar
 import com.rosahosseini.findr.ui.component.search.SearchState
+import com.rosahosseini.findr.ui.component.search.rememberSearchState
+import com.rosahosseini.findr.ui.theme.FindrTheme
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @Composable
-internal fun SearchBarItem(
+internal fun SearchBarComponent(
     state: SearchState,
     modifier: Modifier = Modifier
 ) {
@@ -60,4 +63,24 @@ internal fun SearchBarItem(
         backgroundColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     )
+}
+
+@Preview
+@Composable
+private fun EmptySearchBarComponentPreview() {
+    FindrTheme {
+        SearchBarComponent(
+            state = rememberSearchState(initialQuery = "", onQueryChange = {})
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SearchBarComponentPreview() {
+    FindrTheme {
+        SearchBarComponent(
+            state = rememberSearchState(initialQuery = "term", onQueryChange = {})
+        )
+    }
 }

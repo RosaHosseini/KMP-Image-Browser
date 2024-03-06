@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,9 +19,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.theme.Dimensions
+import com.rosahosseini.findr.ui.theme.FindrTheme
 import com.rosahosseini.findr.ui.widget.LoadImage
 
 @Composable
@@ -78,6 +81,25 @@ private fun TitleBar(title: String, modifier: Modifier = Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PhotoCardPreview() {
+    FindrTheme {
+        PhotoCard(
+            photo = Photo(
+                id = "1",
+                title = "title",
+                description = "description",
+                url = "",
+                thumbnailUrl = ""
+            ),
+            isBookmarked = false,
+            onBookmarkClick = {},
+            modifier = Modifier.width(250.dp)
         )
     }
 }

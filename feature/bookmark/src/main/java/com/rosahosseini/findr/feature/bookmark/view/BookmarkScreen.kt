@@ -19,8 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.feature.bookmark.view.components.BookmarkTopAppBar
+import com.rosahosseini.findr.feature.bookmark.view.preview.BookmarkScreenPreviewProvider
 import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkContract
 import com.rosahosseini.findr.library.ui.R
 import com.rosahosseini.findr.model.Photo
@@ -30,6 +33,7 @@ import com.rosahosseini.findr.ui.component.PhotoCard
 import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.UiState
 import com.rosahosseini.findr.ui.theme.Dimensions
+import com.rosahosseini.findr.ui.theme.FindrTheme
 import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,14 +74,16 @@ internal fun BookmarkScreen(
                 is UiState.Failure ->
                     ErrorComponent(
                         message = photosState.throwable.localMessage,
-                        onActionClick = null
+                        onActionClick = null,
+                        modifier = Modifier.padding(Dimensions.xxLarge)
                     )
 
                 is UiState.Success -> if (photosState.data.isEmpty()) {
                     ErrorComponent(
                         message = stringResource(id = R.string.empty_bookmarks),
                         onActionClick = onBackPressed,
-                        actionLabel = stringResource(id = R.string.add_bookmarks)
+                        actionLabel = stringResource(id = R.string.add_bookmarks),
+                        modifier = Modifier.padding(Dimensions.xxLarge)
                     )
                 }
 
@@ -113,5 +119,20 @@ private fun PhotosGrid(
                     .clickable { onItemClick(item) }
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun BookmarkScreenPreview(
+    @PreviewParameter(BookmarkScreenPreviewProvider::class) state: BookmarkContract.State
+) {
+    FindrTheme {
+        BookmarkScreen(
+            state = state,
+            onBackPressed = {},
+            onBookmarkClick = {},
+            onPhotoClick = {}
+        )
     }
 }

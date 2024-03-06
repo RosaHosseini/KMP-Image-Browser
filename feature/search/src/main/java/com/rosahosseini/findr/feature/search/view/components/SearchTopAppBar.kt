@@ -25,13 +25,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.library.ui.R as UiR
 import com.rosahosseini.findr.ui.component.CancelableChip
 import com.rosahosseini.findr.ui.component.search.SearchDisplay
 import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.theme.Dimensions
+import com.rosahosseini.findr.ui.theme.FindrTheme
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 internal fun SearchTopAppBar(
@@ -63,7 +66,7 @@ internal fun SearchTopAppBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Dimensions.medium)
             ) {
-                SearchBarItem(
+                SearchBarComponent(
                     modifier = Modifier.weight(weight = 1f, fill = true),
                     state = searchState
                 )
@@ -112,5 +115,19 @@ private fun Suggestions(
                 onCancel = { onRemoveItem(term) }
             )
         }
+    }
+}
+
+@Composable
+@Preview
+private fun SearchTopAppBarPreview() {
+    FindrTheme {
+        SearchTopAppBar(
+            term = "",
+            suggestions = persistentListOf("term1", "term2"),
+            onBookmarksClick = {},
+            onTermChange = {},
+            onRemoveSuggestion = {}
+        )
     }
 }

@@ -27,7 +27,7 @@ internal class DefaultSearchRepository @Inject constructor(
         pageSize: Int
     ): Result<Page<Photo>> {
         return withContext(coroutineDispatchers.default) {
-            photosRemoteDataSource.search(query, pageSize, pageNumber)
+            photosRemoteDataSource.search(text = query, limit = pageSize, page = pageNumber)
                 .map(SearchPhotosDto::toPagePhotos)
         }
     }
@@ -37,7 +37,7 @@ internal class DefaultSearchRepository @Inject constructor(
         pageSize: Int
     ): Result<Page<Photo>> {
         return withContext(coroutineDispatchers.default) {
-            photosRemoteDataSource.getRecent(pageSize, pageNumber)
+            photosRemoteDataSource.getRecent(limit = pageSize, page = pageNumber)
                 .map(SearchPhotosDto::toPagePhotos)
         }
     }
@@ -47,7 +47,7 @@ internal class DefaultSearchRepository @Inject constructor(
     }
 
     override fun getSearchSuggestion(query: String, limit: Int): Flow<List<String>> {
-        return searchHistoryLocalDataSource.getLatestQueries(query, limit)
+        return searchHistoryLocalDataSource.getLatestQueries(query = query, limit = limit)
             .map { it.map(SearchHistoryEntity::queryText) }
             .flowOn(coroutineDispatchers.default)
     }

@@ -15,8 +15,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.feature.search.view.components.SearchTopAppBar
+import com.rosahosseini.findr.feature.search.view.preview.SearchScreenPreviewProvider
 import com.rosahosseini.findr.feature.search.viewmodel.SearchContract
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.component.ErrorComponent
@@ -28,7 +30,6 @@ import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrTheme
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 
 @Suppress("LongParameterList")
 @Composable
@@ -113,9 +114,7 @@ private fun LazyGridScope.loadingItem() {
         contentType = "loading"
     ) {
         LoadingComponent(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Dimensions.large)
+            modifier = Modifier.padding(Dimensions.xxLarge)
         )
     }
 }
@@ -128,36 +127,19 @@ private fun LazyGridScope.errorItem(throwable: Throwable, onRetryClick: () -> Un
         ErrorComponent(
             message = throwable.localMessage,
             onActionClick = onRetryClick,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Dimensions.large)
+            modifier = Modifier.padding(Dimensions.xxLarge)
         )
     }
 }
 
 @Composable
 @Preview
-private fun SearchScreen_Preview() {
+private fun SearchScreenPreview(
+    @PreviewParameter(SearchScreenPreviewProvider::class) state: SearchContract.State
+) {
     FindrTheme {
-        val photo = Photo(
-            id = "1",
-            title = "title",
-            description = "description",
-            url = "",
-            thumbnailUrl = ""
-        )
         SearchScreen(
-            searchState = SearchContract.State(
-                photos = PagingState(
-                    pageNumber = 0,
-                    data = persistentListOf(photo, photo),
-                    status = PagingState.Status.Loading,
-                    exhausted = false,
-                    throwable = Throwable("some failure")
-                ),
-                suggestions = persistentListOf("term1", "term2"),
-                term = ""
-            ),
+            searchState = state,
             onPhotoClick = {},
             onItemBookmarkClick = {},
             onBookmarksClick = {},

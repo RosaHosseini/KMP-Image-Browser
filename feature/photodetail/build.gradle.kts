@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":domain:model"))
     implementation(platform(libs.composeBom))
     implementation(libs.lifecycleCompose)
+    implementation(libs.composeTooling)
     implementation(libs.composeNavigation)
     implementation(libs.composeMaterial3)
 }

@@ -19,8 +19,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.ui.theme.Dimensions
+import com.rosahosseini.findr.ui.theme.FindrTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +61,18 @@ fun CancelableChip(
             colors = AssistChipDefaults.assistChipColors(labelColor = color),
             border = AssistChipDefaults.assistChipBorder(borderColor = color),
             elevation = AssistChipDefaults.assistChipElevation()
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun CancelableChipPreview() {
+    FindrTheme {
+        CancelableChip(
+            tag = "label",
+            onClick = {},
+            onCancel = {}
         )
     }
 }

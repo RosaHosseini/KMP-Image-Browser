@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import com.rosahosseini.findr.photodetail.navigation.PhotoDetailArgs
 import com.rosahosseini.findr.photodetail.view.components.PhotoDetailTopAppBar
 import com.rosahosseini.findr.ui.theme.Dimensions
+import com.rosahosseini.findr.ui.theme.FindrTheme
 import com.rosahosseini.findr.ui.widget.LoadImage
 
 @Composable
@@ -82,5 +84,20 @@ private fun PhotoInfo(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PhotoDetailScreenPreview() {
+    FindrTheme {
+        PhotoDetailScreen(
+            onBackPressed = {},
+            photo = PhotoDetailArgs(
+                url = "",
+                title = "title",
+                description = "description"
+            )
+        )
     }
 }
