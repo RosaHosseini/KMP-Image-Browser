@@ -17,9 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.feature.search.view.components.SearchTopAppBar
 import com.rosahosseini.findr.feature.search.viewmodel.SearchContract
 import com.rosahosseini.findr.model.Photo
+import com.rosahosseini.findr.ui.component.ErrorComponent
 import com.rosahosseini.findr.ui.component.LoadingComponent
 import com.rosahosseini.findr.ui.component.PhotoCard
 import com.rosahosseini.findr.ui.extensions.OnBottomReached
+import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
@@ -67,8 +69,10 @@ internal fun SearchScreen(
                 onItemClick = onPhotoClick
             )
             when (photosState.status) {
-                PagingState.Status.Failure -> photosState.throwable?.let(::errorItem)
-                PagingState.Status.Loading -> loadingItem()
+                PagingState.Status.Failure ->
+                    photosState.throwable?.let { errorItem(it, onLoadMore) }
+                PagingState.Status.Loading ->
+                    loadingItem()
                 else -> {}
             }
         }
@@ -112,6 +116,17 @@ private fun LazyGridScope.loadingItem() {
     }
 }
 
-private fun LazyGridScope.errorItem(throwable: Throwable) {
-    // todo
+private fun LazyGridScope.errorItem(throwable: Throwable, onRetryClick: () -> Unit) {
+    item(
+        span = { GridItemSpan(maxLineSpan) },
+        contentType = "error"
+    ) {
+        ErrorComponent(
+            message = throwable.localMessage,
+            onActionClick = onRetryClick,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Dimensions.defaultMarginDouble)
+        )
+    }
 }

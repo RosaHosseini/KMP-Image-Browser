@@ -14,14 +14,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.feature.bookmark.view.components.Toolbar
 import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkContract
+import com.rosahosseini.findr.library.ui.R
 import com.rosahosseini.findr.model.Photo
+import com.rosahosseini.findr.ui.component.ErrorComponent
 import com.rosahosseini.findr.ui.component.LoadingComponent
 import com.rosahosseini.findr.ui.component.PhotoCard
-import com.rosahosseini.findr.ui.component.PhotosGrid
+import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.UiState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
@@ -34,7 +39,7 @@ internal fun BookmarkScreen(
     state: BookmarkContract.State,
     onPhotoClick: (Photo) -> Unit,
     onBookmarkClick: (Photo) -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -45,27 +50,36 @@ internal fun BookmarkScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
             state.photos.data?.let { photos ->
                 PhotosGrid(
                     photos = photos,
                     bookmarks = state.bookmarks,
-                    onPhotoClick = onPhotoClick,
-                    onItemBookmarkClick = onBookmarkClick
+                    onItemClick = onPhotoClick,
+                    onBookmarkClick = onBookmarkClick,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollBehavior.nestedScrollConnection)
                 )
             }
             when (val photosState = state.photos) {
-                is UiState.Failure -> {
-                    // todo
-                }
-
-                is UiState.Loading -> {
+                is UiState.Loading ->
                     LoadingComponent(modifier = Modifier.fillMaxSize())
-                }
+
+                is UiState.Failure ->
+                    ErrorComponent(
+                        message = photosState.throwable.localMessage,
+                        onActionClick = null
+                    )
 
                 is UiState.Success -> if (photosState.data.isEmpty()) {
-                    // todo
+                    ErrorComponent(
+                        message = stringResource(id = R.string.empty_bookmarks),
+                        onActionClick = onBackPressed,
+                        actionLabel = stringResource(id = R.string.add_bookmarks)
+                    )
                 }
 
                 else -> {}
@@ -82,7 +96,7 @@ private fun PhotosGrid(
     onBookmarkClick: (Photo) -> Unit,
     onItemClick: (Photo) -> Unit,
     modifier: Modifier = Modifier,
-    gridState: LazyGridState = rememberLazyGridState()
+    gridState: LazyGridState = rememberLazyGridState(),
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
