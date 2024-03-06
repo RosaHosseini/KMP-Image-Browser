@@ -13,7 +13,8 @@ internal class AppModule {
     @Provides
     fun provideBuildConfiguration(): BuildConfiguration {
         return BuildConfiguration(
-            flickerApiKey = BuildConfig.FLICKR_API_KEY
+            flickerApiKey = BuildConfig.FLICKR_API_KEY,
+            isDebug = BuildConfig.DEBUG
         )
     }
 }

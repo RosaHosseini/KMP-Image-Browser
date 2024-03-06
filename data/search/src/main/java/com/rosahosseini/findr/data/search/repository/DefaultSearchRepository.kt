@@ -11,6 +11,7 @@ import com.rosahosseini.findr.model.Page
 import com.rosahosseini.findr.model.Photo
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
@@ -48,6 +49,7 @@ internal class DefaultSearchRepository @Inject constructor(
     override fun getSearchSuggestion(query: String, limit: Int): Flow<List<String>> {
         return searchHistoryLocalDataSource.getLatestQueries(query, limit)
             .map { it.map(SearchHistoryEntity::queryText) }
+            .flowOn(coroutineDispatchers.default)
     }
 
     override suspend fun removeSearchQuery(query: String) {

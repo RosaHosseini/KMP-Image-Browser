@@ -14,7 +14,7 @@ internal interface SearchService {
         @Query("page") pageNumber: Int = 1,
         @Query("per_page") limit: Int = 10,
         @Query("extras") extras: String = URLS
-    ): SearchResponseDto
+    ): Result<SearchResponseDto>
 
     @GET("?method=flickr.photos.getRecent&nojsoncallback=1&format=json")
     suspend fun getRecent(
@@ -22,5 +22,5 @@ internal interface SearchService {
         @Query("page") pageNumber: Int = 1,
         @Query("per_page") limit: Int = 10,
         @Query("extras") extras: String = URLS
-    ): SearchResponseDto
+    ): Result<SearchResponseDto>
 }

@@ -1,5 +1,6 @@
 package com.rosahosseini.findr.data.search.remote.datasource
 
+import com.rosahosseini.findr.ErrorManager
 import com.rosahosseini.findr.data.search.remote.response.SearchPhotosDto
 import com.rosahosseini.findr.data.search.remote.service.SearchService
 import com.rosahosseini.findr.model.BuildConfiguration
@@ -7,7 +8,8 @@ import javax.inject.Inject
 
 internal class PhotoRemoteDataSource @Inject constructor(
     private val service: SearchService,
-    buildConfiguration: BuildConfiguration
+    buildConfiguration: BuildConfiguration,
+    private val errorManager: ErrorManager
 ) {
 
     private val apiKey = buildConfiguration.flickerApiKey
@@ -15,12 +17,12 @@ internal class PhotoRemoteDataSource @Inject constructor(
     suspend fun search(text: String, limit: Int, page: Int): Result<SearchPhotosDto> {
         return service
             .search(apiKey = apiKey, text = text, pageNumber = page + 1, limit = limit)
-            .toResult()
+            .mapCatching { it.getOrThrow(errorManager) }
     }
 
     suspend fun getRecent(limit: Int, page: Int): Result<SearchPhotosDto> {
         return service
             .getRecent(apiKey = apiKey, pageNumber = page + 1, limit = limit)
-            .toResult()
+            .mapCatching { it.getOrThrow(errorManager) }
     }
 }
