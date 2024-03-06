@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +31,6 @@ import com.rosahosseini.findr.ui.component.CancelableChip
 import com.rosahosseini.findr.ui.component.search.SearchDisplay
 import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.theme.Dimensions
-import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -39,23 +39,29 @@ internal fun SearchTopAppBar(
     suggestions: ImmutableList<String>,
     onBookmarksClick: () -> Unit,
     onTermChange: (String) -> Unit,
-    onRemoveSuggestion: (String) -> Unit
+    onRemoveSuggestion: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val searchState = rememberSearchState(initialQuery = term, onQueryChange = onTermChange)
+    val searchState = rememberSearchState(
+        initialQuery = term,
+        onQueryChange = onTermChange,
+        debounceMillis = 700
+    )
 
     Card(
+        modifier = modifier,
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = Dimensions.defaultElevation
+            defaultElevation = Dimensions.elevation
         ),
-        colors = CardDefaults.cardColors(containerColor = FindrColor.DarkBackground)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(modifier = Modifier.padding(horizontal = Dimensions.defaultMargin)) {
+        Column(modifier = Modifier.padding(horizontal = Dimensions.medium)) {
             Row(
                 Modifier
                     .height(IntrinsicSize.Min)
-                    .padding(vertical = Dimensions.defaultMargin),
+                    .padding(vertical = Dimensions.medium),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimensions.defaultMargin)
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.medium)
             ) {
                 SearchBarItem(
                     modifier = Modifier.weight(weight = 1f, fill = true),
@@ -66,7 +72,7 @@ internal fun SearchTopAppBar(
                     contentDescription = stringResource(id = UiR.string.bookmark),
                     modifier = Modifier
                         .fillMaxHeight()
-                        .padding(horizontal = Dimensions.defaultMargin)
+                        .padding(horizontal = Dimensions.medium)
                         .clip(CircleShape)
                         .clickable { onBookmarksClick() }
                         .widthIn(min = 36.dp)
@@ -79,10 +85,7 @@ internal fun SearchTopAppBar(
                     onSelectItem = {
                         searchState.termTextField = TextFieldValue(it, TextRange(it.length))
                     },
-                    modifier = Modifier.padding(
-                        top = Dimensions.defaultMargin,
-                        bottom = Dimensions.defaultMarginDouble
-                    )
+                    modifier = Modifier.padding(bottom = Dimensions.medium)
                 )
             }
         }
@@ -98,8 +101,8 @@ private fun Suggestions(
     modifier: Modifier = Modifier
 ) {
     FlowRow(
-        verticalArrangement = Arrangement.spacedBy(Dimensions.defaultMargin),
-        horizontalArrangement = Arrangement.spacedBy(Dimensions.defaultMargin),
+        horizontalArrangement = Arrangement.spacedBy(Dimensions.medium),
+        verticalArrangement = Arrangement.spacedBy(Dimensions.medium),
         modifier = modifier
     ) {
         items.forEach { term ->

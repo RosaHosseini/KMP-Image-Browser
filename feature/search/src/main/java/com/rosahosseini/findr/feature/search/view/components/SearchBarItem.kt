@@ -4,6 +4,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -14,7 +15,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.TextFieldValue
 import com.rosahosseini.findr.ui.component.search.SearchBar
 import com.rosahosseini.findr.ui.component.search.SearchState
-import com.rosahosseini.findr.ui.theme.FindrColor
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -57,7 +57,7 @@ internal fun SearchBarItem(
         onBack = { state.termTextField = TextFieldValue("") },
         focused = state.focused,
         modifier = modifier,
-        backgroundColor = FindrColor.LightBackground,
-        contentColor = FindrColor.TextDark
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     )
 }

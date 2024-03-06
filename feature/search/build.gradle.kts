@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.immutableCollections)
     implementation(libs.composeMaterial3)
     implementation(libs.composeFlowLayout)
+    implementation(libs.composeTooling)
     implementation(libs.hiltNavigationCompose)
     implementation(libs.workManagerRuntime)
     implementation(libs.workManagerHilt)

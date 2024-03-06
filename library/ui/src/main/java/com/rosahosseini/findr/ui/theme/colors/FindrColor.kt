@@ -1,8 +1,8 @@
-package com.rosahosseini.findr.ui.theme
+package com.rosahosseini.findr.ui.theme.colors
 
 import androidx.compose.ui.graphics.Color
 
-object FindrColor {
+internal object FindrColor {
 
     val Orange = Color(0xffffa942)
     val LightGreen1 = Color(0xffbfd8c4)
@@ -21,7 +21,7 @@ object FindrColor {
     val Grey50 = Color(0XFFBDBDBD)
     val Grey40 = Color(0XFF9E9E9E)
     val Grey30 = Color(0xFF757575)
-    val Grey20 = Color(0xFF616161)
+    val Grey20 = Color(0xFF444444)
     val Grey10 = Color(0XFF424242)
     val Grey00 = Color(0xFF212121)
     val GreyBackground = Color(0xFFf2f2f2)

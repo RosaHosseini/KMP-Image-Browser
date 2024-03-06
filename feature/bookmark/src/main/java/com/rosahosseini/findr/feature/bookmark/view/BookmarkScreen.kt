@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -19,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rosahosseini.findr.feature.bookmark.view.components.Toolbar
+import com.rosahosseini.findr.feature.bookmark.view.components.BookmarkTopAppBar
 import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkContract
 import com.rosahosseini.findr.library.ui.R
 import com.rosahosseini.findr.model.Photo
@@ -29,7 +30,6 @@ import com.rosahosseini.findr.ui.component.PhotoCard
 import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.UiState
 import com.rosahosseini.findr.ui.theme.Dimensions
-import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,8 +43,8 @@ internal fun BookmarkScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
-        topBar = { Toolbar(onBackPressed, scrollBehavior) },
-        containerColor = FindrColor.DarkBackground
+        topBar = { BookmarkTopAppBar(onBackPressed, scrollBehavior) },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -109,7 +109,7 @@ private fun PhotosGrid(
                 onBookmarkClick = { onBookmarkClick(item) },
                 modifier = Modifier
                     .animateItemPlacement()
-                    .padding(Dimensions.defaultMarginQuarter)
+                    .padding(Dimensions.xSmall)
                     .clickable { onItemClick(item) }
             )
         }

@@ -10,9 +10,11 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.feature.search.view.components.SearchTopAppBar
 import com.rosahosseini.findr.feature.search.viewmodel.SearchContract
@@ -24,8 +26,9 @@ import com.rosahosseini.findr.ui.extensions.OnBottomReached
 import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.theme.Dimensions
-import com.rosahosseini.findr.ui.theme.FindrColor
+import com.rosahosseini.findr.ui.theme.FindrTheme
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Suppress("LongParameterList")
 @Composable
@@ -50,7 +53,7 @@ internal fun SearchScreen(
                 onRemoveSuggestion = onRemoveSuggestion
             )
         },
-        containerColor = FindrColor.DarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         val photosState = searchState.photos
         LazyVerticalGrid(
@@ -70,8 +73,10 @@ internal fun SearchScreen(
             when (photosState.status) {
                 PagingState.Status.Failure ->
                     photosState.throwable?.let { errorItem(it, onLoadMore) }
+
                 PagingState.Status.Loading ->
                     loadingItem()
+
                 else -> {}
             }
         }
@@ -96,7 +101,7 @@ private fun LazyGridScope.photoItems(
             onBookmarkClick = { onBookmarkClick(item) },
             modifier = Modifier
                 .animateItemPlacement()
-                .padding(Dimensions.defaultMarginQuarter)
+                .padding(Dimensions.xSmall)
                 .clickable { onItemClick(item) }
         )
     }
@@ -110,7 +115,7 @@ private fun LazyGridScope.loadingItem() {
         LoadingComponent(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(Dimensions.defaultMarginDouble)
+                .padding(Dimensions.large)
         )
     }
 }
@@ -125,7 +130,41 @@ private fun LazyGridScope.errorItem(throwable: Throwable, onRetryClick: () -> Un
             onActionClick = onRetryClick,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(Dimensions.defaultMarginDouble)
+                .padding(Dimensions.large)
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun SearchScreen_Preview() {
+    FindrTheme {
+        val photo = Photo(
+            id = "1",
+            title = "title",
+            description = "description",
+            url = "",
+            thumbnailUrl = ""
+        )
+        SearchScreen(
+            searchState = SearchContract.State(
+                photos = PagingState(
+                    pageNumber = 0,
+                    data = persistentListOf(photo, photo),
+                    status = PagingState.Status.Loading,
+                    exhausted = false,
+                    throwable = Throwable("some failure")
+                ),
+                suggestions = persistentListOf("term1", "term2"),
+                term = ""
+            ),
+            onPhotoClick = {},
+            onItemBookmarkClick = {},
+            onBookmarksClick = {},
+            onRemoveSuggestion = {},
+            onTermChange = {},
+            onLoadMore = {},
+            isBookmarked = { false }
         )
     }
 }

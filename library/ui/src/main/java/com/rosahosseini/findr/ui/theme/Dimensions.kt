@@ -3,16 +3,13 @@ package com.rosahosseini.findr.ui.theme
 import androidx.compose.ui.unit.dp
 
 object Dimensions {
-    val defaultMargin = 8.dp
-    val defaultMarginHalf = 4.dp
-    val defaultMarginQuarter = 2.dp
-    val defaultMarginDouble = 16.dp
-    val defaultMarginOneHalf = 6.dp
-    val defaultMarginTriple = 24.dp
-    val defaultMarginQuadruple = 32.dp
-    val defaultCornerRadius = 8.dp
-    val bottomSheetCornerRadius = 32.dp
-    val defaultBottomMargin = 32.dp
-    val defaultElevation = 16.dp
-    val keyPadButtonSize = 80.dp
+    val small = 4.dp
+    val xSmall = 2.dp
+    val sMedium = 6.dp
+    val medium = 8.dp
+    val xMedium = 12.dp
+    val large = 16.dp
+    val xLarge = 24.dp
+    val xxLarge = 32.dp
+    val elevation = 16.dp
 }

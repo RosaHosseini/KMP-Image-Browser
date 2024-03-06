@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.rosahosseini.findr.app.navigation.FindrNaveHost
-import com.rosahosseini.findr.ui.theme.FindrColor
 import com.rosahosseini.findr.ui.theme.FindrTheme
 
 @Composable
@@ -19,7 +18,7 @@ fun App(modifier: Modifier = Modifier) {
             val navController = rememberNavController()
             Scaffold(
                 modifier = modifier,
-                containerColor = FindrColor.DarkBackground,
+                containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.onBackground
             ) { padding ->
                 FindrNaveHost(

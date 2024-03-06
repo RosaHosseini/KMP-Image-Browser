@@ -1,70 +1,64 @@
 package com.rosahosseini.findr.ui.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ElevatedAssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.ui.theme.Dimensions
-import com.rosahosseini.findr.ui.theme.FindrColor
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CancelableChip(
     tag: String,
+    onClick: () -> Unit,
+    onCancel: () -> Unit,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-    onCancel: () -> Unit = {},
-    backgroundColor: Color = FindrColor.Grey40,
-    textColor: Color = FindrColor.TextDark
+    color: Color = MaterialTheme.colorScheme.onPrimary
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clickable { onClick() }
-                .padding(
-                    vertical = Dimensions.defaultMarginHalf,
-                    horizontal = Dimensions.defaultMarginOneHalf
-                )
-        ) {
-            Text(
-                text = tag,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(end = Dimensions.defaultMargin),
-                color = textColor
-            )
-            Surface(color = Color.DarkGray, shape = CircleShape) {
+    CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+        ElevatedAssistChip(
+            onClick = onClick,
+            label = { Text(text = tag, style = MaterialTheme.typography.bodySmall) },
+            modifier = modifier,
+            enabled = true,
+            trailingIcon = {
                 IconButton(
                     onClick = { onCancel() },
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clip(CircleShape),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onTertiary
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        tint = FindrColor.Grey90,
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.padding(Dimensions.xSmall)
                     )
                 }
-            }
-        }
+            },
+            shape = CircleShape,
+            colors = AssistChipDefaults.assistChipColors(labelColor = color),
+            border = AssistChipDefaults.assistChipBorder(borderColor = color),
+            elevation = AssistChipDefaults.assistChipElevation()
+        )
     }
 }

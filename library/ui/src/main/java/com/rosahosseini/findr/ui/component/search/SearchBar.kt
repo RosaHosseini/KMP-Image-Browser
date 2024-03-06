@@ -35,7 +35,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.library.ui.R
 import com.rosahosseini.findr.ui.theme.Dimensions
-import com.rosahosseini.findr.ui.theme.FindrColor
 
 @ExperimentalAnimationApi
 @OptIn(ExperimentalComposeUiApi::class)
@@ -106,9 +105,9 @@ fun SearchTextField(
             Modifier
                 .height(56.dp)
                 .padding(
-                    top = Dimensions.defaultMargin,
-                    bottom = Dimensions.defaultMargin,
-                    start = if (!focused) Dimensions.defaultMarginDouble else 0.dp
+                    top = Dimensions.medium,
+                    bottom = Dimensions.medium,
+                    start = if (!focused) Dimensions.large else 0.dp
                 )
         ),
         color = backgroundColor,
@@ -133,8 +132,8 @@ fun SearchTextField(
                         .padding(
                             top = 10.dp,
                             bottom = 8.dp,
-                            start = Dimensions.defaultMarginTriple,
-                            end = Dimensions.defaultMargin
+                            start = Dimensions.xLarge,
+                            end = Dimensions.medium
                         ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -151,10 +150,10 @@ private fun SearchHint() {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = Dimensions.defaultMarginTriple, end = Dimensions.defaultMargin)
+            .padding(start = Dimensions.xLarge, end = Dimensions.medium)
     ) {
         Text(
-            color = FindrColor.Grey30,
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
             text = stringResource(R.string.search_hint)
         )
     }

@@ -20,7 +20,6 @@ import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -53,7 +52,6 @@ internal class SearchViewModel @Inject internal constructor(
     init {
         searchRequestsChannel
             .consumeAsFlow()
-            .debounce(700L)
             .onEach { saveTermToHistory(it.term) }
             .flatMapLatest { loadPhotos(it.term, it.pageNumber) }
             .onEach { newPagingState -> _state.update { it.copy(photos = newPagingState) } }
