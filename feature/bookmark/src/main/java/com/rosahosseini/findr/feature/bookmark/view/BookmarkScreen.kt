@@ -39,7 +39,7 @@ internal fun BookmarkScreen(
     state: BookmarkContract.State,
     onPhotoClick: (Photo) -> Unit,
     onBookmarkClick: (Photo) -> Unit,
-    onBackPressed: () -> Unit,
+    onBackPressed: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -96,7 +96,7 @@ private fun PhotosGrid(
     onBookmarkClick: (Photo) -> Unit,
     onItemClick: (Photo) -> Unit,
     modifier: Modifier = Modifier,
-    gridState: LazyGridState = rememberLazyGridState(),
+    gridState: LazyGridState = rememberLazyGridState()
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),

@@ -25,13 +25,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.rosahosseini.findr.library.ui.R as UiR
 import com.rosahosseini.findr.ui.component.CancelableChip
 import com.rosahosseini.findr.ui.component.search.SearchDisplay
 import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.collections.immutable.ImmutableList
-import com.rosahosseini.findr.library.ui.R as UiR
 
 @Composable
 internal fun SearchTopAppBar(
