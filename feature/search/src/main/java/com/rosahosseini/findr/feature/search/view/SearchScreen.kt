@@ -26,19 +26,18 @@ import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
 
 @Suppress("LongParameterList")
 @Composable
 internal fun SearchScreen(
     searchState: SearchContract.State,
-    bookmarks: ImmutableMap<String, Boolean>,
     onPhotoClick: (Photo) -> Unit,
     onItemBookmarkClick: (Photo) -> Unit,
     onBookmarksClick: () -> Unit,
     onRemoveSuggestion: (String) -> Unit,
     onTermChange: (String) -> Unit,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    isBookmarked: (photoId: String) -> Boolean
 ) {
     val gridState = rememberLazyGridState()
     Scaffold(
@@ -64,7 +63,7 @@ internal fun SearchScreen(
             if (photosState.status == PagingState.Status.Refreshing) loadingItem()
             photoItems(
                 photos = photosState.data,
-                bookmarks = bookmarks,
+                isBookmarked = isBookmarked,
                 onBookmarkClick = onItemBookmarkClick,
                 onItemClick = onPhotoClick
             )
@@ -86,14 +85,14 @@ internal fun SearchScreen(
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyGridScope.photoItems(
     photos: ImmutableList<Photo>,
-    bookmarks: ImmutableMap<String, Boolean>,
+    isBookmarked: (photoId: String) -> Boolean,
     onBookmarkClick: (Photo) -> Unit,
     onItemClick: (Photo) -> Unit
 ) {
     items(photos, contentType = { "image-card" }) { item ->
         PhotoCard(
             photo = item,
-            isBookmarked = bookmarks[item.id] ?: false,
+            isBookmarked = isBookmarked(item.id),
             onBookmarkClick = { onBookmarkClick(item) },
             modifier = Modifier
                 .animateItemPlacement()

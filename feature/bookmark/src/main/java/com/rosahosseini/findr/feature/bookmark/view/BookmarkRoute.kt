@@ -22,8 +22,8 @@ internal fun BookmarkRoute(
         state = state,
         onPhotoClick = { navigateToPhotoDetail(it.url, it.title, it.description) },
         onBookmarkClick = {
-            val enabled = !(state.bookmarks[it.id] ?: false)
-            bookmarkViewModel.onIntent(Intent.OnUpdateBookmark(it, enabled))
+            val enabled = state.isBookmarked(it.id)
+            bookmarkViewModel.onIntent(Intent.OnUpdateBookmark(it, !enabled))
         },
         onBackPressed = onBackPressed
     )

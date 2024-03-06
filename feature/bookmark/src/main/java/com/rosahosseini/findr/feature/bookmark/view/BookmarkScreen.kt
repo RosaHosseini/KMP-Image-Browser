@@ -31,7 +31,6 @@ import com.rosahosseini.findr.ui.state.UiState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrColor
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +55,7 @@ internal fun BookmarkScreen(
             state.photos.data?.let { photos ->
                 PhotosGrid(
                     photos = photos,
-                    bookmarks = state.bookmarks,
+                    isBookmarked = state::isBookmarked,
                     onItemClick = onPhotoClick,
                     onBookmarkClick = onBookmarkClick,
                     modifier = Modifier
@@ -92,7 +91,7 @@ internal fun BookmarkScreen(
 @Composable
 private fun PhotosGrid(
     photos: ImmutableList<Photo>,
-    bookmarks: ImmutableMap<String, Boolean>,
+    isBookmarked: (String) -> Boolean,
     onBookmarkClick: (Photo) -> Unit,
     onItemClick: (Photo) -> Unit,
     modifier: Modifier = Modifier,
@@ -106,7 +105,7 @@ private fun PhotosGrid(
         items(photos, contentType = { "image-card" }) { item ->
             PhotoCard(
                 photo = item,
-                isBookmarked = bookmarks[item.id] ?: false,
+                isBookmarked = isBookmarked(item.id),
                 onBookmarkClick = { onBookmarkClick(item) },
                 modifier = Modifier
                     .animateItemPlacement()

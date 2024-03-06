@@ -25,11 +25,11 @@ internal fun SearchRoute(
 
     SearchScreen(
         searchState = searchState,
-        bookmarks = bookmarkState.bookmarks,
+        isBookmarked = bookmarkState::isBookmarked,
         onPhotoClick = { navigateToPhotoDetail(it.url, it.title, it.description) },
         onItemBookmarkClick = { photo ->
-            val enabled = !(bookmarkState.bookmarks[photo.id] ?: false)
-            bookmarkViewModel.onIntent(BookmarkIntent.OnUpdateBookmark(photo, enabled))
+            val enabled = bookmarkState.isBookmarked(photo.id)
+            bookmarkViewModel.onIntent(BookmarkIntent.OnUpdateBookmark(photo, !enabled))
         },
         onBookmarksClick = navigateToBookmarks,
         onRemoveSuggestion = { searchViewModel.onIntent(SearchIntent.OnRemoveSuggestion(it)) },

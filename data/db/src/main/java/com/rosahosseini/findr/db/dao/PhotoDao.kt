@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PhotoDao {
-    @Query("SELECT * FROM photo WHERE is_bookmarked=1")
+    @Query("SELECT * FROM photo WHERE is_bookmarked=1 ORDER BY timeStamp DESC")
     fun getBookmarkedFlow(): Flow<List<PhotoEntity>>
 
     @Transaction
