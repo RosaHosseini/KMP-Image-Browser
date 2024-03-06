@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 val palletDark: ColorScheme
     get() = darkColorScheme(
         primary = FindrColor.DarkBackground,
-        onPrimary = Color.White,
+        onPrimary = FindrColor.Silver,
         secondary = FindrColor.BrandColor,
         onSecondary = Color.White,
         tertiary = FindrColor.Grey20,
