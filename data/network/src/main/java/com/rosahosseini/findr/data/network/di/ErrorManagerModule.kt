@@ -1,7 +1,7 @@
 package com.rosahosseini.findr.data.network.di
 
 import com.rosahosseini.findr.ErrorManager
-import com.rosahosseini.findr.data.network.utils.RemoteErrorManager
+import com.rosahosseini.findr.data.network.RemoteErrorManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

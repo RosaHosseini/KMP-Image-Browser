@@ -1,4 +1,4 @@
-package com.rosahosseini.findr.data.network.utils
+package com.rosahosseini.findr.data.network
 
 import com.rosahosseini.findr.ErrorManager
 import com.rosahosseini.findr.model.ApiError
