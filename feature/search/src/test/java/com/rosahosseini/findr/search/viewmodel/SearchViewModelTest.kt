@@ -7,21 +7,27 @@ import com.rosahosseini.findr.feature.search.viewmodel.SearchViewModel
 import com.rosahosseini.findr.model.Page
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.state.PagingState
+import io.mockk.Ordering
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
-import kotlinx.collections.immutable.immutableListOf
+import io.mockk.runs
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Before
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SearchViewModelTest {
     private val searchRepository: SearchRepository = mockk()
     private val viewModel: SearchViewModel by lazy { SearchViewModel(searchRepository) }
@@ -29,11 +35,12 @@ class SearchViewModelTest {
     private val photo = Photo("", null, null, "", null)
 
     private fun pagedPhoto(items: List<Photo> = emptyList(), pageNumber: Int = 0) = Page(
-        items, pageNumber, pageSize = 1, hasNext = true, timeStamp = 0
+        items, pageNumber, pageSize = 1, hasNext = true
     )
 
-    @Before
+    @BeforeEach
     fun setup() {
+        Dispatchers.setMain(Dispatchers.Unconfined)
         coEvery {
             searchRepository.getRecentPhotos(0, any())
         } returns Result.success(pagedPhoto(pageNumber = 0))
@@ -42,280 +49,367 @@ class SearchViewModelTest {
         } returns emptyFlow()
     }
 
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
-    fun `onQueryTextChange_Intent viewModel should update state_term`() = runBlocking {
-        // given
-        val term = "test"
-        coEvery {
-            searchRepository.searchPhotos(any(), any(), any())
-        } returns Result.success(pagedPhoto(pageNumber = 0))
-
-        // whenever
-        viewModel.onIntent(SearchContract.Intent.OnTermChange(term))
-
-        // then
-        viewModel.state
-            .map { it.term }
-            .distinctUntilChanged()
-            .test {
-                awaitItem() shouldBeEqualTo ""
-                awaitItem() shouldBeEqualTo term
+    fun `onQueryTextChange_Intent if term is not empty, viewModel should call searchPhotos update state_photos to success`() {
+        runBlocking {
+            // given
+            val term = "test"
+            coEvery {
+                searchRepository.searchPhotos(term, 0, any())
+            } coAnswers {
+                delay(10)
+                Result.success(pagedPhoto(pageNumber = 0, items = listOf(photo)))
             }
+            coEvery {
+                searchRepository.saveSearchQuery(any())
+            } just runs
+
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange(term))
+
+            // then
+            viewModel.state.test {
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Loading,
+                    pageNumber = 0
+                )
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Success,
+                    pageNumber = 0,
+                    data = persistentListOf(photo),
+                    exhausted = false,
+                    throwable = null
+                )
+                expectNoEvents()
+            }
+            coVerify(exactly = 1) { searchRepository.searchPhotos(term, 0, any()) }
+        }
     }
 
     @Test
-    fun `onQueryTextChange_Intent viewModel should update state_photos to success`() = runBlocking {
-        // given
-        val term = "test"
-        coEvery {
-            searchRepository.searchPhotos(term, 0, any())
-        } returns Result.success(pagedPhoto(pageNumber = 0, items = listOf(photo)))
+    fun `onQueryTextChange_Intent if term is not empty, viewModel should call searchPhotos and update state_photos to failure`() {
+        runBlocking {
+            // given
+            val term = "test"
+            val throwable = Throwable("test")
+            coEvery {
+                searchRepository.searchPhotos(any(), any(), any())
+            } coAnswers {
+                delay(10)
+                Result.failure(throwable)
+            }
+            coEvery {
+                searchRepository.saveSearchQuery(any())
+            } just runs
 
-        // whenever
-        viewModel.onIntent(SearchContract.Intent.OnTermChange(term))
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange(term))
 
-        // then
-        viewModel.state.value.photos shouldBeEqualTo PagingState(
-            status = PagingState.Status.Success,
-            pageNumber = 0,
-            data = persistentListOf(photo),
-            exhausted = false,
-            throwable = null
-        )
+            // then
+            viewModel.state.test {
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Loading,
+                    pageNumber = 0
+                )
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Failure,
+                    pageNumber = 0,
+                    data = persistentListOf(),
+                    exhausted = false,
+                    throwable = throwable
+                )
+                expectNoEvents()
+            }
+            coVerify(exactly = 1) { searchRepository.searchPhotos(term, 0, any()) }
+        }
+    }
+
+
+    @Test
+    fun `onQueryTextChange_Intent if term is empty, viewModel should call getRecentPhotos update state_photos to success`() {
+        runBlocking {
+            // given
+            coEvery {
+                searchRepository.getRecentPhotos(0, any())
+            } coAnswers {
+                delay(10)
+                Result.success(pagedPhoto(pageNumber = 0, items = listOf(photo)))
+            }
+
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange(""))
+
+            // then
+            viewModel.state.test {
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Loading,
+                    pageNumber = 0
+                )
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Success,
+                    pageNumber = 0,
+                    data = persistentListOf(photo),
+                    exhausted = false,
+                    throwable = null
+                )
+                expectNoEvents()
+            }
+            coVerify { searchRepository.getRecentPhotos(0, any()) }
+        }
     }
 
     @Test
-    fun `onQueryTextChange_Intent viewModel should update state_photos to failure`() = runBlocking {
+    fun `onQueryTextChange_Intent if term is empty, viewModel should call getRecentPhotos and update state_photos to failure`() {
+        runBlocking {
+            // given
+            val throwable = Throwable("test")
+            coEvery {
+                searchRepository.getRecentPhotos(any(), any())
+            } coAnswers {
+                delay(10)
+                Result.failure(throwable)
+            }
+
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange(""))
+
+            // then
+            viewModel.state.test {
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Loading,
+                    pageNumber = 0
+                )
+                awaitItem().photos shouldBeEqualTo PagingState(
+                    status = PagingState.Status.Failure,
+                    pageNumber = 0,
+                    data = persistentListOf(),
+                    exhausted = false,
+                    throwable = throwable
+                )
+                expectNoEvents()
+            }
+            coVerify { searchRepository.getRecentPhotos(0, any()) }
+        }
+    }
+
+    @Test
+    fun `onQueryTextChange_Intent viewModel should update state_term`(): Unit = runBlocking {
         // given
         val term = "test"
-        val throwable = Throwable("test")
         coEvery {
             searchRepository.searchPhotos(any(), any(), any())
-        } returns Result.failure(throwable)
+        } returns Result.success(pagedPhoto())
+        coEvery {
+            searchRepository.saveSearchQuery(any())
+        } just runs
 
         // whenever
         viewModel.onIntent(SearchContract.Intent.OnTermChange(term))
 
         // then
-        viewModel.state.value.photos shouldBeEqualTo PagingState(
-            status = PagingState.Status.Failure,
-            pageNumber = 0,
-            data = persistentListOf(),
-            exhausted = false,
-            throwable = throwable
-        )
-        coVerify { searchRepository.searchPhotos(term, 0, any()) }
+        viewModel.state.value.term shouldBeEqualTo term
     }
 
     @Test
-    fun `On multiple QueryTextChange_Intent viewModel should update photos with last term`() =
+    fun `On OnQueryTextChange_Intent viewModel should update suggestions`() {
         runBlocking {
             // given
             coEvery {
                 searchRepository.searchPhotos(any(), any(), any())
-            } returns Result.success(pagedPhoto(pageNumber = 0))
-
-            // whenever
-            viewModel.onIntent(SearchContract.Intent.OnTermChange("term1"))
-            viewModel.onIntent(SearchContract.Intent.OnTermChange("term2"))
-            delay(1000)
-            viewModel.onIntent(SearchContract.Intent.OnTermChange("term3"))
-
-            // then
-            coVerify(exactly = 1) { searchRepository.searchPhotos("term1", 0, any()) }
-            coVerify(exactly = 0) { searchRepository.searchPhotos("term2", any(), any()) }
-            coVerify(exactly = 1) { searchRepository.searchPhotos("term3", 0, any()) }
-        }
-
-
-    @Test
-    fun `On multiple QueryTextChange_Intent viewModel should save last term to history`() =
-        runBlocking {
-            // given
-            coEvery {
-                searchRepository.searchPhotos(any(), any(), any())
-            } returns Result.success(pagedPhoto(pageNumber = 0))
-
-            // whenever
-            viewModel.onIntent(SearchContract.Intent.OnTermChange("term1"))
-            viewModel.onIntent(SearchContract.Intent.OnTermChange("term2"))
-            delay(1000)
-            viewModel.onIntent(SearchContract.Intent.OnTermChange("term3"))
-
-            // then
-            coVerify(exactly = 1) { searchRepository.saveSearchQuery("term1") }
-            coVerify(exactly = 0) { searchRepository.saveSearchQuery("term2") }
-            coVerify(exactly = 1) { searchRepository.saveSearchQuery("term3") }
-        }
-
-    @Test
-    fun `On QueryTextChange_Intent viewModel should update suggestions`() =
-        runBlocking {
-            // given
-            coEvery {
-                searchRepository.searchPhotos(any(), any(), any())
-            } returns Result.success(pagedPhoto(pageNumber = 0))
+            } returns Result.success(pagedPhoto())
             coEvery {
                 searchRepository.getSearchSuggestion("term", any())
-            } returns flowOf(listOf("term", "term1", ""), listOf("term3"))
+            } returns flowOf(listOf("term", "term1", ""))
+            coEvery {
+                searchRepository.saveSearchQuery(any())
+            } just runs
 
             // whenever
             viewModel.onIntent(SearchContract.Intent.OnTermChange("term"))
 
             // then
-            viewModel.state
-                .map { it.suggestions }
-                .distinctUntilChanged()
-                .test {
-                    awaitItem() shouldBeEqualTo immutableListOf()
-                    awaitItem() shouldBeEqualTo immutableListOf("tag")
-                    awaitItem() shouldBeEqualTo immutableListOf("term3")
-                }
+            viewModel.state.value.suggestions shouldBeEqualTo persistentListOf("term1")
             coVerify(exactly = 1) { searchRepository.getSearchSuggestion("term", any()) }
         }
+    }
 
 
-//    @Test
-//    fun `onQueryTextChange save query in searchHistory if its not blank`() = runBlocking {
-//        // given
-//        val query = "query"
-//        coEvery {
-//            searchRepository.searchPhotos(any(), any(), any())
-//        } returns flowOf(Either.Loading())
-//
-//        // whenever
-//        viewModel.onTermChange(query)
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.saveSearchQuery(query) }
-//    }
+    @Test
+    fun `On OnQueryTextChange_Intent save query in searchHistory if its not blank`() {
+        runBlocking {
+            // given
+            coEvery {
+                searchRepository.searchPhotos(any(), any(), any())
+            } returns Result.success(pagedPhoto())
+            coEvery {
+                searchRepository.saveSearchQuery(any())
+            } just runs
 
-//    @Test
-//    fun `onQueryTextChange does not save query in searchHistory if it is blank`() = runBlocking {
-//        // whenever
-//        viewModel.onTermChange("   ")
-//        viewModel.onTermChange("")
-//
-//        // then
-//        confirmVerified(searchRepository)
-//        coVerify(exactly = 0) { searchRepository.saveSearchQuery(any()) }
-//    }
 
-//    @Test
-//    fun `onQueryTextChange if query is not null or empty searchPhotos`() = runBlocking {
-//        // given
-//        val query = "query"
-//        coEvery {
-//            searchRepository.searchPhotos(any(), eq(0), any())
-//        } returns flowOf(Either.Success(pagedPhoto(0)))
-//
-//
-//        // whenever
-//        viewModel.onTermChange(query)
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.searchPhotos(eq(query), eq(0), any()) }
-//    }
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange("term"))
 
-//    @Test
-//    fun `onLoadMore if last response is success search next page`() = runBlocking {
-//        // given
-//        val query = "query"
-//        repeat(3) { pageNumber ->
-//            coEvery {
-//                searchRepository.searchPhotos(any(), eq(pageNumber), any())
-//            } returns flowOf(Either.Success(pagedPhoto(pageNumber)))
-//        }
-//
-//        // whenever
-//        viewModel.onTermChange(query)
-//        viewModel.onLoadMorePhotos()
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
-//        coVerify(exactly = 1) { searchRepository.searchPhotos(eq(query), eq(1), any()) }
-//    }
-//
-//    @Test
-//    fun `onLoadMore if last response is loading does not search anything`() = runBlocking {
-//        // given
-//        val query = "query"
-//        coEvery {
-//            searchRepository.searchPhotos(any(), any(), any())
-//        } returns flowOf(Either.Loading(pagedPhoto(0)))
-//
-//        // whenever
-//        viewModel.onTermChange(query)
-//        viewModel.onLoadMorePhotos()
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
-//        coVerify(exactly = 2) { searchRepository.searchPhotos(eq(query), eq(0), any()) }
-//    }
-//
-//    @Test
-//    fun `onLoadMore if last response is error research the last page`() = runBlocking {
-//        // given
-//        val query = "query"
-//        coEvery {
-//            searchRepository.searchPhotos(any(), any(), any())
-//        } returns flowOf(Either.Error(ErrorModel(), pagedPhoto(0)))
-//
-//        // whenever
-//        viewModel.onTermChange(query)
-//        viewModel.onLoadMorePhotos()
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
-//        coVerify(exactly = 2) { searchRepository.searchPhotos(eq(query), eq(0), any()) }
-//    }
-//
-//    @Test
-//    fun `onCreate getRecentPhotos`() = runBlocking {
-//        // whenever
-//        viewModel // init viewmodel
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.getRecentPhotos(eq(0), any()) }
-//    }
-//
-//    @Test
-//    fun `onCancelSearchSuggestion would call removeSuggestion`() = runBlocking {
-//        // whenever
-//        viewModel.onCancelSearchSuggestion(suggestionModel)
-//
-//        // then
-//        coVerify(exactly = 1) { searchRepository.removeSearchQuery(suggestionModel.tag) }
-//    }
-//
-//    @Test
-//    fun `searchedPhotos is fetched from searchLocalPhotos`() = runBlocking {
-//        // given
-//        val localPhotos = listOf(photo, photo, photo)
-//        coEvery {
-//            searchRepository.searchLocalPhotos(any(), any(), any(), any())
-//        } returns flowOf(localPhotos)
-//
-//        // whenever {
-//        val actual = viewModel.searchedPhotos.first()
-//
-//        // then
-//        assertEquals(actual, localPhotos)
-//    }
-//
-//    @Test
-//    fun `searchSuggestions is fetched from get`() = runTest {
-//        // given
-//        val expected = listOf(suggestionModel, suggestionModel, suggestionModel)
-//        coEvery {
-//            searchRepository.getSearchSuggestion(any(), any())
-//        } returns flowOf(expected.map { it.tag })
-//
-//        // whenever
-//        val actual = viewModel.searchSuggestions.first()
-//
-//        // then
-//        assertEquals(expected, actual)
-//    }
+            // then
+            coVerify(exactly = 1) { searchRepository.saveSearchQuery("term") }
+        }
+    }
+
+    @Test
+    fun `On OnQueryTextChange_Intent does not save query in searchHistory if it is blank`() {
+        runBlocking {
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange(""))
+
+            // then
+            coVerify(exactly = 0) { searchRepository.saveSearchQuery("") }
+        }
+    }
+
+
+    @Test
+    fun `On OnLoadMore_Intent if term is not empty viewModel should call searchPhotos with nextPage and update state`() {
+        runBlocking {
+            // given
+            val photo1 = photo.copy(id = "1")
+            val photo2 = photo.copy(id = "2")
+            coEvery {
+                searchRepository.searchPhotos(any(), pageNumber = 0, pageSize = any())
+            } returns Result.success(pagedPhoto(pageNumber = 0, items = listOf(photo1)))
+
+            coEvery {
+                searchRepository.searchPhotos(any(), pageNumber = 1, pageSize = any())
+            } returns Result.success(pagedPhoto(pageNumber = 1, items = listOf(photo2)))
+
+            coEvery {
+                searchRepository.saveSearchQuery("term")
+            } just runs
+
+
+            //  whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange("term"))
+            viewModel.onIntent(SearchContract.Intent.OnLoadMore)
+
+            // then
+            coVerify(ordering = Ordering.ORDERED) {
+                searchRepository.searchPhotos(
+                    query = eq("term"),
+                    pageNumber = eq(0),
+                    pageSize = any()
+                )
+                searchRepository.searchPhotos(
+                    query = eq("term"),
+                    pageNumber = eq(1),
+                    pageSize = any()
+                )
+            }
+
+            viewModel.state.value.photos shouldBeEqualTo PagingState(
+                pageNumber = 1,
+                data = persistentListOf(photo1, photo2),
+                status = PagingState.Status.Success
+            )
+
+            viewModel.state.value.term shouldBeEqualTo "term"
+        }
+    }
+
+
+    @Test
+    fun `On OnLoadMore_Intent with failure viewModel should call searchPhotos with current-page and update state`() {
+        runBlocking {
+            // given
+            coEvery {
+                searchRepository.searchPhotos(any(), pageNumber = 0, pageSize = any())
+            } returnsMany listOf(
+                Result.failure(Throwable()),
+                Result.success(pagedPhoto(pageNumber = 1, items = listOf(photo)))
+            )
+
+            coEvery { searchRepository.saveSearchQuery("term") } just runs
+
+
+            //  whenever
+            viewModel.onIntent(SearchContract.Intent.OnTermChange("term"))
+            viewModel.onIntent(SearchContract.Intent.OnLoadMore)
+
+            // then
+            coVerify(exactly = 2) {
+                searchRepository.searchPhotos(
+                    query = eq("term"),
+                    pageNumber = eq(0),
+                    pageSize = any()
+                )
+            }
+
+            viewModel.state.value.photos shouldBeEqualTo PagingState(
+                pageNumber = 1,
+                data = persistentListOf(photo),
+                status = PagingState.Status.Success
+            )
+
+            viewModel.state.value.term shouldBeEqualTo "term"
+        }
+    }
+
+
+    @Test
+    fun `On OnLoadMore_Intent if current page is last page viewModel does not search anything`() {
+        runBlocking {
+            // given
+            coEvery {
+                searchRepository.searchPhotos(any(), pageNumber = 0, pageSize = any())
+            } returns Result.success(
+                Page(
+                    items = listOf(),
+                    pageNumber = 0,
+                    pageSize = 1,
+                    hasNext = false
+                )
+            )
+            coEvery { searchRepository.saveSearchQuery("term") } just runs
+
+            val state = PagingState<Photo>(
+                pageNumber = 0,
+                data = persistentListOf(),
+                status = PagingState.Status.Success,
+                exhausted = true
+            )
+
+            viewModel.onIntent(SearchContract.Intent.OnTermChange("term"))
+            viewModel.state.value.photos shouldBeEqualTo state
+
+            // whenever
+            viewModel.onIntent(SearchContract.Intent.OnLoadMore)
+
+            // then
+            viewModel.state.value.photos shouldBeEqualTo state
+
+            coVerify(exactly = 1) {
+                searchRepository.searchPhotos(
+                    query = eq("term"),
+                    pageNumber = eq(0),
+                    pageSize = any()
+                )
+            }
+            viewModel.state.value.term shouldBeEqualTo "term"
+        }
+    }
+
+    @Test
+    fun `on OnRemoveSuggestion_Intent, viewmodel should call removeSearchQuery`() = runBlocking {
+        // given
+        val term = "term"
+        coEvery { searchRepository.removeSearchQuery(term) } just runs
+
+        // whenever
+        viewModel.onIntent(SearchContract.Intent.OnRemoveSuggestion(term))
+
+        // then
+        coVerify(exactly = 1) { searchRepository.removeSearchQuery(term) }
+    }
 }

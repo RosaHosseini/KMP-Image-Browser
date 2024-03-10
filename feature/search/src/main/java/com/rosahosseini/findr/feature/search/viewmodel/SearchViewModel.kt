@@ -20,6 +20,8 @@ import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -42,7 +44,7 @@ internal class SearchViewModel @Inject internal constructor(
     override fun onIntent(intent: SearchContract.Intent) {
         viewModelScope.launch {
             when (intent) {
-                is SearchContract.Intent.OnRemoveSuggestion -> onRemoveTermSuggestion(intent.term)
+                is SearchContract.Intent.OnRemoveSuggestion -> onRemoveSuggestion(intent.term)
                 is SearchContract.Intent.OnTermChange -> onTermChange(intent.term)
                 is SearchContract.Intent.OnLoadMore -> onLoadMorePhotos()
             }
@@ -52,14 +54,16 @@ internal class SearchViewModel @Inject internal constructor(
     init {
         searchRequestsChannel
             .consumeAsFlow()
-            .onEach { saveTermToHistory(it.term) }
+            .debounce(500)
+            .distinctUntilChanged()
+            .onEach { if (it.pageNumber == 0) saveTermToHistory(it.term) }
             .flatMapLatest { loadPhotos(it.term, it.pageNumber) }
             .onEach { newPagingState -> _state.update { it.copy(photos = newPagingState) } }
             .launchIn(viewModelScope)
 
         suggestionRequestChannel
             .consumeAsFlow()
-            .flatMapLatest(::loadTermSuggestions)
+            .flatMapLatest(::loadSuggestions)
             .onEach { suggestions -> _state.update { it.copy(suggestions = suggestions) } }
             .launchIn(viewModelScope)
 
@@ -78,17 +82,17 @@ internal class SearchViewModel @Inject internal constructor(
         searchRequestsChannel.send(SearchQueryIntent(pageNumber = 0, newValue))
     }
 
-    private suspend fun onRemoveTermSuggestion(term: String) {
+    private suspend fun onRemoveSuggestion(term: String) {
         searchRepository.removeSearchQuery(term)
     }
 
-    private fun saveTermToHistory(value: String) {
+    private fun saveTermToHistory(term: String) {
         viewModelScope.launch {
-            if (value.isNotBlank()) searchRepository.saveSearchQuery(value)
+            if (term.isNotBlank()) searchRepository.saveSearchQuery(term)
         }
     }
 
-    private fun loadTermSuggestions(term: String): Flow<ImmutableList<String>> {
+    private fun loadSuggestions(term: String): Flow<ImmutableList<String>> {
         return searchRepository
             .getSearchSuggestion(term, limit = 6)
             .map { list -> list.filterNot { it == term || it.isEmpty() }.toImmutableList() }
@@ -108,4 +112,6 @@ internal class SearchViewModel @Inject internal constructor(
     companion object {
         private const val PAGE_SIZE = 20
     }
+
+    private data class SearchQueryIntent(val pageNumber: Int = 0, val term: String)
 }
