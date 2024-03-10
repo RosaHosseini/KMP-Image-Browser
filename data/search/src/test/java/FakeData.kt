@@ -24,13 +24,3 @@ internal val searchDto = SearchPhotosDto(
     endPage = 10,
     pageSize = 5
 )
-
-internal val photo = PhotoEntity(
-    photoId = "",
-    isBookmarked = false,
-    title = null,
-    description = null,
-    url = "",
-    thumbnailUrl = null,
-    timeStamp = 0
-)

@@ -26,6 +26,7 @@ allprojects {
     }
     configureKtlint()
     configureDetekt()
+    configureTestTasks()
     configureJava()
     configureAndroidProjects()
 }
@@ -99,4 +100,37 @@ fun Project.configureJava() {
             }
         }
     }
+}
+
+fun Project.configureTestTasks() {
+    if (hasUnitTests()) {
+        tasks.register("unitTests") {
+            dependsOn(if (isAndroidModule()) "testDebugUnitTest" else "test")
+        }
+    }
+    tasks.withType<Test>().apply {
+        configureEach {
+            useJUnitPlatform()
+            failFast = true
+            maxParallelForks = Runtime.getRuntime().availableProcessors().div(2)
+        }
+    }
+}
+
+fun Project.isAndroidModule(): Boolean {
+    val isAndroidLibrary = project.plugins.hasPlugin("com.android.library")
+    val isAndroidApp = project.plugins.hasPlugin("com.android.application")
+    return isAndroidLibrary || isAndroidApp
+}
+
+fun Project.hasUnitTests(): Boolean {
+    return filesExist(path = "${projectDir.absolutePath}/src/test")
+}
+
+fun filesExist(
+    path: String,
+    supportedExtensions: Set<String> = setOf("kt", "java")
+): Boolean {
+    val dir = file(path)
+    return dir.walkTopDown().any { file -> file.extension in supportedExtensions }
 }

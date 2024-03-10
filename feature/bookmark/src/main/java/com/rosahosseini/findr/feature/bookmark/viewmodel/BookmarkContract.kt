@@ -15,7 +15,7 @@ object BookmarkContract {
 
     @Immutable
     data class State(
-        private val bookmarks: ImmutableMap<String, Boolean> = persistentHashMapOf(),
+        val bookmarks: ImmutableMap<String, Boolean> = persistentHashMapOf(),
         val photos: UiState<ImmutableList<Photo>> = UiState.Idle(null)
     ) {
         fun isBookmarked(photoId: String) = bookmarks[photoId] ?: false

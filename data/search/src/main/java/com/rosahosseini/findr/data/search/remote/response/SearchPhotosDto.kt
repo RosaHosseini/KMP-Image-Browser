@@ -1,7 +1,6 @@
 package com.rosahosseini.findr.data.search.remote.response
 
 import com.google.gson.annotations.SerializedName
-import com.rosahosseini.findr.extensions.getCurrentTimeMillis
 import com.rosahosseini.findr.flicker.FlickrResponse
 import com.rosahosseini.findr.model.Page
 import com.rosahosseini.findr.remote.model.PhotoDto
@@ -25,6 +24,5 @@ internal fun SearchPhotosDto.toPagePhotos() = Page(
     items = photos?.map { it.toPhoto() }.orEmpty(),
     pageNumber = pageNumber - 1,
     pageSize = pageSize,
-    hasNext = pageNumber < endPage,
-    timeStamp = getCurrentTimeMillis()
+    hasNext = pageNumber < endPage
 )

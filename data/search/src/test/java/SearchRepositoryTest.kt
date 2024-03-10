@@ -1,299 +1,169 @@
-import app.cash.turbine.test
+import com.rosahosseini.findr.data.search.local.SearchHistoryLocalDataSource
 import com.rosahosseini.findr.data.search.remote.datasource.PhotoRemoteDataSource
 import com.rosahosseini.findr.data.search.remote.response.toPagePhotos
-import com.rosahosseini.findr.domain.search.SearchRepository
 import com.rosahosseini.findr.data.search.repository.DefaultSearchRepository
-import com.rosahosseini.findr.db.entity.SearchedPhotoEntity
-import com.rosahosseini.findr.db.entity.toPagePhotos
-import com.rosahosseini.findr.data.search.local.SearchHistoryLocalDataSource
-import com.rosahosseini.findr.model.Either
-import com.rosahosseini.findr.remote.model.PhotoDto
-import com.rosahosseini.findr.remote.model.toPhoto
+import com.rosahosseini.findr.db.entity.SearchHistoryEntity
+import com.rosahosseini.findr.domain.search.SearchRepository
+import com.rosahosseini.findr.library.coroutines.CoroutineDispatchers
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 
 internal class SearchRepositoryTest {
+
     private val photoRemoteDataSource: PhotoRemoteDataSource = mockk()
-    private val searchLocalDataSource: SearchPhotoLocalDataSource = mockk()
     private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource = mockk()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val coroutineDispatchers = CoroutineDispatchers(
+        main = UnconfinedTestDispatcher(),
+        default = UnconfinedTestDispatcher(),
+        io = UnconfinedTestDispatcher()
+    )
 
     private val repository: SearchRepository by lazy {
         DefaultSearchRepository(
             photoRemoteDataSource,
-            searchLocalDataSource,
-            searchHistoryLocalDataSource
+            searchHistoryLocalDataSource,
+            coroutineDispatchers
         )
     }
 
     @Test
-    fun `on searchPhotos gets data from db if it isn't outdated`() = runTest {
-        // given
-        val photoList = listOf(searchedPhotoEntity, searchedPhotoEntity)
-        coEvery { searchLocalDataSource.search(any(), any(), any()) } returns photoList
-
-        // whenever
-        val actual = repository.searchPhotos("query", 0, 5)
-
-        // then
-        actual.test {
-            awaitItem() shouldBeEqualTo Either.Loading()
-            awaitItem() shouldBeEqualTo Either.Success(photoList.toPagePhotos(5))
-            awaitComplete()
-        }
-    }
-
-    @Test
-    fun `on searchPhotos gets data from remote if db data is outdated`() = runTest {
-        // given
-        val photoList = listOf(outdatedSearchedPhotoEntity, outdatedSearchedPhotoEntity)
-        coEvery {
-            searchLocalDataSource.search(any(), any(), any())
-        } returns photoList
+    fun `on searchPhotos gets data from photoRemoteDataSource and returns success`() = runTest {
+        // Given
         coEvery {
             photoRemoteDataSource.search(any(), any(), any())
         } returns Result.success(searchDto)
 
-        // whenever
-        val actual = repository.searchPhotos("query", 0, 5)
+        // When
+        val actual = repository.searchPhotos(query = "query", pageNumber = 0, pageSize = 5)
 
-        // then
-        actual.test {
-            awaitItem() shouldBeEqualTo Either.Loading()
-            awaitItem() shouldBeEqualTo Either.Loading(photoList.toPagePhotos(5))
-            awaitItem() shouldBeEqualTo Either.Success(searchDto.toPagePhotos())
-            awaitComplete()
-        }
-        coVerify { searchLocalDataSource.search(any(), any(), any()) }
-        coVerify { searchLocalDataSource.search(any(), any(), any()) }
-        confirmVerified(searchLocalDataSource)
-        confirmVerified(searchLocalDataSource)
+        // Then
+        coVerify(exactly = 1) { photoRemoteDataSource.search(text = "query", limit = 5, page = 0) }
+        confirmVerified(photoRemoteDataSource, photoRemoteDataSource)
+        actual shouldBeEqualTo Result.success(searchDto.toPagePhotos())
     }
 
     @Test
-    fun `on searchPhotos gets data from remote if db data is empty`() = runBlocking {
-        // given
-        coEvery {
-            searchLocalDataSource.search(any(), any(), any())
-        } returns emptyList()
+    fun `on searchPhotos gets data from photoRemoteDataSource and returns failure`() = runTest {
+        // Given
+        val throwable = Throwable("test")
         coEvery {
             photoRemoteDataSource.search(any(), any(), any())
+        } returns Result.failure(throwable)
+
+        // When
+        val actual = repository.searchPhotos(query = "query", pageNumber = 0, pageSize = 5)
+
+        // Then
+        coVerify(exactly = 1) { photoRemoteDataSource.search(text = "query", limit = 5, page = 0) }
+        confirmVerified(photoRemoteDataSource, photoRemoteDataSource)
+        actual shouldBeEqualTo Result.failure(throwable)
+    }
+
+    @Test
+    fun `on getRecentPhotos gets data from photoRemoteDataSource and returns success`() = runTest {
+        // Given
+        coEvery {
+            photoRemoteDataSource.getRecent(any(), any())
         } returns Result.success(searchDto)
 
-        // whenever
-        val actual = repository.searchPhotos("query", 0, 5)
+        // When
+        val actual = repository.getRecentPhotos(pageNumber = 0, pageSize = 5)
 
-        // then
-        actual.test {
-            awaitItem() shouldBeEqualTo Either.Loading()
-            awaitItem().let {
-                it.data?.items.orEmpty() shouldBeEqualTo searchDto.photos
-                    ?.map(PhotoDto::toPhoto)
-                    .orEmpty()
-                it shouldBeInstanceOf Either.Success::class
+        // Then
+        coVerify(exactly = 1) { photoRemoteDataSource.getRecent(limit = 5, page = 0) }
+        confirmVerified(photoRemoteDataSource, photoRemoteDataSource)
+        actual shouldBeEqualTo Result.success(searchDto.toPagePhotos())
+    }
+
+    @Test
+    fun `on getRecentPhotos gets data from photoRemoteDataSource and returns failure`() = runTest {
+        // Given
+        val throwable = Throwable("test")
+        coEvery {
+            photoRemoteDataSource.getRecent(any(), any())
+        } returns Result.failure(throwable)
+
+        // When
+        val actual = repository.getRecentPhotos(pageNumber = 0, pageSize = 5)
+
+        // Then
+        coVerify(exactly = 1) { photoRemoteDataSource.getRecent(limit = 5, page = 0) }
+        confirmVerified(photoRemoteDataSource, photoRemoteDataSource)
+        actual shouldBeEqualTo Result.failure(throwable)
+    }
+
+
+    @Test
+    fun `on clearExpiredData clear data by local data source`() = runBlocking {
+        // Given
+        val expireTime = 10L
+        coEvery { searchHistoryLocalDataSource.clearExpiredQueries(expireTime) } just runs
+
+        // When
+        repository.clearExpiredData(expireTime)
+
+        // Then
+        coVerify(exactly = 1) { searchHistoryLocalDataSource.clearExpiredQueries(expireTime) }
+        confirmVerified(photoRemoteDataSource, photoRemoteDataSource)
+    }
+
+    @Test
+    fun `on saveSearchQuery save query in search history local datasource`() = runBlocking {
+        // Given
+        coEvery { searchHistoryLocalDataSource.saveQuery("query") } just runs
+
+        // When
+        repository.saveSearchQuery("query")
+
+        // Then
+        coVerify(exactly = 1) { searchHistoryLocalDataSource.saveQuery("query") }
+        confirmVerified(photoRemoteDataSource, searchHistoryLocalDataSource)
+    }
+
+    @Test
+    fun `on removeQuery remove query from search history local datasource`() = runBlocking {
+        // Given
+        coEvery { searchHistoryLocalDataSource.removeQuery("query") } just runs
+
+        // When
+        repository.removeSearchQuery("query")
+
+        // Then
+        coVerify(exactly = 1) { searchHistoryLocalDataSource.removeQuery("query") }
+        confirmVerified(photoRemoteDataSource, searchHistoryLocalDataSource)
+    }
+
+    @Test
+    fun `on getSearchSuggestion get recent queries from search history local datasource`() =
+        runBlocking {
+            // Given
+
+            val searchSuggestion = SearchHistoryEntity("", 1)
+            coEvery {
+                searchHistoryLocalDataSource.getLatestQueries(any(), any())
+            } returns flowOf(listOf(searchSuggestion, searchSuggestion))
+
+            // When
+            repository.getSearchSuggestion(query = "query", limit = 4)
+
+            // Then
+            verify(exactly = 1) {
+                searchHistoryLocalDataSource.getLatestQueries(query = "query", limit = 4)
             }
-            awaitComplete()
+            confirmVerified(photoRemoteDataSource, searchHistoryLocalDataSource)
         }
-        coVerify { searchLocalDataSource.search(any(), any(), any()) }
-        coVerify { searchLocalDataSource.search(any(), any(), any()) }
-        confirmVerified(searchLocalDataSource)
-        confirmVerified(searchLocalDataSource)
-    }
-
-    @Test
-    fun `on searchPhotos gets data db again if remote throw exception`() = runTest {
-        // given
-        coEvery { searchLocalDataSource.search(any(), any(), any()) } returns emptyList()
-        coEvery { photoRemoteDataSource.search(any(), any(), any()) } throws Exception("test")
-
-        // whenever
-        val actual = repository.searchPhotos("query", 0, 5)
-
-        // then
-        actual.test {
-            awaitItem() shouldBeInstanceOf Either.Loading::class
-            awaitItem() shouldBeEqualTo Either.Loading(
-                emptyList<SearchedPhotoEntity>().toPagePhotos(5)
-            )
-            awaitItem() shouldBeInstanceOf Either.Success::class
-            awaitComplete()
-        }
-        coVerify(exactly = 2) { searchLocalDataSource.search(any(), any(), any()) }
-        coVerify(exactly = 1) { searchLocalDataSource.search(any(), any(), any()) }
-        confirmVerified(searchLocalDataSource)
-        confirmVerified(searchLocalDataSource)
-    }
-
-    @Test
-    fun `on getRecentPhotos gets data from db if it isn't outdated`() = runTest {
-        // given
-        val photoList = listOf(searchedPhotoEntity, searchedPhotoEntity)
-        coEvery { searchLocalDataSource.search(null, any(), any()) } returns photoList
-
-        // whenever
-        val actual = repository.searchPhotos("query", 0, 5)
-
-        // then
-        actual.test {
-            awaitItem() shouldBeInstanceOf Either.Loading::class
-            awaitItem() shouldBeEqualTo Either.Success::class
-            awaitComplete()
-        }
-        coVerify(exactly = 2) { searchLocalDataSource.search(null, any(), any()) }
-        confirmVerified(searchLocalDataSource)
-        confirmVerified(searchLocalDataSource)
-    }
-
-    @Test
-    fun `on getRecentPhotos gets data from remote if db data is outdated`() = runTest {
-        // given
-        val photoList = listOf(outdatedSearchedPhotoEntity, outdatedSearchedPhotoEntity)
-        coEvery { searchLocalDataSource.search(null, any(), any()) } returns photoList
-        coEvery { photoRemoteDataSource.getRecent(any(), any()) } returns Result.success(searchDto)
-
-        // whenever
-        val actual = repository.searchPhotos("query", 0, 5)
-
-        // then
-        actual.test {
-            awaitItem() shouldBeInstanceOf Either.Loading::class
-            awaitItem() shouldBeEqualTo Either.Loading(
-                emptyList<SearchedPhotoEntity>().toPagePhotos(5)
-            )
-            awaitItem() shouldBeInstanceOf Either.Success::class
-            awaitComplete()
-        }
-        coVerify(exactly = 1) { searchLocalDataSource.search(null, any(), any()) }
-        coVerify(exactly = 1) { photoRemoteDataSource.getRecent(any(), any()) }
-        coVerify(exactly = 1) { searchLocalDataSource.saveSearch(any()) }
-        confirmVerified(searchLocalDataSource)
-        confirmVerified(searchLocalDataSource)
-    }
-//
-//    @Test
-//    fun `on getRecentPhotos gets data from remote if db data is empty`() = coroutineTestCase {
-//        given {
-//            whenever(
-//                searchLocalDataSource.search(eq(null), any(), any())
-//            ) doReturn emptyList()
-//            whenever(
-//                photoRemoteDataSource.getRecent(any(), any())
-//            ) doReturn searchResponse
-//        }
-//        var result: Flow<Either<Page<Photo>>>? = null
-//        whenever {
-//            result = repository.getRecentPhotos(0, 5)
-//        }
-//        then {
-//            val response = result?.last()
-//            verify(searchLocalDataSource).search(eq(null), any(), any())
-//            verify(photoRemoteDataSource).getRecent(any(), any())
-//            verify(searchLocalDataSource).saveSearch(any())
-//            assert(response is Either.Success)
-//        }
-//    }
-//
-//    @Test
-//    fun `on getRecentPhotos gets data db again if remote throw exception`() = coroutineTestCase {
-//        given {
-//            whenever(
-//                searchLocalDataSource.search(eq(null), any(), any())
-//            ) doReturn emptyList()
-//            whenever(
-//                photoRemoteDataSource.getRecent(any(), any())
-//            ) doThrow RuntimeException("")
-//        }
-//        var result: Flow<Either<Page<Photo>>>? = null
-//        whenever {
-//            result = repository.getRecentPhotos(0, 5)
-//        }
-//        then {
-//            val response = result?.last()
-//            verify(searchLocalDataSource, times(2)).search(eq(null), any(), any())
-//            verify(photoRemoteDataSource).getRecent(any(), any())
-//            assert(response is Either.Error)
-//        }
-//    }
-//
-//    @Test
-//    fun `searchLocalPhotos calls local datasource`() = coroutineTestCase {
-//        given {
-//            whenever(
-//                searchLocalDataSource.searchFlow(any(), any(), any(), any())
-//            ) doReturn flowOf(listOf(searchedPhotoEntity, searchedPhotoEntity))
-//        }
-//        whenever {
-//            repository.searchLocalPhotos("", 0, 10, 4).last()
-//        }
-//        then {
-//            verify(searchLocalDataSource).searchFlow(any(), any(), any(), any())
-//            verifyZeroInteractions(photoRemoteDataSource)
-//        }
-//    }
-//
-//    @Test
-//    fun `on clearExpiredData clear data by local datasources`() = coroutineTestCase {
-//        val expireTime = 10L
-//        whenever {
-//            repository.clearExpiredData(expireTime)
-//        }
-//        then {
-//            verify(searchLocalDataSource, times(1)).clearExpiredQueries(expireTime)
-//            verify(searchLocalDataSource, times(1)).clearExpiredQueries(expireTime)
-//            verify(searchHistoryLocalDataSource, times(1)).clearExpiredQueries(expireTime)
-//            verifyZeroInteractions(photoRemoteDataSource)
-//            verifyNoMoreInteractions(searchLocalDataSource)
-//            verifyNoMoreInteractions(searchHistoryLocalDataSource)
-//        }
-//    }
-//
-//    @Test
-//    fun `on saveSearchQuery save query in search history local datasource`() = coroutineTestCase {
-//        val query = "query"
-//        whenever {
-//            repository.saveSearchQuery(query)
-//        }
-//        then {
-//            verify(searchHistoryLocalDataSource, times(1)).saveQuery(query)
-//            verifyZeroInteractions(searchLocalDataSource)
-//            verifyZeroInteractions(photoRemoteDataSource)
-//            verifyNoMoreInteractions(searchHistoryLocalDataSource)
-//        }
-//    }
-//
-//    @Test
-//    fun `on removeSuggestion remove query from search history local datasource`() =
-//        coroutineTestCase {
-//            val query = "query"
-//            whenever {
-//                repository.removeSuggestion(query)
-//            }
-//            then {
-//                verify(searchHistoryLocalDataSource, times(1)).removeQuery(query)
-//                verifyZeroInteractions(searchLocalDataSource)
-//                verifyZeroInteractions(photoRemoteDataSource)
-//                verifyNoMoreInteractions(searchHistoryLocalDataSource)
-//            }
-//        }
-//
-//    @Test
-//    fun `on getSearchSuggestion get recent queries from search history local datasource`() =
-//        coroutineTestCase {
-//            val query = "query"
-//            whenever {
-//                repository.getSearchSuggestion(query, 10)
-//            }
-//            then {
-//                verify(searchHistoryLocalDataSource, times(1)).getLatestQueries(query, 10)
-//                verifyZeroInteractions(searchLocalDataSource)
-//                verifyZeroInteractions(photoRemoteDataSource)
-//                verifyNoMoreInteractions(searchHistoryLocalDataSource)
-//            }
-//        }
 }
