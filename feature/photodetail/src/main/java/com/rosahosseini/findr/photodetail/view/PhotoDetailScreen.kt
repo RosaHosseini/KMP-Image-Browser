@@ -37,7 +37,7 @@ internal fun PhotoDetailScreen(photo: PhotoDetailArgs, onBackPressed: () -> Unit
                 modifier = Modifier.fillMaxSize(),
                 url = photo.url,
                 description = photo.description,
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
 
             photo.title?.takeIf { it.isNotBlank() }?.let {
