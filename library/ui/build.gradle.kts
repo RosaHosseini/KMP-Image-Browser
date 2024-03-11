@@ -22,4 +22,6 @@ dependencies {
     implementation(libs.immutableCollections)
     implementation(libs.composeTooling)
     implementation(libs.composeCoil)
+
+    testImplementation(libs.bundles.testCore)
 }

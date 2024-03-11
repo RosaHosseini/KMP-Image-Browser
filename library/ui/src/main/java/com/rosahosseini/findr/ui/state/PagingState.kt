@@ -12,7 +12,7 @@ data class PagingState<T>(
     val data: ImmutableList<T> = persistentListOf(),
     val status: Status = Status.Idle,
     val exhausted: Boolean = false,
-    val throwable: Throwable? = null
+    val throwable: Throwable? = null,
 ) {
     enum class Status {
         Idle,
@@ -22,9 +22,9 @@ data class PagingState<T>(
         Failure
     }
 
-    val isAppending: Boolean = pageNumber > 0
+    val isAppending: Boolean get() = pageNumber > 0
 
-    val isLoading: Boolean = status in listOf(Status.Refreshing, Status.Loading)
+    val isLoading: Boolean get() = status in listOf(Status.Refreshing, Status.Loading)
 
     val canRefresh: Boolean get() = !isLoading
 
