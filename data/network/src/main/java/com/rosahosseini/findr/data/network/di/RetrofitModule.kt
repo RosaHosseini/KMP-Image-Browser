@@ -28,13 +28,6 @@ internal object RetrofitModule {
     fun provideGson(): Gson = Gson()
 
     @Singleton
-    @Provides
-    @IntoSet
-    fun providesGsonConverterFactory(gson: Gson): Converter.Factory {
-        return GsonConverterFactory.create(gson)
-    }
-
-    @Singleton
     @IntoSet
     @Provides
     fun provideLoggingInterceptor(buildConfiguration: BuildConfiguration): Interceptor {
@@ -48,7 +41,6 @@ internal object RetrofitModule {
 
     @Singleton
     @Provides
-    @IntoSet
     fun providesOkHttpClient(interceptors: Set<@JvmSuppressWildcards Interceptor>): OkHttpClient {
         return OkHttpClient.Builder().apply {
             interceptors.forEach { interceptor -> addInterceptor(interceptor) }
@@ -58,6 +50,13 @@ internal object RetrofitModule {
     @BaseUrl
     @Provides
     fun provideBaseUrl(): String = FLICKR_BASE_URL
+
+    @Singleton
+    @Provides
+    @IntoSet
+    fun providesGsonConverterFactory(gson: Gson): Converter.Factory {
+        return GsonConverterFactory.create(gson)
+    }
 
     @Singleton
     @Provides
