@@ -65,7 +65,8 @@ accompanistInsets = { module = "com.google.accompanist:accompanist-insets", vers
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 dataStore = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "dataStore" }
 # Room
-roomCommon = { group = "androidx.room", name = "room-common", version.ref = "room" }
+roomCompiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+roomKtx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 # Lifecycle
 lifecycleCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 lifecycleViewModel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }

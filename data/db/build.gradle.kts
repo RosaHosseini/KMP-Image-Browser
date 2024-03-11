@@ -10,11 +10,8 @@ android {
 
 dependencies {
     implementation(project(":domain:model"))
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation(libs.roomCommon)
-    ksp("androidx.room:room-compiler:2.6.1")
-    implementation(libs.dataStore)
+    implementation(libs.roomKtx)
+    ksp(libs.roomCompiler)
     implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)
     testImplementation(libs.bundles.testCore)
