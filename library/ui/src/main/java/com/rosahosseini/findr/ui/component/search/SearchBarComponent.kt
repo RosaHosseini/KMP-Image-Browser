@@ -35,7 +35,8 @@ fun SearchBarComponent(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    onSearchClick: () -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -72,7 +73,10 @@ fun SearchBarComponent(
                 onSearchFocusChange(it)
                 if (!it) keyboardController?.hide()
             },
-            onSearch = { focusManager.clearFocus() },
+            onSearch = {
+                focusManager.clearFocus()
+                onSearchClick()
+            },
             modifier = Modifier
                 .weight(1f)
                 .padding(

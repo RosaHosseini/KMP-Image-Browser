@@ -12,7 +12,7 @@ data class PagingState<T>(
     val data: ImmutableList<T> = persistentListOf(),
     val status: Status = Status.Idle,
     val exhausted: Boolean = false,
-    val throwable: Throwable? = null,
+    val throwable: Throwable? = null
 ) {
     enum class Status {
         Idle,
