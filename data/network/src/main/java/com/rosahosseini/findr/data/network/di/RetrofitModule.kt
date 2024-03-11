@@ -1,9 +1,9 @@
 package com.rosahosseini.findr.data.network.di
 
 import com.google.gson.Gson
-import com.rosahosseini.findr.ErrorManager
 import com.rosahosseini.findr.data.network.FLICKR_BASE_URL
 import com.rosahosseini.findr.data.network.KotlinResultCallAdapterFactory
+import com.rosahosseini.findr.data.network.RemoteErrorManager
 import com.rosahosseini.findr.model.BuildConfiguration
 import dagger.Module
 import dagger.Provides
@@ -61,7 +61,9 @@ internal object RetrofitModule {
     @Singleton
     @Provides
     @IntoSet
-    fun providesKotlinResultCallAdapterFactory(errorManager: ErrorManager): CallAdapter.Factory {
+    fun providesKotlinResultCallAdapterFactory(
+        errorManager: RemoteErrorManager
+    ): CallAdapter.Factory {
         return KotlinResultCallAdapterFactory(errorManager)
     }
 

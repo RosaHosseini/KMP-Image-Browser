@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":domain:search"))
     implementation(project(":domain:model"))
     implementation(project(":library:coroutine"))
-    implementation(libs.coroutinesAndroid)
+    implementation(libs.coroutinesCore)
     implementation(libs.gson)
     implementation(libs.retrofit)
     implementation(libs.hiltAndroid)

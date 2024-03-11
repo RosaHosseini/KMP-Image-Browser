@@ -9,7 +9,7 @@ val Throwable.localMessage
     @Composable get(): String {
         val genericMessage = stringResource(R.string.error_unexpected)
         val apiError = this as? ApiError ?: return genericMessage
-        return when (apiError.errorType) {
+        return when (apiError.type) {
             ApiError.Type.Network -> stringResource(R.string.error_noInternet)
             ApiError.Type.Server -> stringResource(R.string.error_serverUnavailable)
             ApiError.Type.Unreachable -> stringResource(R.string.error_serverUnreachable)

@@ -1,7 +1,6 @@
 package com.rosahosseini.findr.flicker
 
 import com.google.gson.annotations.SerializedName
-import com.rosahosseini.findr.ErrorManager
 import com.rosahosseini.findr.model.ApiError
 
 open class FlickrResponse<T>(
@@ -12,10 +11,9 @@ open class FlickrResponse<T>(
 ) {
     private val isFailure get(): Boolean = status == "fail"
 
-    fun getOrThrow(errorManager: ErrorManager): T {
+    fun getOrThrow(): T {
         if (isFailure) {
             throw ApiError(
-                errorType = errorManager.errorType(errorCode, ApiError.Type.Http),
                 code = errorCode,
                 throwable = Throwable(errorMassage)
             )

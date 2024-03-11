@@ -1,8 +1,5 @@
 package com.rosahosseini.findr.data.network
 
-import com.rosahosseini.findr.ErrorManager
-import com.rosahosseini.findr.model.ApiError
-import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import okhttp3.Request
@@ -10,11 +7,12 @@ import okio.Timeout
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Callback
+import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
 
 internal class KotlinResultCallAdapterFactory(
-    private val errorManager: ErrorManager
+    private val errorManager: RemoteErrorManager
 ) : CallAdapter.Factory() {
     @Suppress("ReturnCount")
     override fun get(
@@ -72,21 +70,7 @@ internal class KotlinResultCallAdapterFactory(
             return when {
                 isSuccessful && body == null -> Result.success(Unit as T)
                 isSuccessful && body != null -> Result.success(body)
-                else -> {
-                    val code = code()
-                    val errorType = errorManager.errorType(code, ApiError.Type.Http)
-                    val errorBody = errorBody()?.string()
-                    val throwable = if (errorBody.isNullOrBlank()) {
-                        ApiError(errorType, code)
-                    } else {
-                        try {
-                            ApiError(errorType, code, throwable = IOException(errorBody))
-                        } catch (exception: Exception) {
-                            ApiError(errorType, code, throwable = exception)
-                        }
-                    }
-                    Result.failure(throwable)
-                }
+                else -> Result.failure(errorManager.apiError(HttpException(this)))
             }
         }
     }
