@@ -30,36 +30,34 @@ internal object RetrofitModule {
     @Singleton
     @Provides
     @IntoSet
+    fun providesGsonConverterFactory(gson: Gson): Converter.Factory {
+        return GsonConverterFactory.create(gson)
+    }
+
+    @Singleton
+    @IntoSet
+    @Provides
+    fun provideLoggingInterceptor(buildConfiguration: BuildConfiguration): Interceptor {
+        val level = if (buildConfiguration.isDebug) {
+            HttpLoggingInterceptor.Level.BODY
+        } else {
+            HttpLoggingInterceptor.Level.NONE
+        }
+        return HttpLoggingInterceptor().setLevel(level)
+    }
+
+    @Singleton
+    @Provides
+    @IntoSet
     fun providesOkHttpClient(interceptors: Set<@JvmSuppressWildcards Interceptor>): OkHttpClient {
         return OkHttpClient.Builder().apply {
             interceptors.forEach { interceptor -> addInterceptor(interceptor) }
         }.build()
     }
 
-    @Singleton
-    @Provides
-    fun provideOKHttpClient(buildConfiguration: BuildConfiguration): OkHttpClient {
-        val level = if (buildConfiguration.isDebug) {
-            HttpLoggingInterceptor.Level.BODY
-        } else {
-            HttpLoggingInterceptor.Level.NONE
-        }
-        return OkHttpClient
-            .Builder()
-            .addInterceptor(HttpLoggingInterceptor().setLevel(level))
-            .build()
-    }
-
     @BaseUrl
     @Provides
     fun provideBaseUrl(): String = FLICKR_BASE_URL
-
-    @Singleton
-    @Provides
-    @IntoSet
-    fun providesGsonConverterFactory(gson: Gson): Converter.Factory {
-        return GsonConverterFactory.create(gson)
-    }
 
     @Singleton
     @Provides
