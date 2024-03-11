@@ -18,7 +18,9 @@ fun rememberSearchState(initialQuery: String, onQueryChange: (String) -> Unit): 
 class SearchState internal constructor(initialQueryText: String) {
     var termTextField by mutableStateOf(TextFieldValue(initialQueryText))
     var focused by mutableStateOf(false)
-    val isBackEnabled = focused || termTextField.text.isNotEmpty()
+    val isBackEnabled: Boolean
+        get() = focused || termTextField.text.isNotEmpty()
+
     val searchDisplay: SearchDisplay
         get() = if (focused) SearchDisplay.SUGGESTIONS else SearchDisplay.RESULTS
 }

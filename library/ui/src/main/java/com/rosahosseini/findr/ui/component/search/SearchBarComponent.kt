@@ -37,7 +37,7 @@ fun SearchBarComponent(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    BackHandler(state.focused) {
+    BackHandler(state.isBackEnabled) {
         focusManager.clearFocus()
     }
 
