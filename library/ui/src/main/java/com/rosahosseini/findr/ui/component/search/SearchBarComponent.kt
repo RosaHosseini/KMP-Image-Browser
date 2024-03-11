@@ -28,11 +28,7 @@ import com.rosahosseini.findr.ui.theme.FindrTheme
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchBarComponent(
-    query: TextFieldValue,
-    focused: Boolean,
-    onQueryChange: (TextFieldValue) -> Unit,
-    onSearchFocusChange: (Boolean) -> Unit,
-    onBackClick: () -> Unit,
+    state: SearchState,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
     contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -40,23 +36,21 @@ fun SearchBarComponent(
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val isBackIconVisible = focused || query.text.isNotEmpty()
 
-    BackHandler(focused) {
+    BackHandler(state.focused) {
         focusManager.clearFocus()
-        onBackClick()
     }
 
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AnimatedVisibility(visible = isBackIconVisible) {
+        AnimatedVisibility(visible = state.isBackEnabled) {
             // Back button
             IconButton(
                 onClick = {
                     focusManager.clearFocus()
-                    onBackClick()
+                    state.termTextField = TextFieldValue()
                 }
             ) {
                 Icon(
@@ -67,10 +61,10 @@ fun SearchBarComponent(
             }
         }
         SearchTextField(
-            query = query,
-            onQueryChange = onQueryChange,
+            query = state.termTextField,
+            onQueryChange = { state.termTextField = it },
             onSearchFocusChange = {
-                onSearchFocusChange(it)
+                state.focused = it
                 if (!it) keyboardController?.hide()
             },
             onSearch = {
@@ -82,7 +76,7 @@ fun SearchBarComponent(
                 .padding(
                     top = Dimensions.medium,
                     bottom = Dimensions.medium,
-                    start = if (!isBackIconVisible) Dimensions.large else 0.dp
+                    start = if (!state.isBackEnabled) Dimensions.large else 0.dp
                 ),
             backgroundColor = backgroundColor,
             contentColor = contentColor
@@ -96,11 +90,7 @@ fun SearchBarComponent(
 private fun EmptySearchBarComponentPreview() {
     FindrTheme {
         SearchBarComponent(
-            query = TextFieldValue(),
-            onQueryChange = {},
-            onSearchFocusChange = {},
-            focused = false,
-            onBackClick = {},
+            state = SearchState(initialQueryText = ""),
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -112,11 +102,7 @@ private fun EmptySearchBarComponentPreview() {
 private fun SearchBarComponentPreview() {
     FindrTheme {
         SearchBarComponent(
-            query = TextFieldValue("term"),
-            onQueryChange = {},
-            onSearchFocusChange = {},
-            focused = true,
-            onBackClick = {},
+            state = SearchState(initialQueryText = "term"),
             modifier = Modifier.fillMaxWidth()
         )
     }

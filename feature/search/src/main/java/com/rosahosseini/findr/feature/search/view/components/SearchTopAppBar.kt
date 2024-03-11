@@ -21,25 +21,20 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rosahosseini.findr.library.ui.R as UiR
 import com.rosahosseini.findr.ui.component.CancelableChip
 import com.rosahosseini.findr.ui.component.search.SearchBarComponent
-import com.rosahosseini.findr.ui.extensions.doOncePerInstance
+import com.rosahosseini.findr.ui.component.search.SearchDisplay
+import com.rosahosseini.findr.ui.component.search.rememberSearchState
 import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrTheme
 import kotlinx.collections.immutable.ImmutableList
@@ -55,12 +50,9 @@ internal fun SearchTopAppBar(
     onRemoveSuggestion: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var focused by remember { mutableStateOf(false) }
-    var termTextField: TextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(text = term, selection = TextRange(term.length)))
-    }
-    termTextField.text.trim().doOncePerInstance(block = onTermChange)
-
+    val searchState = rememberSearchState(initialQuery = term, onQueryChange = onTermChange)
+    val showSuggestions = searchState.searchDisplay == SearchDisplay.SUGGESTIONS &&
+        suggestions.isNotEmpty()
     val focusManager = LocalFocusManager.current
 
     Card(
@@ -77,11 +69,7 @@ internal fun SearchTopAppBar(
                 horizontalArrangement = Arrangement.spacedBy(Dimensions.medium)
             ) {
                 SearchBarComponent(
-                    query = termTextField,
-                    onQueryChange = { termTextField = it },
-                    onBackClick = { termTextField = TextFieldValue() },
-                    onSearchFocusChange = { focused = it },
-                    focused = focused,
+                    state = searchState,
                     modifier = Modifier.weight(1f)
                 )
                 Image(
@@ -95,13 +83,13 @@ internal fun SearchTopAppBar(
                         .widthIn(min = 36.dp)
                 )
             }
-            AnimatedVisibility(visible = focused && suggestions.isNotEmpty()) {
+            AnimatedVisibility(visible = showSuggestions) {
                 Suggestions(
                     items = suggestions,
                     onRemoveItem = onRemoveSuggestion,
                     onSelectItem = {
                         focusManager.clearFocus()
-                        termTextField = TextFieldValue(it, selection = TextRange(it.length))
+                        searchState.termTextField = TextFieldValue(it)
                     },
                     modifier = Modifier.padding(bottom = Dimensions.large)
                 )
