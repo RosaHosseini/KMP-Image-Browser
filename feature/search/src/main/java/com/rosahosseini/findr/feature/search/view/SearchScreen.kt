@@ -2,6 +2,7 @@ package com.rosahosseini.findr.feature.search.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,10 +11,13 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -21,9 +25,11 @@ import com.rosahosseini.findr.feature.search.view.components.SearchTopAppBar
 import com.rosahosseini.findr.feature.search.view.preview.SearchScreenPreviewProvider
 import com.rosahosseini.findr.feature.search.viewmodel.SearchContract
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.ui.component.ErrorComponent
-import com.rosahosseini.findr.ui.component.LoadingComponent
 import com.rosahosseini.findr.ui.component.PhotoCard
+import com.rosahosseini.findr.ui.component.pullrefresh.PullRefreshIndicator
+import com.rosahosseini.findr.ui.component.pullrefresh.rememberPullToRefreshState
+import com.rosahosseini.findr.ui.component.state.ErrorComponent
+import com.rosahosseini.findr.ui.component.state.LoadingComponent
 import com.rosahosseini.findr.ui.extensions.OnBottomReached
 import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.PagingState
@@ -31,6 +37,7 @@ import com.rosahosseini.findr.ui.theme.Dimensions
 import com.rosahosseini.findr.ui.theme.FindrTheme
 import kotlinx.collections.immutable.ImmutableList
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("LongParameterList")
 @Composable
 internal fun SearchScreen(
@@ -41,46 +48,57 @@ internal fun SearchScreen(
     onRemoveSuggestion: (String) -> Unit,
     onTermChange: (String) -> Unit,
     onLoadMore: () -> Unit,
+    onRefresh: () -> Unit,
     isBookmarked: (photoId: String) -> Boolean
 ) {
+    val pullToRefreshState = rememberPullToRefreshState(
+        refreshing = searchState.photos.refreshing,
+        onRefresh = onRefresh,
+        enabled = searchState.photos.canRefresh
+    )
     val gridState = rememberLazyGridState()
-    Scaffold(
-        topBar = {
-            SearchTopAppBar(
-                term = searchState.term,
-                onBookmarksClick = onBookmarksClick,
-                suggestions = searchState.suggestions,
-                onTermChange = onTermChange,
-                onRemoveSuggestion = onRemoveSuggestion
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        val photosState = searchState.photos
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            state = gridState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (photosState.status == PagingState.Status.Refreshing) loadingItem()
-            photoItems(
-                photos = photosState.data,
-                isBookmarked = isBookmarked,
-                onBookmarkClick = onItemBookmarkClick,
-                onItemClick = onPhotoClick
-            )
-            when (photosState.status) {
-                PagingState.Status.Failure ->
-                    photosState.throwable?.let { errorItem(it, onLoadMore) }
+    Box(modifier = Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
+        Scaffold(
+            topBar = {
+                SearchTopAppBar(
+                    term = searchState.term,
+                    onBookmarksClick = onBookmarksClick,
+                    suggestions = searchState.suggestions,
+                    onTermChange = onTermChange,
+                    onRemoveSuggestion = onRemoveSuggestion
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.background
+        ) { paddingValues ->
+            val photosState = searchState.photos
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(150.dp),
+                state = gridState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                photoItems(
+                    photos = photosState.data,
+                    isBookmarked = isBookmarked,
+                    onBookmarkClick = onItemBookmarkClick,
+                    onItemClick = onPhotoClick
+                )
+                when (photosState.status) {
+                    PagingState.Status.Failure ->
+                        photosState.throwable?.let { errorItem(it, onLoadMore) }
 
-                PagingState.Status.Loading ->
-                    loadingItem()
+                    PagingState.Status.Loading ->
+                        loadingItem()
 
-                else -> {}
+                    else -> {}
+                }
             }
         }
+        PullRefreshIndicator(
+            state = pullToRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 
     gridState.OnBottomReached(buffer = 2) {
@@ -146,7 +164,8 @@ private fun SearchScreenPreview(
             onRemoveSuggestion = {},
             onTermChange = {},
             onLoadMore = {},
-            isBookmarked = { false }
+            isBookmarked = { false },
+            onRefresh = {}
         )
     }
 }

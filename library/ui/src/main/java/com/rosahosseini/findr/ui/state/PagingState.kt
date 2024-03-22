@@ -24,9 +24,9 @@ data class PagingState<T>(
 
     val isAppending: Boolean get() = pageNumber > 0
 
-    val isLoading: Boolean get() = status in listOf(Status.Refreshing, Status.Loading)
+    val canRefresh: Boolean get() = status != Status.Loading
 
-    val canRefresh: Boolean get() = !isLoading
+    val refreshing: Boolean get() = status == Status.Refreshing
 
     val nextPage: Int?
         get() {
@@ -56,6 +56,12 @@ fun <T> PagingState<T>.onLoading(page: Int): PagingState<T> {
         data = if (page == 0) persistentListOf() else data,
         pageNumber = page,
         throwable = null
+    )
+}
+
+fun <T> PagingState<T>.onRefresh(): PagingState<T> {
+    return copy(
+        status = PagingState.Status.Refreshing
     )
 }
 

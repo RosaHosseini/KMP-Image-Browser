@@ -8,6 +8,7 @@ import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.state.onFailure
 import com.rosahosseini.findr.ui.state.onLoading
+import com.rosahosseini.findr.ui.state.onRefresh
 import com.rosahosseini.findr.ui.state.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -19,6 +20,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -39,7 +41,7 @@ internal class SearchViewModel @Inject internal constructor(
     private val searchRequestsChannel = Channel<SearchQueryIntent>(capacity = BUFFERED)
     private val suggestionRequestChannel = Channel<String>(capacity = BUFFERED)
     private val _state = MutableStateFlow(SearchContract.State())
-    override val state = _state
+    override val state: StateFlow<SearchContract.State> = _state
 
     override fun onIntent(intent: SearchContract.Intent) {
         viewModelScope.launch {
@@ -47,6 +49,7 @@ internal class SearchViewModel @Inject internal constructor(
                 is SearchContract.Intent.OnRemoveSuggestion -> onRemoveSuggestion(intent.term)
                 is SearchContract.Intent.OnTermChange -> onTermChange(intent.term)
                 is SearchContract.Intent.OnLoadMore -> onLoadMorePhotos()
+                is SearchContract.Intent.OnRefresh -> onRefresh()
             }
         }
     }
@@ -54,10 +57,10 @@ internal class SearchViewModel @Inject internal constructor(
     init {
         searchRequestsChannel
             .consumeAsFlow()
-            .debounce(500)
-            .distinctUntilChanged()
-            .onEach { if (it.pageNumber == 0) saveTermToHistory(it.term) }
-            .flatMapLatest { loadPhotos(it.term, it.pageNumber) }
+            .debounce { if (it.isNewTerm) 500 else 0 }
+            .distinctUntilChanged { old, new -> new.isNewTerm && old == new }
+            .onEach { if (it.isNewTerm) saveTermToHistory(it.term) }
+            .flatMapLatest(::loadPhotos)
             .onEach { newPagingState -> _state.update { it.copy(photos = newPagingState) } }
             .launchIn(viewModelScope)
 
@@ -71,15 +74,20 @@ internal class SearchViewModel @Inject internal constructor(
     }
 
     private suspend fun onLoadMorePhotos() = with(state.value) {
-        searchRequestsChannel.send(
-            SearchQueryIntent(photos.nextPage ?: return, term)
-        )
+        val nextPage = photos.nextPage ?: return
+        searchRequestsChannel.send(SearchQueryIntent(term, nextPage))
     }
 
     private suspend fun onTermChange(newValue: String) {
         _state.update { it.copy(term = newValue) }
         suggestionRequestChannel.send(newValue)
-        searchRequestsChannel.send(SearchQueryIntent(pageNumber = 0, newValue))
+        searchRequestsChannel.send(SearchQueryIntent(term = newValue))
+    }
+
+    private suspend fun onRefresh() {
+        searchRequestsChannel.send(
+            SearchQueryIntent(term = state.value.term, refreshing = true)
+        )
     }
 
     private suspend fun onRemoveSuggestion(term: String) {
@@ -98,12 +106,16 @@ internal class SearchViewModel @Inject internal constructor(
             .map { list -> list.filterNot { it == term || it.isEmpty() }.toImmutableList() }
     }
 
-    private fun loadPhotos(term: String, pageNumber: Int): Flow<PagingState<Photo>> = flow {
-        emit(state.value.photos.onLoading(pageNumber))
-        if (term.isBlank()) {
-            searchRepository.getRecentPhotos(pageNumber, PAGE_SIZE)
+    private fun loadPhotos(intent: SearchQueryIntent): Flow<PagingState<Photo>> = flow {
+        if (intent.refreshing) {
+            emit(state.value.photos.onRefresh())
         } else {
-            searchRepository.searchPhotos(term, pageNumber, PAGE_SIZE)
+            emit(state.value.photos.onLoading(intent.pageNumber))
+        }
+        if (intent.term.isBlank()) {
+            searchRepository.getRecentPhotos(intent.pageNumber, PAGE_SIZE)
+        } else {
+            searchRepository.searchPhotos(intent.term, intent.pageNumber, PAGE_SIZE)
         }
             .onSuccess { newPage -> emit(state.value.photos.onSuccess(newPage)) }
             .onFailure { throwable -> emit(state.value.photos.onFailure(throwable)) }
@@ -112,6 +124,12 @@ internal class SearchViewModel @Inject internal constructor(
     companion object {
         private const val PAGE_SIZE = 20
     }
+}
 
-    private data class SearchQueryIntent(val pageNumber: Int = 0, val term: String)
+private data class SearchQueryIntent(
+    val term: String,
+    val pageNumber: Int = 0,
+    val refreshing: Boolean = false
+) {
+    val isNewTerm: Boolean = pageNumber == 0 && !refreshing
 }

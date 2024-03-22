@@ -34,6 +34,7 @@ internal fun SearchRoute(
         onBookmarksClick = navigateToBookmarks,
         onRemoveSuggestion = { searchViewModel.onIntent(SearchIntent.OnRemoveSuggestion(it)) },
         onLoadMore = { searchViewModel.onIntent(SearchIntent.OnLoadMore) },
-        onTermChange = { searchViewModel.onIntent(SearchIntent.OnTermChange(it)) }
+        onTermChange = { searchViewModel.onIntent(SearchIntent.OnTermChange(it)) },
+        onRefresh = { searchViewModel.onIntent(SearchIntent.OnRefresh) }
     )
 }

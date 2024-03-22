@@ -1,4 +1,4 @@
-package com.rosahosseini.findr.ui.component
+package com.rosahosseini.findr.ui.component.state
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement

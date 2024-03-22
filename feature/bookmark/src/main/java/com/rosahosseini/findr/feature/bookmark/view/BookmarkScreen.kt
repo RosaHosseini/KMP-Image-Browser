@@ -27,9 +27,9 @@ import com.rosahosseini.findr.feature.bookmark.view.preview.BookmarkScreenPrevie
 import com.rosahosseini.findr.feature.bookmark.viewmodel.BookmarkContract
 import com.rosahosseini.findr.library.ui.R
 import com.rosahosseini.findr.model.Photo
-import com.rosahosseini.findr.ui.component.ErrorComponent
-import com.rosahosseini.findr.ui.component.LoadingComponent
 import com.rosahosseini.findr.ui.component.PhotoCard
+import com.rosahosseini.findr.ui.component.state.ErrorComponent
+import com.rosahosseini.findr.ui.component.state.LoadingComponent
 import com.rosahosseini.findr.ui.extensions.localMessage
 import com.rosahosseini.findr.ui.state.UiState
 import com.rosahosseini.findr.ui.theme.Dimensions

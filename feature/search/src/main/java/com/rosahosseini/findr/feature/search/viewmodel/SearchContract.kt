@@ -13,6 +13,7 @@ internal object SearchContract {
         data class OnRemoveSuggestion(val term: String) : Intent
 
         data object OnLoadMore : Intent
+        data object OnRefresh : Intent
     }
 
     @Immutable

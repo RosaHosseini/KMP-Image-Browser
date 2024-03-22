@@ -59,7 +59,7 @@ fun CancelableChip(
             },
             shape = CircleShape,
             colors = AssistChipDefaults.assistChipColors(labelColor = color),
-            border = AssistChipDefaults.assistChipBorder(borderColor = color),
+            border = AssistChipDefaults.assistChipBorder(enabled = true, borderColor = color),
             elevation = AssistChipDefaults.assistChipElevation()
         )
     }
