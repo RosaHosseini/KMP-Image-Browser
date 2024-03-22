@@ -17,6 +17,7 @@ android {
 
 dependencies {
     implementation(project(":library:coroutine"))
+    implementation(project(":library:arch"))
     implementation(project(":library:ui"))
     implementation(project(":domain:model"))
     implementation(project(":domain:bookmark"))

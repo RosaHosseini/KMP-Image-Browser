@@ -1,4 +1,4 @@
-package com.rosahosseini.findr.library.coroutines.base
+package com.rosahosseini.findr.library.arch
 
 import kotlinx.coroutines.flow.StateFlow
 

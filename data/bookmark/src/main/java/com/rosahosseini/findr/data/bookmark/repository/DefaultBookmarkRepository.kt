@@ -28,8 +28,9 @@ internal class DefaultBookmarkRepository @Inject constructor(
         }
     }
 
-    override fun getAllBookmarkedPhotos(): Flow<List<Photo>> =
-        bookmarkLocalDataSource.getBookmarkedPhotos()
+    override fun getAllBookmarkedPhotos(): Flow<List<Photo>> {
+        return bookmarkLocalDataSource.getBookmarkedPhotos()
             .map { it.map(PhotoEntity::toPhoto) }
             .flowOn(coroutineDispatchers.default)
+    }
 }

@@ -3,7 +3,7 @@ package com.rosahosseini.findr.feature.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rosahosseini.findr.domain.search.SearchRepository
-import com.rosahosseini.findr.library.coroutines.base.MviViewModel
+import com.rosahosseini.findr.library.arch.MviViewModel
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.state.PagingState
 import com.rosahosseini.findr.ui.state.onFailure

@@ -3,7 +3,7 @@ package com.rosahosseini.findr.feature.bookmark.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rosahosseini.findr.domain.bookmark.BookmarkRepository
-import com.rosahosseini.findr.library.coroutines.base.MviViewModel
+import com.rosahosseini.findr.library.arch.MviViewModel
 import com.rosahosseini.findr.model.Photo
 import com.rosahosseini.findr.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
