@@ -49,6 +49,7 @@ internal fun SearchScreen(
     onTermChange: (String) -> Unit,
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
+    onRetry: () -> Unit,
     isBookmarked: (photoId: String) -> Boolean
 ) {
     val pullToRefreshState = rememberPullToRefreshState(
@@ -65,7 +66,8 @@ internal fun SearchScreen(
                     onBookmarksClick = onBookmarksClick,
                     suggestions = searchState.suggestions,
                     onTermChange = onTermChange,
-                    onRemoveSuggestion = onRemoveSuggestion
+                    onRemoveSuggestion = onRemoveSuggestion,
+                    modifier = Modifier
                 )
             },
             containerColor = MaterialTheme.colorScheme.background
@@ -86,7 +88,7 @@ internal fun SearchScreen(
                 )
                 when (photosState.status) {
                     PagingState.Status.Failure ->
-                        photosState.throwable?.let { errorItem(it, onLoadMore) }
+                        photosState.throwable?.let { errorItem(it, onRetry) }
 
                     PagingState.Status.Loading ->
                         loadingItem()
@@ -165,7 +167,8 @@ private fun SearchScreenPreview(
             onTermChange = {},
             onLoadMore = {},
             isBookmarked = { false },
-            onRefresh = {}
+            onRefresh = {},
+            onRetry = {}
         )
     }
 }

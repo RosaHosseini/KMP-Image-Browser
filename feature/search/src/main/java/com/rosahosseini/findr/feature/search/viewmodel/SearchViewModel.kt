@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -50,6 +49,7 @@ internal class SearchViewModel @Inject internal constructor(
                 is SearchContract.Intent.OnTermChange -> onTermChange(intent.term)
                 is SearchContract.Intent.OnLoadMore -> onLoadMorePhotos()
                 is SearchContract.Intent.OnRefresh -> onRefresh()
+                is SearchContract.Intent.OnRetry -> onLoadMorePhotos()
             }
         }
     }
@@ -58,7 +58,6 @@ internal class SearchViewModel @Inject internal constructor(
         searchRequestsChannel
             .consumeAsFlow()
             .debounce { if (it.isNewTerm) 500 else 0 }
-            .distinctUntilChanged { old, new -> new.isNewTerm && old == new }
             .onEach { if (it.isNewTerm) saveTermToHistory(it.term) }
             .flatMapLatest(::loadPhotos)
             .onEach { newPagingState -> _state.update { it.copy(photos = newPagingState) } }

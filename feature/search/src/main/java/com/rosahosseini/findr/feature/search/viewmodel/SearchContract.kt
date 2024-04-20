@@ -9,11 +9,10 @@ import kotlinx.collections.immutable.persistentListOf
 internal object SearchContract {
     sealed interface Intent {
         data class OnTermChange(val term: String) : Intent
-
         data class OnRemoveSuggestion(val term: String) : Intent
-
         data object OnLoadMore : Intent
         data object OnRefresh : Intent
+        data object OnRetry : Intent
     }
 
     @Immutable

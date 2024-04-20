@@ -35,6 +35,7 @@ internal fun SearchRoute(
         onRemoveSuggestion = { searchViewModel.onIntent(SearchIntent.OnRemoveSuggestion(it)) },
         onLoadMore = { searchViewModel.onIntent(SearchIntent.OnLoadMore) },
         onTermChange = { searchViewModel.onIntent(SearchIntent.OnTermChange(it)) },
-        onRefresh = { searchViewModel.onIntent(SearchIntent.OnRefresh) }
+        onRefresh = { searchViewModel.onIntent(SearchIntent.OnRefresh) },
+        onRetry = { searchViewModel.onIntent(SearchIntent.OnRetry) }
     )
 }
