@@ -1,28 +1,28 @@
 [versions]
 # Gradle
 accompanistInsets = "0.22.0-rc"
-agp = "8.2.2"
+agp = "8.3.1"
 # Kotlin
 appcompat = "1.6.1"
-kotlin = "1.9.22"
+kotlin = "1.9.23"
 immutableCollections = "0.3.5"
-coroutines = "1.7.3"
-ksp = "1.9.22-1.0.16"
+coroutines = "1.8.0"
+ksp = "1.9.22-1.0.17"
 annotationJvm = "1.7.1"
 lifecycle = "2.7.0"
 activity = "1.8.2"
 dataStore = "1.0.0"
 # Compose
-composeBom = "2023.10.01"
-composeCompiler = "1.5.8"
-composeNavigation = "2.7.5" # do not upgrade to "2.7.6" app crashes
+composeBom = "2024.04.00"
+composeCompiler = "1.5.11"
+composeNavigation = "2.7.7"
 material3 = "1.2.1"
 coil = "2.5.0"
 flowLayout = "0.32.0"
 # Hilt
-hilt = "2.50"
-hiltNavigationCompose = "1.1.0"
-hiltWork = "1.1.0"
+hilt = "2.51"
+hiltNavigationCompose = "1.2.0"
+hiltWork = "1.2.0"
 # Network
 retrofit = "2.9.0"
 okhttpBom = "4.11.0"
