@@ -74,7 +74,7 @@ internal fun SearchScreen(
         ) { paddingValues ->
             val photosState = searchState.photos
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(150.dp),
+                columns = GridCells.Adaptive(180.dp),
                 state = gridState,
                 modifier = Modifier
                     .fillMaxSize()
