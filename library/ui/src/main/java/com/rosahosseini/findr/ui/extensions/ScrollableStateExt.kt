@@ -13,10 +13,11 @@ fun LazyGridState.OnBottomReached(
     loadMore: () -> Unit
 ) {
     require(buffer >= 0) { "buffer cannot be negative, but was $buffer" }
-    val shouldLoadMore = remember {
+    val shouldLoadMore = remember(layoutInfo.totalItemsCount) {
         derivedStateOf {
-            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
-                ?: return@derivedStateOf true
+            val lastVisibleItem =
+                layoutInfo.visibleItemsInfo.lastOrNull()
+                    ?: return@derivedStateOf true
 
             lastVisibleItem.index >= layoutInfo.totalItemsCount - 1 - buffer
         }

@@ -14,7 +14,7 @@ fun LoadingComponent(modifier: Modifier = Modifier) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         DotsPulsing(
             delayUnit = 300,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(20.dp)
         )
     }
