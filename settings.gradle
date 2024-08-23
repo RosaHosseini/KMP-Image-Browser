@@ -6,6 +6,8 @@ pluginManagement {
     }
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "findr"
 include ':library:coroutine'
 include ':library:startup'
