@@ -3,7 +3,7 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
-val javaVersion = JavaVersion.VERSION_19
+val javaVersion = JavaVersion.VERSION_17
 
 plugins {
     alias(libs.plugins.androidApplication).apply(false)
