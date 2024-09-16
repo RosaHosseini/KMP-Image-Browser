@@ -3,18 +3,16 @@ package com.rosahosseini.findr.data.search.remote.datasource
 import com.rosahosseini.findr.data.search.remote.response.SearchPhotosDto
 import com.rosahosseini.findr.data.search.remote.response.SearchResponseDto
 import com.rosahosseini.findr.model.BuildConfiguration
-import com.rosahosseini.findr.remote.di.FlickrUrl
 import com.rosahosseini.findr.remote.extensions.catchResult
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import javax.inject.Inject
 
-internal class PhotoRemoteDataSource @Inject constructor(
+internal class PhotoRemoteDataSource(
     private val httpClient: HttpClient,
-    @FlickrUrl private val flickrUrl: String,
+    private val baseUrl: String,
     buildConfiguration: BuildConfiguration
 ) {
     private val apiKey = buildConfiguration.flickerApiKey
@@ -25,18 +23,19 @@ internal class PhotoRemoteDataSource @Inject constructor(
         page: Int = 0
     ): Result<SearchPhotosDto> {
         return catchResult<SearchResponseDto> {
-            httpClient.get(flickrUrl) {
-                parameter("method", "flickr.photos.search")
-                parameter("nojsoncallback", "1")
-                parameter("format", "json")
-                parameter("api_key", apiKey)
-                text?.let { parameter("text", it) }
-                parameter("page", page + 1)
-                parameter("per_page", limit)
-                parameter("extras", URLS)
+            httpClient
+                .get(baseUrl) {
+                    parameter("method", "flickr.photos.search")
+                    parameter("nojsoncallback", "1")
+                    parameter("format", "json")
+                    parameter("api_key", apiKey)
+                    text?.let { parameter("text", it) }
+                    parameter("page", page + 1)
+                    parameter("per_page", limit)
+                    parameter("extras", URLS)
 
-                contentType(ContentType.Application.Json)
-            }
+                    contentType(ContentType.Application.Json)
+                }
         }.map { it.getOrThrow() }
     }
 
@@ -45,17 +44,18 @@ internal class PhotoRemoteDataSource @Inject constructor(
         page: Int = 0
     ): Result<SearchPhotosDto> {
         return catchResult<SearchResponseDto> {
-            httpClient.get(flickrUrl) {
-                parameter("method", "flickr.photos.getRecent")
-                parameter("nojsoncallback", "1")
-                parameter("format", "json")
-                parameter("api_key", apiKey)
-                parameter("page", page + 1)
-                parameter("per_page", limit)
-                parameter("extras", URLS)
+            httpClient
+                .get(baseUrl) {
+                    parameter("method", "flickr.photos.getRecent")
+                    parameter("nojsoncallback", "1")
+                    parameter("format", "json")
+                    parameter("api_key", apiKey)
+                    parameter("page", page + 1)
+                    parameter("per_page", limit)
+                    parameter("extras", URLS)
 
-                contentType(ContentType.Application.Json)
-            }
+                    contentType(ContentType.Application.Json)
+                }
         }.mapCatching { it.getOrThrow() }
     }
 

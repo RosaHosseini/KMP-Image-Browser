@@ -3,11 +3,11 @@ package com.rosahosseini.findr.data.network
 import com.rosahosseini.findr.model.ApiError
 import com.rosahosseini.findr.remote.extensions.ErrorManager
 import io.ktor.client.plugins.ResponseException
-import javax.inject.Inject
 
-class RemoteErrorManager @Inject constructor() : ErrorManager {
+class RemoteErrorManager : ErrorManager {
 
     override fun apiError(cause: Throwable): ApiError {
+        if (cause is ApiError) return cause
         return ApiError(
             code = errorCode(cause),
             throwable = cause
