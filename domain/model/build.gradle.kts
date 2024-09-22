@@ -1,4 +1,4 @@
 
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    id("findr.kotlin.multiplatform.dynamic")
 }

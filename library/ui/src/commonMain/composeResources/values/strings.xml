@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Search a Tag or Description</string>
+    <string name="error_unexpected">An error happened, please retry !</string>
+    <string name="bookmark">bookmark</string>
+    <string name="error_noInternet">No Internet. Check your internet connection.</string>
+    <string name="error_serverAccessForbidden">Forbidden by administrative rules.</string>
+    <string name="error_serverUnavailable">Server is currently unavailable</string>
+    <string name="error_serverUnreachable">We couldn\'t reach out to the server, please check out your connection</string>
+    <string name="retry">retry</string>
+    <string name="empty_bookmarks">You don\'t have any bookmarks</string>
+    <string name="add_bookmarks">Add bookmarks</string>
+</resources>

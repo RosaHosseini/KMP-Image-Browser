@@ -1,7 +1,7 @@
 package com.rosahosseini.findr.app
 
-import com.rosahosseini.findr.app.di.initKoin
-import com.rosahosseini.findr.startup.StartupApplication
+import com.rosahosseini.findr.library.startup.StartupApplication
+import com.rosahosseini.findr.platform.di.initKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.component.KoinComponent

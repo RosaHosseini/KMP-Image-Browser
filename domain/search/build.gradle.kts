@@ -1,8 +1,12 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    id("findr.kotlin.multiplatform.dynamic")
 }
 
-dependencies {
-    implementation(projects.domain.model)
-    implementation(libs.coroutinesCore)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.domain.model)
+            implementation(libs.coroutinesCore)
+        }
+    }
 }

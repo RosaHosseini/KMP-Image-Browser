@@ -1,7 +1,11 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    id("findr.kotlin.multiplatform.dynamic")
 }
 
-dependencies {
-    implementation(libs.coroutinesCore)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.coroutinesCore)
+        }
+    }
 }

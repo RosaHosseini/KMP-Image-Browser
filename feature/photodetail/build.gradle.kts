@@ -1,25 +1,22 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("findr.kotlin.multiplatform.native")
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.composeMultiplatform)
 }
 
-android {
-    namespace = "com.rosahosseini.findr.feature.photodetail"
-
-    buildFeatures {
-        compose = true
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.library.coroutine)
+            implementation(projects.library.ui)
+            implementation(projects.library.imageloader)
+            implementation(projects.domain.model)
+            implementation(compose.foundation)
+            implementation(compose.runtime)
+            implementation(compose.material3)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.composeNavigation)
+        }
     }
-}
-
-dependencies {
-    implementation(projects.library.coroutine)
-    implementation(projects.library.ui)
-    implementation(projects.domain.model)
-
-    implementation(platform(libs.composeBom))
-    implementation(libs.lifecycleCompose)
-    implementation(libs.composeTooling)
-    implementation(libs.composeNavigation)
-    implementation(libs.composeMaterial3)
 }

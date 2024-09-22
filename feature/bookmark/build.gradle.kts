@@ -1,34 +1,43 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("findr.kotlin.multiplatform.native")
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.composeMultiplatform)
 }
 
-android {
-    namespace = "com.rosahosseini.findr.feature.bookmark"
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.library.coroutine)
+            implementation(projects.library.arch)
+            implementation(projects.library.ui)
+            implementation(projects.domain.model)
+            implementation(projects.domain.bookmark)
 
-    buildFeatures {
-        compose = true
+            implementation(compose.foundation)
+            implementation(compose.runtime)
+            implementation(compose.material3)
+            implementation(compose.components.uiToolingPreview)
+            implementation(compose.components.resources)
+            implementation(libs.immutableCollections)
+            implementation(libs.composeNavigation)
+            implementation(libs.lifecycleCompose)
+            implementation(project.dependencies.platform(libs.koinBom))
+            implementation(libs.koinComposeViewmodel)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.bundles.testCore)
+        }
+
+        androidUnitTest.dependencies {
+            implementation(libs.test.mockk)
+            implementation(libs.test.kluent)
+        }
     }
 }
 
-dependencies {
-    implementation(projects.library.coroutine)
-    implementation(projects.library.arch)
-    implementation(projects.library.ui)
-    implementation(projects.domain.model)
-    implementation(projects.domain.bookmark)
-
-    implementation(platform(libs.composeBom))
-    implementation(libs.composeRuntime)
-    implementation(libs.immutableCollections)
-    implementation(libs.composeMaterial3)
-    implementation(libs.composeNavigation)
-    implementation(libs.composeTooling)
-    implementation(libs.lifecycleViewModel)
-    implementation(libs.lifecycleCompose)
-    implementation(platform(libs.koinBom))
-    implementation(libs.koinComposeViewmodel)
-
-    testImplementation(libs.bundles.testCore)
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.rosahosseini.findr.feature.bookmark"
+    generateResClass = auto
 }

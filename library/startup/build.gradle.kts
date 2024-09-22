@@ -1,14 +1,12 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("findr.kotlin.multiplatform.native")
 }
-
-android {
-    namespace = "com.rosahosseini.findr.library.startup"
-}
-
-dependencies {
-    implementation(platform(libs.koinBom))
-    implementation(libs.coroutinesCore)
-    implementation(libs.koinCore)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project.dependencies.platform(libs.koinBom))
+            implementation(libs.coroutinesCore)
+            implementation(libs.koinCore)
+        }
+    }
 }

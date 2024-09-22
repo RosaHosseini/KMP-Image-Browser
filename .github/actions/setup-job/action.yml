@@ -5,7 +5,7 @@ inputs:
   version-java:
     description: 'Java version to use'
     required: false
-    default: '19'
+    default: '18'
   version-ruby:
     description: 'Ruby version to use'
     required: false

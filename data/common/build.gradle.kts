@@ -1,11 +1,17 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    id("findr.kotlin.multiplatform.dynamic")
+    alias(libs.plugins.kotlinSerialization)
 }
 
-dependencies {
-    implementation(projects.domain.model)
-    implementation(libs.gson)
-    implementation(libs.ktorCore)
-    implementation(platform(libs.koinBom))
-    implementation(libs.koinCore)
+kotlin {
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.domain.model)
+            implementation(libs.kotlinxJsonSerialization)
+            implementation(libs.ktorCore)
+            implementation(project.dependencies.platform(libs.koinBom))
+            implementation(libs.koinCore)
+        }
+    }
 }

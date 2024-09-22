@@ -1,26 +1,37 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("findr.kotlin.multiplatform.native")
+    alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
 
-android {
-    namespace = "com.rosahosseini.findr.library.ui"
+kotlin {
+    sourceSets {
+        androidMain.dependencies {
+            implementation(compose.uiTooling)
+            implementation(libs.composeActivity)
+        }
 
-    buildFeatures {
-        compose = true
+        commonMain.dependencies {
+            implementation(projects.domain.model)
+            implementation(projects.library.imageloader)
+
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.animation)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.immutableCollections)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.bundles.testCore)
+        }
     }
 }
 
-dependencies {
-    implementation(projects.domain.model)
-
-    implementation(platform(libs.composeBom))
-    implementation(libs.composeMaterial3)
-    implementation(libs.composeNavigation)
-    implementation(libs.immutableCollections)
-    implementation(libs.composeTooling)
-    implementation(libs.composeCoil)
-
-    testImplementation(libs.bundles.testCore)
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.rosahosseini.findr.library.ui"
+    generateResClass = auto
 }

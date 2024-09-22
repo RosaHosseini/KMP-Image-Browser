@@ -9,7 +9,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     versionCatalogs {
-        create("androidLibs") {
+        create("androidlibs") {
             from(files('./gradle/android-libs.versions.toml'))
         }
     }
@@ -34,4 +34,6 @@ include ':domain:model'
 include ':feature:photodetail'
 include ':feature:bookmark'
 include ':feature:search'
+include ':platform'
 include ':app'
+include ':library:imageloader'

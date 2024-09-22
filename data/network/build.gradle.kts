@@ -1,13 +1,25 @@
+
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    id("findr.kotlin.multiplatform.native")
 }
 
-dependencies {
-    implementation(projects.data.common)
-    implementation(projects.domain.model)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.data.common)
+            implementation(projects.domain.model)
 
-    implementation(libs.bundles.ktor)
-    implementation(libs.ktorOkhttp)
-    implementation(platform(libs.koinBom))
-    implementation(libs.koinCore)
+            implementation(libs.bundles.ktor)
+            implementation(project.dependencies.platform(libs.koinBom))
+            implementation(libs.koinCore)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.ktorOkhttp)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktorDarwin)
+        }
+    }
 }

@@ -1,20 +1,25 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("findr.kotlin.multiplatform.native")
 }
 
-android {
-    namespace = "com.rosahosseini.findr.data.repository"
-}
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.data.db)
+            implementation(projects.domain.bookmark)
+            implementation(projects.domain.model)
+            implementation(projects.library.coroutine)
+            implementation(libs.coroutinesCore)
+            implementation(project.dependencies.platform(libs.koinBom))
+            implementation(libs.koinCore)
+        }
 
-dependencies {
-    implementation(projects.data.db)
-    implementation(projects.domain.bookmark)
-    implementation(projects.domain.model)
-    implementation(projects.library.coroutine)
+        commonTest.dependencies {
+            implementation(libs.bundles.testCore)
+        }
 
-    implementation(libs.coroutinesAndroid)
-    implementation(platform(libs.koinBom))
-    implementation(libs.koinCore)
-    testImplementation(libs.bundles.testCore)
+        androidUnitTest.dependencies {
+            implementation(libs.test.mockk)
+        }
+    }
 }

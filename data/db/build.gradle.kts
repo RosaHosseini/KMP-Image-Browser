@@ -1,19 +1,36 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("findr.kotlin.multiplatform.native")
+    alias(libs.plugins.room)
     alias(libs.plugins.ksp)
 }
 
-android {
-    namespace = "com.rosahosseini.findr.data.db"
+kotlin {
+
+    sourceSets {
+        androidMain.dependencies {
+            implementation(libs.koinAndroid)
+        }
+
+        commonMain.dependencies {
+            implementation(projects.domain.model)
+            implementation(projects.library.coroutine)
+            implementation(libs.datetime)
+            implementation(libs.roomRuntime)
+            implementation(libs.sqliteBundled)
+            implementation(libs.sqlite)
+            implementation(project.dependencies.platform(libs.koinBom))
+            implementation(libs.koinCore)
+        }
+    }
 }
 
 dependencies {
-    implementation(projects.domain.model)
+    add("kspAndroid", libs.roomCompiler)
+    add("kspIosSimulatorArm64", libs.roomCompiler)
+    add("kspIosX64", libs.roomCompiler)
+    add("kspIosArm64", libs.roomCompiler)
+}
 
-    implementation(libs.roomKtx)
-    ksp(libs.roomCompiler)
-    implementation(platform(libs.koinBom))
-    implementation(libs.koinAndroid)
-    testImplementation(libs.bundles.testCore)
+room {
+    schemaDirectory("$projectDir/schemas")
 }
