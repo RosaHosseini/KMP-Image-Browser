@@ -62,7 +62,7 @@ private fun ktorNetworkFetcherFactory() = NetworkFetcher.Factory(
 
 private fun memoryCache(context: PlatformContext): MemoryCache {
     return MemoryCache.Builder()
-        .maxSizePercent(context, 0.3)
+        .maxSizePercent(context, 0.25)
         .weakReferencesEnabled(true)
         .build()
 }
@@ -70,6 +70,6 @@ private fun memoryCache(context: PlatformContext): MemoryCache {
 private fun diskCache(): DiskCache {
     return DiskCache.Builder()
         .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "image_cache")
-        .maxSizeBytes(512L * 1024 * 1024) // 512MB
+        .maxSizeBytes(128L * 1024 * 1024) // 512MB
         .build()
 }

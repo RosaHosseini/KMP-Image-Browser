@@ -1,6 +1,5 @@
 package com.rosahosseini.findr.feature.search.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,7 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -99,14 +98,17 @@ internal fun SearchScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun LazyGridScope.photoItems(
     photos: ImmutableList<Photo>,
     isBookmarked: (photoId: String) -> Boolean,
     onBookmarkClick: (Photo) -> Unit,
     onItemClick: (Photo) -> Unit
 ) {
-    items(photos, contentType = { "image-card" }) { item ->
+    itemsIndexed(
+        photos,
+        contentType = { _, _ -> "image-card" },
+        key = { index, item -> "${index}_${item.id}" }
+    ) { _, item ->
         PhotoCard(
             photo = item,
             isBookmarked = isBookmarked(item.id),

@@ -1,7 +1,10 @@
 package com.rosahosseini.findr.platform.view
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -17,7 +20,6 @@ import com.rosahosseini.findr.ui.theme.FindrTheme
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun App(modifier: Modifier = Modifier) {
-//    ProvideWindowInsets {
     FindrTheme {
         val context = LocalPlatformContext.current
         setSingletonImageLoaderFactory {
@@ -29,14 +31,14 @@ fun App(modifier: Modifier = Modifier) {
             modifier = modifier,
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onBackground
-        ) { padding ->
+        ) { paddingValues ->
             FindrNaveHost(
                 navController = navController,
                 modifier = Modifier
-                    .padding(padding)
+                    .padding(paddingValues)
+                    .consumeWindowInsets(WindowInsets.systemBars)
                     .fillMaxSize()
             )
         }
     }
-//    }
 }

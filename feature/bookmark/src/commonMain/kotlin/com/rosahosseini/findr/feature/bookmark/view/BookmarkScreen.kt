@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -57,7 +57,7 @@ internal fun BookmarkScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues.calculateBottomPadding()),
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             state.photos.data?.let { photos ->
@@ -112,7 +112,11 @@ private fun PhotosGrid(
         state = gridState,
         modifier = modifier
     ) {
-        items(photos, contentType = { "image-card" }) { item ->
+        itemsIndexed(
+            photos,
+            contentType = { _, _ -> "image-card" },
+            key = { index, item -> "${index}_${item.id}" }
+        ) { _, item ->
             PhotoCard(
                 photo = item,
                 isBookmarked = isBookmarked(item.id),

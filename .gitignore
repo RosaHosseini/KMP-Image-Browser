@@ -1,4 +1,5 @@
 *.iml
+*.podspec
 .gradle
 /local.properties
 /.idea
@@ -10,7 +11,6 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
-*/*.podspec
 /captures
 .externalNativeBuild
 .cxx
@@ -20,6 +20,4 @@ iosApp/Pods/*
 iosApp/iosApp.xcworkspace/*
 iosApp/iosApp.xcodeproj/*
 !iosApp/iosApp.xcodeproj/project.pbxproj
-/.kotlin/
-/.kotlin/metadata/kotlinTransformedCInteropMetadataLibraries/
-/.kotlin/metadata/kotlinTransformedMetadataLibraries/
+/.kotlin/*

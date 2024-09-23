@@ -31,7 +31,7 @@ internal fun PhotoDetailScreen(photo: PhotoDetailArgs, onBackPressed: () -> Unit
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues.calculateBottomPadding())
+                .padding(paddingValues)
         ) {
             LoadImage(
                 modifier = Modifier.fillMaxSize(),
