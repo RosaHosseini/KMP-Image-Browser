@@ -1,4 +1,6 @@
 # ImageBrowser
+I migrated the [android `ImageBrowser` project](https://github.com/RosaHosseini/ImageBrowser) to kotlin multiplatform. Which supports both `android` and `ios`.
+
 An image browser supporting
  - Pagination for infinite scroll
  - Bookmarks
@@ -17,10 +19,9 @@ An image browser supporting
  
  ## Technologies
   - Kotlin
-  - Clean Arch + MVVM
+  - Clean Arch + MVI
   - Jetpack compose
   - coroutine + flow
-  - Retrofit
-  - Hilt
-  - Work manager
+  - Ktor
+  - Koin
   - Modularization
