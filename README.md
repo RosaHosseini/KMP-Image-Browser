@@ -1,5 +1,5 @@
 # ImageBrowser
-I migrated the [android `ImageBrowser` project](https://github.com/RosaHosseini/ImageBrowser) to kotlin multiplatform. Which supports both `android` and `ios`.
+I migrated the [android `ImageBrowser` project](https://github.com/RosaHosseini/ImageBrowser) to KMP(kotlin multiplatform). Which supports both `android` and `ios`.
 
 An image browser supporting
  - Pagination for infinite scroll
