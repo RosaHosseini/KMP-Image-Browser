@@ -8,14 +8,6 @@ An image browser supporting
  - Search history
  - Offline first: It caches searched photos
  - Recycle outdated cached data (created 7 days ago) every day 
- 
- <p float="center">
-    <img src="screenshots/android/1.png" width ="200">
-    <img src="screenshots/android/2.png" width ="200">
-    <img src="screenshots/android/3.png" width ="200">
-    <img src="screenshots/android/4.png" width ="200">
-    <img src="screenshots/android/5.png" width ="200">
-</p>
 
 <p float="center">
     <img src="screenshots/ios/home.png" width ="200">
