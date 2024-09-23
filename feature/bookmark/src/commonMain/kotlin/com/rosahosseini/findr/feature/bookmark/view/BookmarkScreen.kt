@@ -57,7 +57,7 @@ internal fun BookmarkScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues.calculateBottomPadding()),
             contentAlignment = Alignment.Center
         ) {
             state.photos.data?.let { photos ->
